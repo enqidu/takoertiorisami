@@ -33,6 +33,9 @@ const TAG_COLORS = ["pink", "blue", "green", "orange", "purple", "yellow"];
 // ─── POSTS ──────────────────────────────────────────────────────────
 
 const posts = [
+
+ 
+  
   {
     title: "Pumpkin Head",
     date: "March 2025",
@@ -44,6 +47,17 @@ const posts = [
     placeholder: "pumpkin",
   },
 
+   
+  {
+    title: "",
+    date: "June 2024",
+    type: "idea",
+    description: `Its about to be summer.`,
+    tags: ["summer", "season", "anticipation"],
+    images: [
+    ],
+  },
+  
   {
     title: "Pink Creature",
     date: "February 2025",
@@ -293,7 +307,7 @@ const renderPost = (post, index, workNum) => {
   if (isIdea) {
     return `<section class="work-section work-idea reveal" id="${pid}">
       <div class="idea-inner">
-        <span class="idea-label">✦ thought</span>
+        <span class="idea-label">✦ ჩემი ჩუმი ჩანაფიქრი</span>
         <blockquote class="idea-text">${post.description}</blockquote>
         <div class="idea-footer">
           <span class="idea-title">— ${post.title}</span>
