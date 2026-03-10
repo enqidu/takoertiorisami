@@ -92,6 +92,7 @@ const posts = [
     title: "Hospital",
     date: "October 2024",
     type: "Modern Lovers",
+    type: "idea",
     description: `
 When you get out of the hospital
 Let me back into your life
@@ -101,9 +102,7 @@ I'm in love with your eyes
 And when you get out of the dating bar
 I'll be here to get back into your life
 I can't stand what you do
-I'm in love with your eyes
-
-    `,
+I'm in love with your eyes `,
     tags: ["Jonathan Richman", "teeth"],
     images: [],
   },
