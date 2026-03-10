@@ -34,10 +34,10 @@ const TAG_COLORS = ["pink", "blue", "green", "orange", "purple", "yellow"];
 
 const posts = [
   {
-    title: "Pumpkin Head (study)",
+    title: "Pumpkin Head",
     date: "March 2025",
     description: `ეს დავხატე როდესაც მინდოდა მეჭამა გოგრის სუპი.`,
-    tags: ["creatures", "acrylic", "sketchbook"],
+    tags: ["creatures"],
     images: [
        "images/pumpkin.png",
     ],
@@ -45,12 +45,13 @@ const posts = [
   },
 
   {
-    title: "Pink Creature (Close-Up)",
+    title: "Pink Creature",
     date: "February 2025",
     description: `ვარდისფერია ძმა.`,
-    tags: ["creatures", "faces", "acrylic", "uncanny"],
+    tags: ["Pink", "Close"],
     images: [
        "images/pink.png",
+       "images/pink2.png",
     ],
     placeholder: "creature",
   },
@@ -70,7 +71,7 @@ const posts = [
 თან მიაშველებს ხელსაო,
 ბოლოს ბოდიშსაც მაიხდის:
 - ლექცია მქონდა დღესაო..`,
-    tags: ["ideas", "eyes", "process"],
+    tags: ["მუტელი"],
     images: [],
   },
 
@@ -90,7 +91,7 @@ const posts = [
   {
     title: "Hospital",
     date: "October 2024",
-    type: "idea",
+    type: "Modern Lovers",
     description: `
 When you get out of the hospital
 Let me back into your life
@@ -103,7 +104,7 @@ I can't stand what you do
 I'm in love with your eyes
 
     `,
-    tags: ["ideas", "teeth", "honesty"],
+    tags: ["Jonathan Richman", "teeth"],
     images: [],
   },
 
