@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portfolio",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3847", "/Users/enqidu/Documents/Tako1/Tako3"],
+      "port": 3847
+    }
+  ]
+}

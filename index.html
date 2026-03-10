@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tamar Chachava - xelovani</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Nunito:wght@400;600;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Floating color blobs (subtle) -->
+  <div class="blobs" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Floating portrait — stays in corner as you scroll -->
+  <div class="portrait-float" aria-hidden="true">
+    <a href="about.html" class="floating-portrait" aria-label="About me">
+      <img src="images/portrait.png" alt="Tako" />
+    </a>
+  </div>
+
+  <!-- Eyeball that follows your cursor -->
+  <div class="eye-follower" id="eyeFollower" aria-hidden="true">
+    <div class="eye-white">
+      <div class="eye-iris" id="eyeIris">
+        <div class="eye-pupil"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav — uses mix-blend-mode: difference to auto-invert -->
+  <nav class="nav">
+    <a href="index.html" class="site-name">Xelovneba</a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Thots will love this</a>
+      <a href="about.html" class="nav-link">Tavi mgonia</a>
+    </div>
+  </nav>
+
+  <!-- HERO — full viewport, massive typography -->
+  <section class="hero">
+    <div class="hero-content">
+      <p class="hero-tag">portfolio?</p>
+      <h1 class="hero-title">
+        <span class="hero-line hero-line-solid">თაკო</span>
+        <span class="hero-line hero-line-outline">ერთიორისამი</span>
+      </h1>
+    </div>
+    <div class="hero-bottom">
+      <p class="hero-scroll">scroll ↓</p>
+      <div class="hero-marquee">
+        <div class="marquee-track">
+          <span>Kuili ✦ Tsuili ✦ Tskvintebi ✦ Mdzage ✦ Mtsklarte</span>
+          <span>Kuili ✦ Tsuili ✦ Tskvintebi ✦ Mdzage ✦ Mtsklarte </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Works — rendered by script.js -->
+  <main class="works" id="works"></main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-big-text">
+        <span class="footer-line-solid">შეგე</span>
+        <span class="footer-line-outline">ცი</span>
+      </div>
+      <div class="footer-marquee">
+        <div class="marquee-track">
+          <span>Shegeci ◌ Shegeci ◌ Shegeci ◌ Shegeci ◌  Shegeci</span>
+          <span>Shegeci ◌ Shegeci ◌ Shegeci ◌ Shegeci ◌  Shegeci</span>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="about.html">About</a>
+        <a href="mailto:hello@example.com">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
