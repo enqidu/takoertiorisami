@@ -86,12 +86,10 @@ const posts = [
     placeholder: "eyes",
   },
 
-  
 
   {
     title: "Hospital",
     date: "October 2024",
-    type: "Modern Lovers",
     type: "idea",
     description: `
 When you get out of the hospital
