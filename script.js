@@ -313,7 +313,6 @@ const renderPost = (post, index, workNum) => {
           <span class="idea-title">— ${post.title}</span>
           <span class="idea-date">${post.date}</span>
         </div>
-        <div class="work-tags">${renderTags(post.tags)}</div>
       </div>
     </section>`;
   }
@@ -332,16 +331,14 @@ const renderPost = (post, index, workNum) => {
     <div class="work-gallery">
       <div class="gallery-frame">
         <div class="gallery-viewport" id="${pid}-viewport">
-          <div class="gallery-track" id="${pid}-track">
+          <div class="gallery-track${post.images && post.images.length > 1 ? ' is-multi' : ''}" id="${pid}-track">
             ${renderSlides(post)}
           </div>
         </div>
       </div>
-      ${renderGalleryControls(count, pid)}
     </div>
     <div class="work-body">
       <p class="work-desc">${post.description}</p>
-      <div class="work-tags">${renderTags(post.tags)}</div>
     </div>
   </section>`;
 };
@@ -641,22 +638,12 @@ if (worksEl) {
 
   worksEl.innerHTML = html;
 
-  // Init galleries after DOM is populated
-  posts.forEach((post, index) => {
-    if (post.type !== "idea") {
-      const hasImg = post.images && post.images.length > 0;
-      initGallery(`post-${index}`, hasImg ? post.images.length : 1);
-    }
-  });
-
   // Init lightbox click triggers on all gallery viewports
   initLightboxTriggers();
 }
 
 // Global inits — run on every page
 initLightbox();
-initCursor();
-initEye();
 initReveal();
 initParallax();
 initNavScroll();
