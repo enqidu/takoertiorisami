@@ -509,6 +509,75 @@ const initParallax = () => {
 };
 
 
+// ─── IMAGE BORDER COLOR SAMPLER ─────────────────────────────────────
+// Reads edge pixels of each image via canvas, applies the average color
+// as the slide background and tints the floating shadow — seamless bleed.
+
+const initImageColors = () => {
+  const canvas = document.createElement('canvas');
+  const ctx    = canvas.getContext('2d');
+
+  const sample = (img) => {
+    const slide = img.closest('.gallery-slide');
+    if (!slide) return;
+    try {
+      const W = 60, H = 60;
+      canvas.width = W; canvas.height = H;
+      ctx.drawImage(img, 0, 0, W, H);
+      const px = ctx.getImageData(0, 0, W, H).data;
+
+      let r = 0, g = 0, b = 0, n = 0;
+
+      // Top + bottom rows
+      for (let x = 0; x < W; x++) {
+        let i = x * 4;
+        r += px[i]; g += px[i+1]; b += px[i+2]; n++;
+        i = ((H-1) * W + x) * 4;
+        r += px[i]; g += px[i+1]; b += px[i+2]; n++;
+      }
+      // Left + right columns (excluding corners already counted)
+      for (let y = 1; y < H - 1; y++) {
+        let i = y * W * 4;
+        r += px[i]; g += px[i+1]; b += px[i+2]; n++;
+        i = (y * W + W - 1) * 4;
+        r += px[i]; g += px[i+1]; b += px[i+2]; n++;
+      }
+
+      r = Math.round(r / n);
+      g = Math.round(g / n);
+      b = Math.round(b / n);
+
+      // Blend toward page background (245,243,240) based on darkness,
+      // so very dark-edged images don't create jarring backgrounds
+      const lum = 0.299*r + 0.587*g + 0.114*b;
+      const blend = lum < 80 ? 0.72 : lum < 160 ? 0.45 : 0.22;
+      const mix = (v) => Math.round(v * (1 - blend) + 245 * blend);
+      const sr = mix(r), sg = mix(g), sb = mix(b);
+
+      // Apply soft background behind image
+      slide.style.background = `rgb(${sr},${sg},${sb})`;
+
+      // Tint the floating shadow with the raw dominant color
+      const vp = img.closest('.gallery-viewport');
+      if (vp) {
+        vp.style.boxShadow = `
+          0 30px 80px rgba(${r},${g},${b},0.22),
+          0 8px 24px rgba(${r},${g},${b},0.13),
+          0 2px 6px rgba(0,0,0,0.04)`;
+      }
+    } catch (e) { /* cross-origin or tainted canvas — skip silently */ }
+  };
+
+  document.querySelectorAll('.gallery-slide img').forEach(img => {
+    if (img.complete && img.naturalWidth > 0) {
+      sample(img);
+    } else {
+      img.addEventListener('load', () => sample(img), { once: true });
+    }
+  });
+};
+
+
 // ─── LIGHTBOX ───────────────────────────────────────────────────────
 
 const initLightbox = () => {
@@ -637,6 +706,9 @@ if (worksEl) {
   });
 
   worksEl.innerHTML = html;
+
+  // Color slide backgrounds from image border pixels
+  initImageColors();
 
   // Init lightbox click triggers on all gallery viewports
   initLightboxTriggers();
