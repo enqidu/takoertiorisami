@@ -34,6 +34,25 @@ const TAG_COLORS = ["pink", "blue", "green", "orange", "purple", "yellow"];
 
 const posts = [
 
+  {
+    title: "",
+    date: "March 2025",
+    type: "idea",
+    description: `I'm watching Twin Peaks. Shitting my pants.`,
+    tags: ["summer", "season", "anticipation"],
+    images: [
+    ],
+  },
+
+  {
+    title: "Three Monkeys",
+    date: "March 2026",
+    description: `Drawn in Dachi's house while listening to Public Enemy and watching documentary about Manosphere`,
+    tags: ["creatures"],
+    images: [
+       "images/three monkeys.png",
+    ],
+  },
  
   
   {
@@ -46,11 +65,20 @@ const posts = [
     ],
     placeholder: "pumpkin",
   },
+  {
+    title: "Virtxa",
+    date: "February 2026",
+    description: `virtxa virtxa`,
+    tags: ["creatures"],
+    images: [
+       "images/virtxa.png",
+    ],
+  },
 
    
   {
     title: "",
-    date: "June 2024",
+    date: "March 2025",
     type: "idea",
     description: `Its about to be summer.`,
     tags: ["summer", "season", "anticipation"],
@@ -307,7 +335,7 @@ const renderPost = (post, index, workNum) => {
   if (isIdea) {
     return `<section class="work-section work-idea reveal" id="${pid}">
       <div class="idea-inner">
-        <span class="idea-label">✦ ჩემი ჩუმი ჩანაფიქრი</span>
+        <span class="idea-label">✦ ***</span>
         <blockquote class="idea-text">${post.description}</blockquote>
         <div class="idea-footer">
           <span class="idea-title">— ${post.title}</span>
