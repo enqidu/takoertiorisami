@@ -350,6 +350,8 @@ body {
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: var(--ink);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* ─── GALLERY ───────────────────────────────────────────── */
@@ -401,6 +403,11 @@ body {
   display: flex;
   gap: 0;
   user-select: none;
+}
+
+.gallery-track.is-multi {
+  gap: 8px;
+  padding: 0 8px;
 }
 
 /* Single image: fill full width */
@@ -885,6 +892,18 @@ body {
   }
 
   .work-gallery { padding: 0 5vw; }
+
+  /* Multi-image strip on mobile: smaller, natural proportions */
+  .gallery-track.is-multi .gallery-slide {
+    min-height: 200px;
+    max-height: 280px;
+    max-width: 75vw;
+  }
+  .gallery-track.is-multi .gallery-slide img {
+    width: auto;
+    height: 100%;
+    max-height: 280px;
+  }
   .work-header, .work-body { padding-left: 5vw; padding-right: 5vw; }
 
   .work-index {
