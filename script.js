@@ -33,6 +33,16 @@ const TAG_COLORS = ["pink", "blue", "green", "orange", "purple", "yellow"];
 // ─── POSTS ──────────────────────────────────────────────────────────
 
 const posts = [
+    {
+    title: "Thailand",
+    date: "March 22 2026",
+    description: `ThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThai`,
+    tags: ["creatures"],
+    images: [
+       "images/thailand.jpg",
+    ],
+  },
+
 
   {
     title: "",
