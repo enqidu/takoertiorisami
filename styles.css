@@ -374,6 +374,8 @@ body {
   border-radius: 16px;
   animation: imageFloat 5s ease-in-out infinite;
   will-change: transform;
+  display: flex;
+  justify-content: center;
 }
 
 .work-section:nth-child(2n) .gallery-frame { animation-delay: -2.5s; }
@@ -396,6 +398,8 @@ body {
   overflow-y: hidden;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  width: fit-content;
+  max-width: 100%;
   box-shadow:
     0 30px 80px rgba(0,0,0,0.12),
     0 8px 24px rgba(0,0,0,0.07),
@@ -415,39 +419,25 @@ body {
   padding: 0 8px;
 }
 
-/* Single image: fill full width */
+/* Slides size to their image's natural dimensions */
 .gallery-slide {
-  flex: 0 0 100%;
-  min-height: 300px;
-  max-height: 520px;
-  overflow: hidden;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--bg-light);
   transition: background 0.6s ease;
-}
-
-/* Multiple images: each shows at natural size */
-.gallery-track.is-multi .gallery-slide {
-  flex: 0 0 auto;
-  min-height: 340px;
-  max-height: 440px;
-  max-width: 90vw;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .gallery-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  width: auto;
+  height: auto;
+  max-height: 500px;
+  max-width: 85vw;
   display: block;
   pointer-events: none;
-}
-
-.gallery-track.is-multi .gallery-slide img {
-  width: auto;
-  height: 100%;
-  max-height: 440px;
 }
 
 .gallery-slide svg {
@@ -903,16 +893,10 @@ body {
 
   .work-gallery { padding: 0 5vw; }
 
-  /* Multi-image strip on mobile: smaller, natural proportions */
-  .gallery-track.is-multi .gallery-slide {
-    min-height: 200px;
-    max-height: 280px;
-    max-width: 75vw;
-  }
-  .gallery-track.is-multi .gallery-slide img {
-    width: auto;
-    height: 100%;
-    max-height: 280px;
+  /* On mobile: cap images smaller */
+  .gallery-slide img {
+    max-height: 320px;
+    max-width: 82vw;
   }
   .work-header, .work-body { padding-left: 5vw; padding-right: 5vw; }
 
