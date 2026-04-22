@@ -9,6 +9,17 @@
 
 /* ─── RESET ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* SR-ONLY: visually hidden, still read by crawlers + assistive tech */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 img, svg { display: block; max-width: 100%; height: auto; }
 button { background: none; border: 0; font: inherit; color: inherit; cursor: pointer; }
@@ -1337,16 +1348,20 @@ body {
   transition: transform .6s cubic-bezier(.4,1.5,.4,1);
 }
 .floater svg { width: 100%; height: 100%; overflow: visible; }
-.f-1 { top: 8%;  right: 6%;  width: 110px; transform: translate(var(--ox),var(--oy)) rotate(-8deg); animation: bob 5s ease-in-out infinite; }
-.f-2 { top: 62%; left:  4%;  width: 90px;  transform: translate(var(--ox),var(--oy)) rotate(12deg); animation: bob 6s ease-in-out infinite .5s; }
-.f-3 { top: 24%; left:  50%; width: 68px;  transform: translate(var(--ox),var(--oy)) rotate(-18deg); animation: bob 4s ease-in-out infinite 1s; }
-.f-4 { top: 78%; right: 18%; width: 80px;  transform: translate(var(--ox),var(--oy)) rotate(20deg); animation: bob 7s ease-in-out infinite 1.5s; }
-.f-5 { top: 40%; right: 30%; width: 72px;  transform: translate(var(--ox),var(--oy)) rotate(-4deg); animation: bob 5.5s ease-in-out infinite .2s; }
+.f-1 { top: 8%;  right: 6%;  width: 110px; --r: -8deg;  animation: bob 5s ease-in-out infinite; }
+.f-2 { top: 62%; left:  4%;  width: 90px;  --r: 12deg;  animation: bob 6s ease-in-out infinite .5s; }
+.f-3 { top: 24%; left:  50%; width: 68px;  --r: -18deg; animation: bob 4s ease-in-out infinite 1s; }
+.f-4 { top: 78%; right: 18%; width: 80px;  --r: 20deg;  animation: bob 7s ease-in-out infinite 1.5s; }
+.f-5 { top: 40%; right: 30%; width: 72px;  --r: -4deg;  animation: bob 5.5s ease-in-out infinite .2s; }
 @keyframes bob {
-  0%,100% { transform: translate(var(--ox),var(--oy)) rotate(var(--r, -5deg)); }
-  50%     { transform: translate(calc(var(--ox) + 4px), calc(var(--oy) - 16px)) rotate(calc(var(--r, -5deg) + 10deg)); }
+  0%,100% { transform: translate(var(--ox),var(--oy)) rotate(var(--r, -5deg)) scale(var(--s, 1)); }
+  50%     { transform: translate(calc(var(--ox) + 4px), calc(var(--oy) - 16px)) rotate(calc(var(--r, -5deg) + 10deg)) scale(var(--s, 1)); }
 }
-.floater:hover { transform: translate(var(--ox),var(--oy)) rotate(-15deg) scale(1.2) !important; filter: drop-shadow(0 6px 0 var(--ink)); }
+.floater:hover {
+  animation: none;
+  transform: translate(var(--ox), var(--oy)) rotate(var(--r, -5deg)) scale(1.15);
+  filter: drop-shadow(0 6px 0 var(--ink));
+}
 .floater.pet { animation: squish .5s cubic-bezier(.3,1.8,.4,1); }
 
 /* SCRIBBLE LINES */
@@ -1378,22 +1393,6 @@ body {
 @keyframes rainbow-slide {
   0%   { transform: translateX(0) scaleX(1); }
   100% { transform: translateX(4px) scaleX(1.04); }
-}
-
-/* CHECKERBOARD STRIP ALONG TOP OF WORKS */
-.works::before {
-  content: "";
-  display: block;
-  height: 16px;
-  margin: 0 0 60px;
-  background-image:
-    linear-gradient(45deg, var(--ink) 25%, transparent 25%),
-    linear-gradient(-45deg, var(--ink) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, var(--ink) 75%),
-    linear-gradient(-45deg, transparent 75%, var(--ink) 75%);
-  background-size: 16px 16px;
-  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
-  transform: rotate(-.7deg);
 }
 
 /* WORKS: wavy rainbow divider between sections */
@@ -1574,9 +1573,8 @@ body::after {
   100% { transform: rotate(1deg) scale(1,1); }
 }
 
-/* FLOATERS: drop shadow on hover */
-.floater { transition: transform .5s cubic-bezier(.3,1.5,.4,1), filter .2s; }
-.floater:hover { filter: drop-shadow(4px 6px 0 rgba(0,0,0,.25)); }
+/* FLOATERS: smooth transition in/out of hover */
+.floater { transition: transform .35s cubic-bezier(.3,1.5,.4,1), filter .2s; }
 
 /* HERO-TAG sparkle rotates with speed */
 .hero-tag::before { animation-duration: 4s; }

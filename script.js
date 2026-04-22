@@ -335,8 +335,9 @@ const initPet = () => {
   const word = "play";
   let wi = 0;
   document.addEventListener("keydown", (e) => {
-    if (e.target.matches("input, textarea")) return;
-    if (e.key.toLowerCase() === word[wi]) {
+    const t = e.target;
+    if (t && t.matches && t.matches("input, textarea")) return;
+    if (e.key && e.key.toLowerCase() === word[wi]) {
       wi++;
       if (wi === word.length) { wi = 0; window.location.href = "game.html"; }
     } else { wi = 0; }
