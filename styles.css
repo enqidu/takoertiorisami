@@ -1362,7 +1362,8 @@ body {
   transform: translate(var(--ox), var(--oy)) rotate(var(--r, -5deg)) scale(1.15);
   filter: drop-shadow(0 6px 0 var(--ink));
 }
-.floater.pet { animation: squish .5s cubic-bezier(.3,1.8,.4,1); }
+/* squish on the SVG child so the floater's position/rotation stays intact */
+.floater.pet > svg { animation: squish .5s cubic-bezier(.3,1.8,.4,1); transform-origin: 50% 70%; }
 
 /* SCRIBBLE LINES */
 .scribble {
