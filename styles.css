@@ -1281,3 +1281,313 @@ body {
   background-image: radial-gradient(circle at var(--cursor-x, 50%) var(--cursor-y, 50%), rgba(255,204,63,.05), transparent 20%);
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   MORE CRAZY QUIRKY STUFF (ChapterTwo)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* GEOMETRIC COLOR BLOCKS — like the paper blocks in your watercolor */
+.color-block {
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  opacity: .55;
+  filter: url(#watercolor);
+  mix-blend-mode: multiply;
+}
+.cb-1 {
+  top: 6%;  left: -4%;
+  width: 42%; height: 38%;
+  background: var(--thai);
+  clip-path: polygon(12% 0, 100% 18%, 86% 100%, 0 82%);
+  animation: block-float 12s ease-in-out infinite alternate;
+}
+.cb-2 {
+  top: 42%; right: -6%;
+  width: 48%; height: 44%;
+  background: var(--mint);
+  clip-path: polygon(0 18%, 100% 0, 92% 88%, 14% 100%);
+  animation: block-float 14s ease-in-out infinite alternate-reverse;
+}
+.cb-3 {
+  top: 30%; left: 18%;
+  width: 26%; height: 28%;
+  background: var(--yolk);
+  clip-path: polygon(0 20%, 82% 0, 100% 78%, 18% 100%);
+  opacity: .4;
+  animation: block-float 16s ease-in-out infinite alternate;
+}
+.cb-4 {
+  top: 72%; left: 42%;
+  width: 22%; height: 22%;
+  background: var(--grape);
+  clip-path: polygon(0 0, 100% 12%, 88% 100%, 12% 88%);
+  animation: block-float 18s ease-in-out infinite alternate-reverse;
+}
+@keyframes block-float {
+  0%   { transform: translate(0,0) rotate(0); }
+  100% { transform: translate(1.6vw, 2vw) rotate(3deg); }
+}
+
+/* FLOATER CREATURES — the crew */
+.floater {
+  position: absolute;
+  pointer-events: auto;
+  z-index: 1;
+  --ox: 0px; --oy: 0px;
+  transition: transform .6s cubic-bezier(.4,1.5,.4,1);
+}
+.floater svg { width: 100%; height: 100%; overflow: visible; }
+.f-1 { top: 8%;  right: 6%;  width: 110px; transform: translate(var(--ox),var(--oy)) rotate(-8deg); animation: bob 5s ease-in-out infinite; }
+.f-2 { top: 62%; left:  4%;  width: 90px;  transform: translate(var(--ox),var(--oy)) rotate(12deg); animation: bob 6s ease-in-out infinite .5s; }
+.f-3 { top: 24%; left:  50%; width: 68px;  transform: translate(var(--ox),var(--oy)) rotate(-18deg); animation: bob 4s ease-in-out infinite 1s; }
+.f-4 { top: 78%; right: 18%; width: 80px;  transform: translate(var(--ox),var(--oy)) rotate(20deg); animation: bob 7s ease-in-out infinite 1.5s; }
+.f-5 { top: 40%; right: 30%; width: 72px;  transform: translate(var(--ox),var(--oy)) rotate(-4deg); animation: bob 5.5s ease-in-out infinite .2s; }
+@keyframes bob {
+  0%,100% { transform: translate(var(--ox),var(--oy)) rotate(var(--r, -5deg)); }
+  50%     { transform: translate(calc(var(--ox) + 4px), calc(var(--oy) - 16px)) rotate(calc(var(--r, -5deg) + 10deg)); }
+}
+.floater:hover { transform: translate(var(--ox),var(--oy)) rotate(-15deg) scale(1.2) !important; filter: drop-shadow(0 6px 0 var(--ink)); }
+.floater.pet { animation: squish .5s cubic-bezier(.3,1.8,.4,1); }
+
+/* SCRIBBLE LINES */
+.scribble {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+.sc-1 { bottom: 28%; left: 4%; width: 160px; transform: rotate(-8deg); }
+.sc-2 { top: 16%; right: 14%; width: 140px; transform: rotate(14deg); }
+
+/* RAINBOW BAR BELOW NAV */
+.nav::before {
+  content: "";
+  position: absolute;
+  top: 100%; left: 10%; right: 10%; height: 4px;
+  margin-top: 6px;
+  background: linear-gradient(90deg,
+    var(--bubble) 0 16.66%,
+    var(--pumpkin) 16.66% 33.33%,
+    var(--yolk) 33.33% 50%,
+    var(--spring) 50% 66.66%,
+    var(--sky) 66.66% 83.33%,
+    var(--grape) 83.33% 100%);
+  border-radius: 999px;
+  filter: url(#watercolor);
+  animation: rainbow-slide 4s ease-in-out infinite alternate;
+}
+@keyframes rainbow-slide {
+  0%   { transform: translateX(0) scaleX(1); }
+  100% { transform: translateX(4px) scaleX(1.04); }
+}
+
+/* CHECKERBOARD STRIP ALONG TOP OF WORKS */
+.works::before {
+  content: "";
+  display: block;
+  height: 16px;
+  margin: 0 0 60px;
+  background-image:
+    linear-gradient(45deg, var(--ink) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--ink) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--ink) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--ink) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  transform: rotate(-.7deg);
+}
+
+/* WORKS: wavy rainbow divider between sections */
+.works > .work-section + .work-section:not(.work-idea)::before {
+  content: "";
+  position: absolute; top: -80px; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 24px;
+  background: repeating-linear-gradient(90deg,
+    var(--bubble) 0 14px,
+    var(--yolk)   14px 28px,
+    var(--spring) 28px 42px,
+    var(--sky)    42px 56px);
+  filter: url(#watercolor);
+  border-radius: 999px;
+  opacity: .9;
+  animation: rainbow-slide 3s ease-in-out infinite alternate;
+}
+
+/* WORK-GALLERY: add a colored "halo" behind it that pulses */
+.work-gallery::after {
+  filter: blur(0);
+}
+.work-section:nth-child(odd)  .work-gallery { background: var(--paper); box-shadow: 10px 10px 0 var(--ink), -16px -16px 0 var(--bubble); }
+.work-section:nth-child(even) .work-gallery { background: var(--paper); box-shadow: 10px 10px 0 var(--ink), -16px -16px 0 var(--sky); }
+.work-section:nth-child(3n)   .work-gallery { box-shadow: 10px 10px 0 var(--ink), -16px -16px 0 var(--spring); }
+.work-section:nth-child(5n)   .work-gallery { box-shadow: 10px 10px 0 var(--ink), -16px -16px 0 var(--yolk); }
+.work-section:nth-child(7n)   .work-gallery { box-shadow: 10px 10px 0 var(--ink), -16px -16px 0 var(--grape); }
+.work-gallery:hover { box-shadow: 14px 14px 0 var(--ink), -22px -22px 0 var(--bubble) !important; }
+
+/* WORK-TITLE: add little scribble underline */
+.work-title {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' width='200' height='20'><path d='M0 10 Q 25 0 50 10 T 100 10 T 150 10 T 200 10' fill='none' stroke='%23e4483b' stroke-width='4' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 14px;
+  padding-bottom: 10px;
+}
+
+/* WOBBLE the number on hover of the section */
+.work-section:hover .work-num {
+  animation: num-spin .7s cubic-bezier(.3,1.8,.4,1);
+}
+@keyframes num-spin {
+  0%   { transform: rotate(-3deg) scale(1); }
+  40%  { transform: rotate(10deg) scale(1.2); }
+  60%  { transform: rotate(-8deg) scale(1.1); }
+  100% { transform: rotate(-3deg) scale(1); }
+}
+
+/* DATE PILL — color rotates */
+.work-date {
+  animation: date-hue 20s linear infinite;
+}
+@keyframes date-hue {
+  0%   { background: var(--paper); }
+  25%  { background: var(--bubble); }
+  50%  { background: var(--spring); }
+  75%  { background: var(--sky); }
+  100% { background: var(--paper); }
+}
+
+/* HERO-TITLE: gooey blob mask background */
+.hero-content { position: relative; z-index: 2; }
+
+/* HERO DECO BLOBS: wobble their shape over time */
+.hero-deco {
+  animation: blob-morph 8s ease-in-out infinite alternate;
+  filter: drop-shadow(2px 2px 0 rgba(0,0,0,.08));
+}
+.hero-deco.splat-2 { animation-duration: 11s; }
+.hero-deco.splat-3 { animation-duration: 13s; }
+@keyframes blob-morph {
+  0%   { transform: rotate(var(--rot,0)) scale(1); }
+  100% { transform: rotate(calc(var(--rot,0) + 22deg)) scale(1.08); }
+}
+.hero-deco.splat-1 { --rot: -18deg; }
+.hero-deco.splat-2 { --rot: 22deg; }
+.hero-deco.splat-3 { --rot: 8deg; }
+
+/* PAPER TAPE sticker varieties */
+.work-gallery::before { background: rgba(255,111,168,.75); transform: rotate(-22deg); }
+.work-gallery::after  { background: rgba(124,192,237,.75); transform: rotate(18deg); }
+.work-section:nth-child(odd) .work-gallery::before  { background: rgba(143,212,124,.75); }
+.work-section:nth-child(3n)  .work-gallery::before  { background: rgba(255,204,63,.8); }
+.work-section:nth-child(3n)  .work-gallery::after   { background: rgba(181,139,216,.75); }
+.work-section:nth-child(5n)  .work-gallery::before  { background: rgba(255,122,42,.7); }
+.work-section:nth-child(5n)  .work-gallery::after   { background: rgba(232,169,180,.8); }
+
+/* HOVER: flutter the tape */
+.work-gallery:hover::before { animation: tape-flutter .4s ease-in-out; }
+.work-gallery:hover::after  { animation: tape-flutter .4s ease-in-out .1s; }
+@keyframes tape-flutter {
+  0%,100% { transform: rotate(var(--r, -22deg)); }
+  50%     { transform: rotate(calc(var(--r, -22deg) + 10deg)) translateY(-4px); }
+}
+
+/* FOOTER */
+.site-footer { padding-bottom: 80px; }
+
+/* ABOUT content: floating decoration behind portrait */
+.about-portrait-col::before {
+  content: "";
+  position: absolute;
+  top: -30px; left: -30px;
+  width: 80px; height: 80px;
+  background: var(--yolk);
+  border-radius: 50%;
+  z-index: -1;
+  filter: url(#watercolor);
+  animation: bob 5s ease-in-out infinite;
+}
+.about-portrait-col::after {
+  content: "";
+  position: absolute;
+  bottom: -20px; right: -30px;
+  width: 60px; height: 60px;
+  background: var(--spring);
+  border-radius: 50%;
+  z-index: -1;
+  filter: url(#watercolor);
+  animation: bob 7s ease-in-out infinite 1s;
+}
+
+/* ABOUT section hover: rainbow shadow wobble */
+.about-section:hover .about-section-title { animation: num-spin .7s cubic-bezier(.3,1.8,.4,1); }
+
+/* TAG wobbles continuously at rest */
+.tag { animation: tag-idle 4s ease-in-out infinite; }
+.tag:nth-child(2n) { animation-duration: 5s; animation-delay: .5s; }
+.tag:nth-child(3n) { animation-duration: 6s; animation-delay: 1s; }
+@keyframes tag-idle {
+  0%,100% { transform: rotate(var(--base-rot, -3deg)); }
+  50%     { transform: rotate(calc(var(--base-rot, -3deg) + 4deg)) translateY(-2px); }
+}
+.tag:nth-child(1) { --base-rot: -4deg; }
+.tag:nth-child(2) { --base-rot: 3deg; }
+.tag:nth-child(3) { --base-rot: -2deg; }
+.tag:nth-child(4) { --base-rot: 5deg; }
+
+/* SELECTION gets a painted background */
+::selection {
+  background: linear-gradient(90deg, var(--bubble), var(--yolk));
+  color: var(--ink);
+}
+
+/* IDEA POST text gets a subtle shimmer */
+.idea-text {
+  background: linear-gradient(90deg, var(--cream) 0%, var(--bubble) 30%, var(--yolk) 50%, var(--sky) 70%, var(--cream) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-text 8s linear infinite;
+}
+@keyframes shimmer-text {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* GLOBAL: add a painted paper border on viewport edges */
+body::after {
+  box-shadow:
+    inset 0 0 60px rgba(156,85,40,.1),
+    inset 0 0 160px rgba(156,85,40,.05);
+}
+
+/* HERO-TITLE: smoosh the chars on hover */
+.hero-title:hover .hero-line-solid   { animation: smoosh-in  .4s cubic-bezier(.3,1.5,.4,1); }
+.hero-title:hover .hero-line-outline { animation: smoosh-out .4s cubic-bezier(.3,1.5,.4,1); }
+@keyframes smoosh-in {
+  0%   { transform: rotate(-1.5deg) scale(1,1); }
+  50%  { transform: rotate(-4deg) scale(1.1, .9); }
+  100% { transform: rotate(-1.5deg) scale(1,1); }
+}
+@keyframes smoosh-out {
+  0%   { transform: rotate(1deg) scale(1,1); }
+  50%  { transform: rotate(4deg) scale(.95, 1.08); }
+  100% { transform: rotate(1deg) scale(1,1); }
+}
+
+/* FLOATERS: drop shadow on hover */
+.floater { transition: transform .5s cubic-bezier(.3,1.5,.4,1), filter .2s; }
+.floater:hover { filter: drop-shadow(4px 6px 0 rgba(0,0,0,.25)); }
+
+/* HERO-TAG sparkle rotates with speed */
+.hero-tag::before { animation-duration: 4s; }
+
+/* MARQUEE: multiply blend */
+.hero-marquee { mix-blend-mode: multiply; }
+
+/* CUSTOM SCROLLBAR: gradient */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--bubble), var(--pumpkin), var(--yolk), var(--spring), var(--sky), var(--grape));
+  border: 3px solid var(--cream-2);
+  border-radius: 999px;
+}
+

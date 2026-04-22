@@ -269,26 +269,27 @@ const initCursor = () => {
 };
 
 
-// ─── HERO EYE FOLLOWER + BLINK ───────────────────────────────────────
-const initHeroEye = () => {
-  const eye  = document.getElementById("heroEye");
-  const iris = document.getElementById("heroIris");
-  if (!eye || !iris) return;
+// ─── FLOATER CREATURES — follow cursor slightly ──────────────────────
+const initFloaters = () => {
+  if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  const floaters = document.querySelectorAll(".floater");
+  if (!floaters.length) return;
+  let mx = 0.5, my = 0.5;
   document.addEventListener("mousemove", (e) => {
-    const r  = eye.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top  + r.height / 2;
-    const a  = Math.atan2(e.clientY - cy, e.clientX - cx);
-    const d  = Math.min(18, Math.hypot(e.clientX - cx, e.clientY - cy) * 0.04);
-    iris.style.transform = `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d}px))`;
+    mx = e.clientX / window.innerWidth;
+    my = e.clientY / window.innerHeight;
   });
-  // random blink
-  const blink = () => {
-    eye.classList.add("is-blink");
-    setTimeout(() => eye.classList.remove("is-blink"), 250);
-    setTimeout(blink, 2500 + Math.random() * 3500);
+  const tick = () => {
+    floaters.forEach((f, i) => {
+      const pull = (i % 3 + 1) * 6;
+      const ox = (mx - 0.5) * pull;
+      const oy = (my - 0.5) * pull;
+      f.style.setProperty("--ox", ox + "px");
+      f.style.setProperty("--oy", oy + "px");
+    });
+    requestAnimationFrame(tick);
   };
-  setTimeout(blink, 2000);
+  tick();
 };
 
 
@@ -394,30 +395,30 @@ const initScrollWobble = () => {
 };
 
 
-// ─── PET THE CREATURE (hero eye interactive) ─────────────────────────
+// ─── PET THE CREATURES — click a floater, it squishes + hearts ──────
 const initPet = () => {
-  const eye = document.getElementById("heroEye");
-  if (!eye) return;
-  eye.style.pointerEvents = "auto";
-  eye.style.cursor = "none";
-  eye.addEventListener("click", () => {
-    eye.classList.add("pet");
-    // hearts burst
-    for (let i = 0; i < 6; i++) {
-      const h = document.createElement("span");
-      h.className = "pet-heart";
-      h.textContent = ["♥","✦","♡","✿","★"][Math.floor(Math.random()*5)];
-      h.style.setProperty("--dx", (Math.random() * 200 - 100) + "px");
-      h.style.setProperty("--dy", (-80 - Math.random() * 120) + "px");
-      h.style.setProperty("--r", (Math.random() * 720 - 360) + "deg");
-      h.style.setProperty("--d", (Math.random() * 0.3) + "s");
-      const r = eye.getBoundingClientRect();
-      h.style.left = (r.left + r.width / 2) + "px";
-      h.style.top  = (r.top  + r.height / 2) + "px";
-      document.body.appendChild(h);
-      setTimeout(() => h.remove(), 1400);
-    }
-    setTimeout(() => eye.classList.remove("pet"), 600);
+  document.querySelectorAll(".floater").forEach(el => {
+    el.style.pointerEvents = "auto";
+    el.style.cursor = "none";
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      el.classList.add("pet");
+      for (let i = 0; i < 8; i++) {
+        const h = document.createElement("span");
+        h.className = "pet-heart";
+        h.textContent = ["♥","✦","♡","✿","★","✿"][Math.floor(Math.random()*6)];
+        h.style.setProperty("--dx", (Math.random() * 240 - 120) + "px");
+        h.style.setProperty("--dy", (-80 - Math.random() * 140) + "px");
+        h.style.setProperty("--r", (Math.random() * 720 - 360) + "deg");
+        h.style.setProperty("--d", (Math.random() * 0.3) + "s");
+        const r = el.getBoundingClientRect();
+        h.style.left = (r.left + r.width / 2) + "px";
+        h.style.top  = (r.top  + r.height / 2) + "px";
+        document.body.appendChild(h);
+        setTimeout(() => h.remove(), 1400);
+      }
+      setTimeout(() => el.classList.remove("pet"), 600);
+    });
   });
 };
 
@@ -574,7 +575,7 @@ if (worksEl) {
 
 // GLOBAL
 initCursor();
-initHeroEye();
+initFloaters();
 initReveal();
 initNavScroll();
 initClickSplats();
