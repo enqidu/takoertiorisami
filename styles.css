@@ -1970,6 +1970,67 @@ body::after {
 .floater.fl-shy .fl-blush { opacity: .95; }
 .floater.fl-shy .fl-mouth { transform: scale(.7, .7); }
 
+/* EXCITED — bouncy, wide eyes */
+.floater.fl-excited .fl-body { animation: fl-excited-bounce .32s cubic-bezier(.3,2,.4,1); transform-origin: 50% 85%; }
+@keyframes fl-excited-bounce {
+  0%   { transform: translateY(0) scale(1,1); }
+  40%  { transform: translateY(-6px) scale(1.08, .92); }
+  70%  { transform: translateY(1px) scale(.92, 1.08); }
+  100% { transform: translateY(0) scale(1,1); }
+}
+.floater.fl-excited .fl-eye { transform: scale(1.2); }
+.floater.fl-excited .fl-mouth { rx: 6; ry: 4; transform: translateY(-1px); }
+
+/* ANXIOUS — jitter, darting eyes */
+.floater.fl-anxious .fl-body { animation: fl-anxious-shake .12s linear 6; }
+@keyframes fl-anxious-shake {
+  0%,100% { transform: translate(0,0); }
+  25%     { transform: translate(-1.5px, 0); }
+  75%     { transform: translate(1.5px, 0); }
+}
+.floater.fl-anxious .fl-pupil { animation: fl-anxious-dart .35s ease-in-out 3; }
+@keyframes fl-anxious-dart {
+  0%,100% { transform: translate(0,0); }
+  33%     { transform: translate(-3px, -1px); }
+  66%     { transform: translate(3px, -1px); }
+}
+.floater.fl-anxious .fl-mouth { transform: scale(.55, 1.1); }
+
+/* PROUD — chin up, squinted eyes */
+.floater.fl-proud .fl-body { transform: translateY(-2px) rotate(-3deg); transform-origin: 50% 80%; transition: transform .4s; }
+.floater.fl-proud .fl-eye { transform: scaleY(.55) translateY(-2px); }
+.floater.fl-proud .fl-mouth { transform: scale(.6, .4) translateY(-1px); }
+
+/* MISCHIEVOUS — smirk + raised spikes (no body change, face only) */
+.floater.fl-mischievous .fl-mouth { transform: scale(1.2, .7) translate(3px, -1px) rotate(-8deg); }
+
+/* PHILOSOPHER — slow nod, looks up */
+.floater.fl-philosopher .fl-body { animation: fl-philo-nod 1.6s ease-in-out; transform-origin: 50% 80%; }
+@keyframes fl-philo-nod {
+  0%,100% { transform: rotate(0); }
+  50%     { transform: rotate(5deg); }
+}
+.floater.fl-philosopher .fl-pupil { transform: translate(0, -3px); }
+.floater.fl-philosopher .fl-eye { transform: scaleY(.8); }
+.floater.fl-philosopher .fl-mouth { transform: scale(.5, .4); }
+
+/* COZY — soft squish, eyes closed smiley */
+.floater.fl-cozy .fl-body { transform: scale(1, .96); transform-origin: 50% 100%; transition: transform .5s; }
+.floater.fl-cozy .fl-eye  { transform: scaleY(.2) translateY(1px); }
+.floater.fl-cozy .fl-mouth { rx: 5; ry: 3; transform: translateY(-1px) rotate(4deg); }
+.floater.fl-cozy .fl-blush { opacity: .7; }
+
+/* MELODRAMATIC — sweep-back faint pose */
+.floater.fl-melodrama .fl-body { animation: fl-melodrama 1.4s cubic-bezier(.3,1.2,.5,1); transform-origin: 50% 90%; }
+@keyframes fl-melodrama {
+  0%   { transform: rotate(0) translateY(0); }
+  25%  { transform: rotate(-14deg) translateY(-3px); }
+  55%  { transform: rotate(10deg) translateY(2px); }
+  100% { transform: rotate(0) translateY(0); }
+}
+.floater.fl-melodrama .fl-mouth { transform: scale(.6, 1.8); }
+.floater.fl-melodrama .fl-eye   { transform: scaleY(1.15); }
+
 /* SPEECH BUBBLE */
 .fl-bubble {
   position: absolute;

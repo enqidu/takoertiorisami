@@ -609,12 +609,20 @@ const FLOATER_SVG = `
 `;
 
 const FL_PERSONALITIES = {
-  shy:     { says: ["ოი..", "um", "hi?", "ჰმ", "..", "o.o"], blinkMs: [1800, 4200], mood: "shy" },
-  sleepy:  { says: ["zzz", "mm..", "yawn", "sleep?", "ოო"],  blinkMs: [700, 1700],  mood: "sleepy" },
-  curious: { says: ["oh?", "რა?", "hmm", "what?", "?"],       blinkMs: [3000, 5500], mood: "curious" },
-  grumpy:  { says: ["ჰმ", "pff", "no", "-_-", "bleh"],         blinkMs: [2500, 5000], mood: "grumpy" },
-  happy:   { says: ["!", "yay", "ჰოი", "~", ":D", "ოო!"],      blinkMs: [3500, 6500], mood: "happy" },
-  dreamy:  { says: ["★", "♥", "~", "◌", "..♪"],                 blinkMs: [3000, 6000], mood: "dreamy" },
+  shy:          { says: ["ოი..", "um", "hi?", "ჰმ", "..", "o.o"],        blinkMs: [1800, 4200], mood: "shy" },
+  sleepy:       { says: ["zzz", "mm..", "yawn", "sleep?", "ოო"],          blinkMs: [700, 1700],  mood: "sleepy" },
+  curious:      { says: ["oh?", "რა?", "hmm", "what?", "?"],               blinkMs: [3000, 5500], mood: "curious" },
+  grumpy:       { says: ["ჰმ", "pff", "no", "-_-", "bleh"],                 blinkMs: [2500, 5000], mood: "grumpy" },
+  happy:        { says: ["!", "yay", "ჰოი", "~", ":D", "ოო!"],              blinkMs: [3500, 6500], mood: "happy" },
+  dreamy:       { says: ["★", "♥", "~", "◌", "..♪"],                         blinkMs: [3000, 6000], mood: "dreamy" },
+  // NEW 7
+  excited:      { says: ["!!", "ოოო!!", "yes!!", "woo", "omg"],             blinkMs: [2000, 3500], mood: "excited" },
+  anxious:      { says: ["ai..", "ai!", "um um", "ოი..", "o-oh"],          blinkMs: [500, 1400],  mood: "anxious" },
+  proud:        { says: ["hmph", "mm.", "indeed", "ჰო..", "naturally"],    blinkMs: [4500, 7000], mood: "proud" },
+  mischievous:  { says: ["heh", "hehe", ">:)", "shh", "ოჰო"],               blinkMs: [1600, 3400], mood: "mischievous" },
+  philosopher:  { says: ["hmm..", "...", "true", "so it is", "რაც არის"], blinkMs: [4000, 7500], mood: "philosopher" },
+  cozy:         { says: ["mm~", "warm", "soft", "nice.", "♨"],              blinkMs: [3200, 5800], mood: "cozy" },
+  melodramatic: { says: ["alas!", "oh no!", "ვაიმე!", "the pain", "*gasp*"], blinkMs: [2000, 4500], mood: "melodramatic" },
 };
 const FL_POOL = Object.keys(FL_PERSONALITIES);
 
@@ -681,42 +689,71 @@ const initFloaters = () => {
     s.nextBehavior = performance.now() + lo + Math.random() * (hi - lo);
   };
 
+  const holdState = (el, cls, ms) => {
+    el.classList.add(cls);
+    setTimeout(() => el.classList.remove(cls), ms);
+  };
+
   const pickBehavior = (el, p) => {
     if (el.classList.contains("fl-surprised") || el.classList.contains("fl-happy")) {
       blink(el); return;
     }
     const r = Math.random();
-    // sleepy creatures sleep more
-    if (p.mood === "sleepy") {
-      if (r < 0.3) {
-        el.classList.add("fl-sleep");
-        setTimeout(() => el.classList.remove("fl-sleep"), 2400 + Math.random() * 2200);
-        return;
-      }
-      if (r < 0.55) { el.classList.add("fl-sleepy"); setTimeout(() => el.classList.remove("fl-sleepy"), 1600); return; }
+    switch (p.mood) {
+      case "sleepy":
+        if (r < 0.3)  { holdState(el, "fl-sleep", 2400 + Math.random() * 2200); return; }
+        if (r < 0.55) { holdState(el, "fl-sleepy", 1600); return; }
+        break;
+      case "shy":
+        if (r < 0.35) { holdState(el, "fl-shy", 1600); return; }
+        break;
+      case "grumpy":
+        if (r < 0.3)  { holdState(el, "fl-grumpy", 1800); return; }
+        break;
+      case "happy":
+        if (r < 0.25) { giggle(el); return; }
+        break;
+      case "dreamy":
+        if (r < 0.4)  { peek(el); return; }
+        break;
+      case "excited":
+        if (r < 0.35) { holdState(el, "fl-excited", 700); return; }
+        if (r < 0.55) { giggle(el); return; }
+        if (r < 0.75) { showBubble(el, p.says[Math.floor(Math.random() * p.says.length)], 900); return; }
+        break;
+      case "anxious":
+        if (r < 0.35) { holdState(el, "fl-anxious", 900); return; }
+        if (r < 0.55) { blink(el); blink(el); return; } // double-blink
+        if (r < 0.75) { peek(el); return; }
+        break;
+      case "proud":
+        if (r < 0.3)  { holdState(el, "fl-proud", 1800); return; }
+        if (r < 0.45) { holdState(el, "fl-blink", 260); return; } // slow blink
+        break;
+      case "mischievous":
+        if (r < 0.45) { wink(el); return; }
+        if (r < 0.6)  { giggle(el); return; }
+        if (r < 0.8)  { showBubble(el, p.says[Math.floor(Math.random() * p.says.length)], 800); return; }
+        break;
+      case "philosopher":
+        if (r < 0.4)  { holdState(el, "fl-philosopher", 1600); return; }
+        if (r < 0.6)  { peek(el); return; }
+        break;
+      case "cozy":
+        if (r < 0.5)  { holdState(el, "fl-cozy", 2200); return; }
+        if (r < 0.7)  { holdState(el, "fl-sleepy", 1400); return; }
+        break;
+      case "melodramatic":
+        if (r < 0.35) { holdState(el, "fl-melodrama", 1400); return; }
+        if (r < 0.55) { holdState(el, "fl-shy", 900); return; } // faints
+        if (r < 0.75) { showBubble(el, p.says[Math.floor(Math.random() * p.says.length)], 1200); return; }
+        break;
     }
-    // shy creatures look down / blush
-    if (p.mood === "shy" && r < 0.35) {
-      el.classList.add("fl-shy");
-      setTimeout(() => el.classList.remove("fl-shy"), 1600);
-      return;
-    }
-    // grumpy
-    if (p.mood === "grumpy" && r < 0.3) {
-      el.classList.add("fl-grumpy");
-      setTimeout(() => el.classList.remove("fl-grumpy"), 1800);
-      return;
-    }
-    // happy creatures giggle
-    if (p.mood === "happy" && r < 0.25) { giggle(el); return; }
-    // dreamy: peek at nothing
-    if (p.mood === "dreamy" && r < 0.4) { peek(el); return; }
     // default menu
     if (r < 0.5) blink(el);
     else if (r < 0.7) wink(el);
     else if (r < 0.85) peek(el);
     else sniff(el);
-    // sometimes say something
     if (Math.random() < 0.22) {
       showBubble(el, p.says[Math.floor(Math.random() * p.says.length)], 1100);
     }
@@ -1117,7 +1154,7 @@ const initLightboxTriggers = () => {
 
 
 // ─── FUZZY BREAKS — little creatures between posts ───────────────────
-const TWEEN_MOODS  = ["happy", "sleepy", "curious", "shy", "grumpy", "dreamy"];
+const TWEEN_MOODS  = ["happy", "sleepy", "curious", "shy", "grumpy", "dreamy", "excited", "anxious", "proud", "mischievous", "philosopher", "cozy", "melodramatic"];
 const TWEEN_COLORS = ["var(--bubble)", "var(--spring)", "var(--yolk)", "var(--sky)", "var(--grape)", "var(--pumpkin)", "var(--tomato)"];
 const TWEEN_NOTES  = [
   "breathe.", "keep scrolling.", "little break.", "fuzzy intermission.",
