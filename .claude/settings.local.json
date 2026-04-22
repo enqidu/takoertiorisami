@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "mcp__Claude_Preview__preview_start",
-      "WebFetch(domain:gwern.net)"
+      "WebFetch(domain:gwern.net)",
+      "Bash(grep -l \"takoertiorisami.art\" /Users/enqidu/Documents/Code/personal/Tako1/Tako3/*.html)"
     ]
   }
 }

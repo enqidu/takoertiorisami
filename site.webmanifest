@@ -1,0 +1,12 @@
+{
+  "name": "Tamar Chachava — creature lab",
+  "short_name": "Tako",
+  "description": "Fuzzy creatures, warm colors, cold apartment. A hand-painted portfolio by Georgian artist Tamar Chachava.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fef3e0",
+  "theme_color": "#f3a6c4",
+  "icons": [
+    { "src": "/assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
