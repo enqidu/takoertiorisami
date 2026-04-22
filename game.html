@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <title>CATCH THE CREATURE — Tako's little game</title>
+  <meta name="description" content="A tiny hand-painted whack-a-mole game by Tamar Chachava. Catch the fuzzy creatures before they vanish." />
+
+  <meta property="og:title" content="CATCH THE CREATURE — a game by Tako" />
+  <meta property="og:description" content="A quirky hand-painted CSS mini-game." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://takoertiorisami.art/assets/og-image.png" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=20260422" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=20260422" />
+  <link rel="stylesheet" href="game.css?v=20260422" />
+</head>
+<body>
+
+  <svg class="svg-defs" width="0" height="0" aria-hidden="true" style="position:absolute">
+    <defs>
+      <filter id="watercolor" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.022" numOctaves="2" seed="4" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="5"/>
+      </filter>
+      <filter id="fuzz" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="2" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="4"/>
+        <feGaussianBlur stdDeviation="0.4"/>
+      </filter>
+      <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="6"/>
+        <feDisplacementMap in="SourceGraphic" scale="2.2"/>
+      </filter>
+      <symbol id="creature" viewBox="0 0 100 100">
+        <g filter="url(#fuzz)" class="fuzz">
+          <path d="M20 62 Q10 38 28 24 Q50 8 72 24 Q90 38 80 62 Q78 84 50 86 Q22 84 20 62 Z" fill="currentColor"/>
+          <path d="M28 20 L24 10 L32 18 M40 14 L40 4 L44 14 M60 14 L60 4 L56 14 M72 20 L76 10 L68 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        </g>
+        <ellipse cx="38" cy="50" rx="7" ry="8" fill="#fffaed"/>
+        <ellipse cx="62" cy="50" rx="7" ry="8" fill="#fffaed"/>
+        <circle cx="39" cy="52" r="3" fill="#1a1410"/>
+        <circle cx="63" cy="52" r="3" fill="#1a1410"/>
+        <ellipse cx="50" cy="66" rx="4" ry="2.5" fill="#e4483b"/>
+      </symbol>
+      <symbol id="splat" viewBox="0 0 100 100">
+        <g filter="url(#rough)">
+          <path d="M50 10 Q70 18 78 34 Q96 42 86 60 Q92 78 70 82 Q58 96 42 86 Q22 94 14 74 Q-2 62 10 44 Q6 24 28 20 Q36 6 50 10 Z" fill="currentColor"/>
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="cursor-creature" id="cursorCreature">
+    <svg viewBox="0 0 100 100"><g style="color: var(--bubble)"><use href="#creature"/></g></svg>
+  </div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+
+  <nav class="nav">
+    <a href="index.html" class="site-name">Xelovneba</a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">works</a>
+      <a href="about.html" class="nav-link">tamar</a>
+      <a href="game.html" class="nav-link active">play</a>
+    </div>
+  </nav>
+
+  <main class="game-page">
+    <header class="game-header">
+      <h1 class="game-title">
+        <span class="game-title-solid">catch</span>
+        <span class="game-title-outline">the creature</span>
+      </h1>
+      <p class="game-sub">30 seconds. click the fuzzies before they hide. ♥ miss one and lose your combo.</p>
+    </header>
+
+    <section class="game-hud">
+      <div class="hud-pill hud-score"><span class="hud-label">score</span><span id="gameScore">0</span></div>
+      <div class="hud-pill hud-combo"><span class="hud-label">combo</span><span id="gameCombo">×1</span></div>
+      <div class="hud-pill hud-best"><span class="hud-label">best</span><span id="gameBest">0</span></div>
+      <div class="hud-timer">
+        <div class="hud-timer-bar" id="gameTimerBar"></div>
+        <span class="hud-timer-num" id="gameTimer">30</span>
+      </div>
+    </section>
+
+    <section class="game-board" id="gameBoard">
+      <!-- 9 cells, creatures pop in/out -->
+      <div class="game-cell" data-cell="0"><div class="cell-hole"></div><button class="cell-creature" data-i="0" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
+      <div class="game-cell" data-cell="1"><div class="cell-hole"></div><button class="cell-creature" data-i="1" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
+      <div class="game-cell" data-cell="2"><div class="cell-hole"></div><button class="cell-creature" data-i="2" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
+      <div class="game-cell" data-cell="3"><div class="cell-hole"></div><button class="cell-creature" data-i="3" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
+      <div class="game-cell" data-cell="4"><div class="cell-hole"></div><button class="cell-creature" data-i="4" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
+      <div class="game-cell" data-cell="5"><div class="cell-hole"></div><button class="cell-creature" data-i="5" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
+      <div class="game-cell" data-cell="6"><div class="cell-hole"></div><button class="cell-creature" data-i="6" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
+      <div class="game-cell" data-cell="7"><div class="cell-hole"></div><button class="cell-creature" data-i="7" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
+      <div class="game-cell" data-cell="8"><div class="cell-hole"></div><button class="cell-creature" data-i="8" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
+    </section>
+
+    <section class="game-controls">
+      <button class="game-btn game-start" id="gameStart">
+        <span class="btn-label">start</span>
+        <span class="btn-wiggle">→</span>
+      </button>
+      <p class="game-hint">tip: the creatures get faster. good luck.</p>
+    </section>
+
+    <!-- End-of-round overlay -->
+    <div class="game-over" id="gameOver">
+      <div class="game-over-card">
+        <h2 class="go-title">
+          <span class="go-title-solid">time's up!</span>
+        </h2>
+        <p class="go-score">you caught <span id="finalScore">0</span></p>
+        <p class="go-msg" id="goMsg">not bad.</p>
+        <button class="game-btn game-again" id="gameAgain">play again</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/posts.js?v=20260422"></script>
+  <script src="script.js?v=20260422"></script>
+  <script src="game.js?v=20260422"></script>
+</body>
+</html>
