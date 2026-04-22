@@ -130,9 +130,31 @@ const initGallery = (pid, total) => {
 };
 
 
+// ─── CURSOR PERSONALITIES — rotating mood of the cursor creature ────
+// The cursor creature shifts mood every 45–90s. Mood flavors its
+// thought pools, announce phrase, blink rhythm, and body tint.
+const CURSOR_PERSONALITIES = {
+  shy:          { announce: "shy..",        says: ["oi", "um", "ჰმ", "..", "o.o", "hi?"],              painting: ["ოოო..", "so pretty..", "um", "..♥"],                 tint: "#d8b3c9", blinkMs: 3000 },
+  sleepy:       { announce: "sleepy..",     says: ["zzz", "mm..", "yawn", "ოო.."],                     painting: ["mm..", "zzz..", "nice.."],                           tint: "#b7c7de", blinkMs: 1200 },
+  curious:      { announce: "curious!",     says: ["oh?", "რა?", "hmm", "?", "what?"],                 painting: ["what's this?", "ოო?", "ohh", "hmm.."],               tint: "#f0c56a", blinkMs: 4200 },
+  grumpy:       { announce: "bleh.",        says: ["pff", "-_-", "bleh", "ჰმ"],                        painting: ["pff", "meh", "fine."],                               tint: "#a89278", blinkMs: 3800 },
+  happy:        { announce: "feeling good!", says: ["!", "yay", "ჰოი", "~", ":D"],                     painting: ["cute!", "ოო!", "pretty!", "love"],                   tint: "#f5a3b8", blinkMs: 5200 },
+  dreamy:       { announce: "daydreaming~", says: ["★", "♥", "~", "◌", "..♪"],                         painting: ["★", "♥", "..♪", "floaty"],                           tint: "#b58bd8", blinkMs: 5800 },
+  excited:      { announce: "WOO!",         says: ["!!", "yes!!", "woo", "omg"],                       painting: ["!!!", "ოოო!!", "amazing!", "yes!"],                  tint: "#ff7a2a", blinkMs: 3000 },
+  anxious:      { announce: "o-oh..",       says: ["ai..", "um um", "ოი..", "o-oh"],                   painting: ["ai..", "um.. nice?", "ოი.."],                        tint: "#c9d0a8", blinkMs: 900 },
+  proud:        { announce: "ahem.",        says: ["hmph", "indeed", "ჰო..", "naturally"],             painting: ["mm, fine work", "indeed", "quite good"],             tint: "#e4b84a", blinkMs: 6500 },
+  mischievous:  { announce: "hehe..",       says: ["heh", "hehe", ">:)", "shh", "ოჰო"],                painting: ["hehe..", "ooh", "mine?", "shh.."],                   tint: "#b06fd8", blinkMs: 2600 },
+  philosopher:  { announce: "hmm..",        says: ["hmm..", "...", "true", "so it is"],                 painting: ["so it is..", "the colors..", "hmm..", "ahh."],       tint: "#8aa1b8", blinkMs: 6800 },
+  cozy:         { announce: "warm~",        says: ["mm~", "warm", "soft", "nice."],                    painting: ["soft..", "cozy", "warm~", "mm~"],                    tint: "#e8a06c", blinkMs: 4800 },
+  melodramatic: { announce: "alas!",        says: ["alas!", "oh no!", "ვაიმე!", "*gasp*"],             painting: ["ვაიმე!", "the beauty!", "*gasp*", "alas.."],         tint: "#e4483b", blinkMs: 3200 },
+};
+const CURSOR_MOODS = Object.keys(CURSOR_PERSONALITIES);
+
+
 // ─── CREATURE CURSOR with EMOTIONS ──────────────────────────────────
 // States: is-curious · is-dizzy · is-reading · is-absorbing
 //         is-excited · is-loving · is-bored · is-squish-up / is-squish-down
+// Rotating base mood: cc-mood-<name> — see CURSOR_PERSONALITIES above.
 const initCursor = () => {
   const creature = document.getElementById("cursorCreature");
   const trail    = document.getElementById("cursorTrail");
@@ -181,6 +203,34 @@ const initCursor = () => {
   let isExcited = false, isLoving = false, isBored = false;
   const setState = (name, on) => creature.classList.toggle(name, on);
   const anyBig = () => isDizzy || isReading || isAbsorbing;
+
+  // ── ROTATING PERSONALITY: cursor creature has a mood that shifts ──
+  let currentMood = CURSOR_MOODS[Math.floor(Math.random() * CURSOR_MOODS.length)];
+  const applyMood = (next, { announce = true } = {}) => {
+    CURSOR_MOODS.forEach(m => creature.classList.remove("cc-mood-" + m));
+    currentMood = next;
+    creature.classList.add("cc-mood-" + next);
+    const p = CURSOR_PERSONALITIES[next];
+    if (p?.tint) creature.style.setProperty("--cc-mood-tint", p.tint);
+    if (announce && p?.announce) {
+      // tiny delay so announce isn't stepping on other bubbles
+      setTimeout(() => { if (!anyBig()) showSay(p.announce, 1500); }, 120);
+    }
+  };
+  applyMood(currentMood, { announce: false });
+  // schedule the next mood shift 45–90s out; skips while the user is
+  // mid-interaction (big-state) — retries in 6s.
+  const scheduleMoodShift = () => {
+    const wait = 45000 + Math.random() * 45000;
+    setTimeout(() => {
+      if (anyBig() || isLoving) { setTimeout(scheduleMoodShift, 6000); return; }
+      let next = currentMood;
+      while (next === currentMood) next = CURSOR_MOODS[Math.floor(Math.random() * CURSOR_MOODS.length)];
+      applyMood(next);
+      scheduleMoodShift();
+    }, wait);
+  };
+  scheduleMoodShift();
 
   // ── PUPILS look toward mouse direction ──────────────────
   let lastMx = mx, lastMy = my;
@@ -232,12 +282,15 @@ const initCursor = () => {
     }
   });
 
-  // ── ABSORB: LONG-PRESS on a painting (3s) → adopt its color ─
+  // ── ABSORB: LONG-PRESS on a PALETTE CHIP or FUZZY CREATURE ──
+  // (no longer absorbs from paintings — only palette swatches &
+  // other floaters, which get briefly "drained" of their color.)
+  const absorbSelector = ".palette-chip, .floater";
   document.addEventListener("mousedown", (e) => {
     if (e.button !== 0) return;
-    const img = e.target.closest(imgSelector);
-    if (!img || anyBig()) return;
-    scheduleAbsorb(img);
+    const target = e.target.closest(absorbSelector);
+    if (!target || anyBig()) return;
+    scheduleAbsorb(target);
   });
   const stopPress = () => { if (!isAbsorbing) cancelAbsorb(); };
   document.addEventListener("mouseup", stopPress);
@@ -356,92 +409,97 @@ const initCursor = () => {
     }
   }, 1000);
 
-  // ── ABSORB: press & hold 3s on a painting → adopt its color ─
-  const ABSORB_MS = 3000;
-  let absorbTimer = null, absorbStart = 0, absorbRaf = 0, absorbImg = null;
-  const scheduleAbsorb = (img) => {
+  // ── ABSORB: press & hold on a palette chip or floater → steal ──
+  // Shorter hold (1.6s), crisper animation: target gets "drained"
+  // (desaturates + inner shimmer), cursor gulps the color with a
+  // quick scale-pop and sparkle burst.
+  const ABSORB_MS = 1600;
+  let absorbTimer = null, absorbStart = 0, absorbRaf = 0, absorbTarget = null;
+  const scheduleAbsorb = (target) => {
     cancelAbsorb();
-    absorbImg = img;
+    absorbTarget = target;
+    target.classList.add("being-absorbed");
     const baselineMx = mx, baselineMy = my;
     absorbStart = performance.now();
     setState("is-charging", true);
-    showSay("hold…", 1600);
+    showSay(target.classList.contains("palette-chip") ? "mmm.." : "hehe..", 1400);
     const progress = () => {
       const t = performance.now() - absorbStart;
       const pct = Math.min(100, (t / ABSORB_MS) * 100);
       creature.style.setProperty("--chg", pct.toFixed(1));
+      // scale the drain visually on the target
+      target.style.setProperty("--drain", (pct / 100).toFixed(3));
       if (pct < 100) absorbRaf = requestAnimationFrame(progress);
     };
     absorbRaf = requestAnimationFrame(progress);
     absorbTimer = setTimeout(() => {
-      if (absorbImg !== img) { cancelAbsorb(); return; }
-      if (Math.hypot(mx - baselineMx, my - baselineMy) > 100) { cancelAbsorb(); return; }
-      absorbColorFrom(img);
+      if (absorbTarget !== target) { cancelAbsorb(); return; }
+      if (Math.hypot(mx - baselineMx, my - baselineMy) > 120) { cancelAbsorb(); return; }
+      absorbColorFrom(target);
     }, ABSORB_MS);
   };
   const cancelAbsorb = () => {
     if (absorbTimer) { clearTimeout(absorbTimer); absorbTimer = null; }
     if (absorbRaf) { cancelAnimationFrame(absorbRaf); absorbRaf = 0; }
-    absorbImg = null;
+    if (absorbTarget) {
+      absorbTarget.classList.remove("being-absorbed");
+      absorbTarget.style.removeProperty("--drain");
+      absorbTarget = null;
+    }
     setState("is-charging", false);
     creature.style.setProperty("--chg", "0");
   };
 
-  // pick the most vivid, mid-brightness color from anywhere in the image
-  const absorbColorFrom = (img) => {
-    try {
-      // downscale to a fixed 100×100 so sampling is uniform & fast
-      const W = 100, H = 100;
-      const c = document.createElement("canvas");
-      c.width = W; c.height = H;
-      const ctx = c.getContext("2d", { willReadFrequently: true });
-      ctx.drawImage(img, 0, 0, W, H);
-      const data = ctx.getImageData(0, 0, W, H).data;
-
-      let best = null, bestScore = -1;
-      // scan full image on a 3px stride
-      for (let y = 3; y < H - 3; y += 3) {
-        for (let x = 3; x < W - 3; x += 3) {
-          const i = (y * W + x) * 4;
-          const R = data[i], G = data[i+1], B = data[i+2], A = data[i+3];
-          if (A < 200) continue;
-          const sum = R + G + B;
-          if (sum < 150 || sum > 680) continue; // skip near-black/near-white
-          const mx2 = Math.max(R, G, B);
-          const mn2 = Math.min(R, G, B);
-          const sat = mx2 === 0 ? 0 : (mx2 - mn2) / mx2;
-          const bright = sum / 3;
-          // reward saturation, prefer colors in mid-bright zone (60–210)
-          const brightBonus = 60 - Math.min(60, Math.abs(bright - 135));
-          const score = sat * 180 + brightBonus;
-          if (score > bestScore) { bestScore = score; best = [R, G, B]; }
-        }
+  // read color straight from the target element (palette chip bg
+  // or floater creature body) — no canvas sampling needed.
+  const readTargetColor = (el) => {
+    // floater: SVG uses currentColor, so check computed color on the shape
+    if (el.classList.contains("floater")) {
+      const shape = el.querySelector(".fl-shape, svg");
+      if (shape) {
+        const cs = getComputedStyle(shape);
+        if (cs.color && cs.color !== "rgba(0, 0, 0, 0)") return cs.color;
       }
-      // if nothing scored (grayscale image), take a mid-bright grey instead of black
-      if (!best) {
-        let sumR = 0, sumG = 0, sumB = 0, n = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          if (data[i+3] < 200) continue;
-          const s = data[i] + data[i+1] + data[i+2];
-          if (s < 120 || s > 680) continue;
-          sumR += data[i]; sumG += data[i+1]; sumB += data[i+2]; n++;
-        }
-        best = n ? [Math.round(sumR/n), Math.round(sumG/n), Math.round(sumB/n)] : [181, 139, 216];
-      }
-
-      const [r, g, b] = best;
-      const color = `rgb(${r}, ${g}, ${b})`;
-      isAbsorbing = true;
-      setState("is-charging", false);
-      setState("is-absorbing", true);
-      showEmote("✦", "pop-absorb", 1400);
-      showSay("mine now", 1400);
-      // mid-animation flash to new color
-      setTimeout(() => creature.style.setProperty("--cc-color", color), 350);
-      setTimeout(() => { isAbsorbing = false; setState("is-absorbing", false); creature.style.setProperty("--chg", "0"); }, 1400);
-    } catch (err) {
-      // CORS or decode error — skip silently
     }
+    // palette chip: background-color is the color
+    const cs = getComputedStyle(el);
+    if (cs.backgroundColor && cs.backgroundColor !== "rgba(0, 0, 0, 0)") return cs.backgroundColor;
+    // fallback to text color
+    return cs.color || "rgb(181, 139, 216)";
+  };
+
+  const absorbColorFrom = (target) => {
+    const color = readTargetColor(target);
+    isAbsorbing = true;
+    setState("is-charging", false);
+    setState("is-absorbing", true);
+    showEmote("✦", "pop-absorb", 1100);
+    showSay(target.classList.contains("floater") ? "stole it!" : "mine now!", 1200);
+    // burst sparkles in the target's color
+    try {
+      const rx = (target.getBoundingClientRect().left + target.offsetWidth / 2);
+      const ry = (target.getBoundingClientRect().top  + target.offsetHeight / 2);
+      for (let i = 0; i < 8; i++) {
+        setTimeout(() => emitSparklesAt(rx, ry, 2, color), i * 40);
+      }
+    } catch (e) {}
+    // floaters: mark as drained, revert after 2.2s
+    if (target.classList.contains("floater")) {
+      target.classList.add("is-drained");
+      setTimeout(() => target.classList.remove("is-drained"), 2200);
+    }
+    // cursor gulps color at 180ms (mid-animation)
+    setTimeout(() => creature.style.setProperty("--cc-color", color), 180);
+    setTimeout(() => {
+      isAbsorbing = false;
+      setState("is-absorbing", false);
+      creature.style.setProperty("--chg", "0");
+      if (absorbTarget) {
+        absorbTarget.classList.remove("being-absorbed");
+        absorbTarget.style.removeProperty("--drain");
+        absorbTarget = null;
+      }
+    }, 1100);
   };
 
   // ── passive idle blinks ────────────────────────────────
@@ -462,17 +520,27 @@ const initCursor = () => {
     say.classList.add("is-show");
     sayHideTimer = setTimeout(() => say.classList.remove("is-show"), ms);
   };
-  const thoughtsPainting = ["ოოო", "ვაიმე", "მშვენიერია", "hmm", "cute", "pretty", "fuzz!", "colors~", "nice", "ძალიან მაგარია"];
-  const thoughtsIdle     = ["mm", "...", "hi?", "oi", "ქ?", "zz"];
-  const thoughtsClick    = ["!", "ok!", "ჰო", "yay", "✦"];
+  const thoughtsPaintingBase = ["ოოო", "ვაიმე", "მშვენიერია", "hmm", "cute", "pretty", "fuzz!", "colors~", "nice", "ძალიან მაგარია"];
+  const thoughtsIdleBase     = ["mm", "...", "hi?", "oi", "ქ?", "zz"];
+  const thoughtsClick        = ["!", "ok!", "ჰო", "yay", "✦"];
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  // mood-flavored pools (rotates when personality shifts)
+  const moodPools = () => {
+    const p = CURSOR_PERSONALITIES[currentMood] || CURSOR_PERSONALITIES.curious;
+    return {
+      painting: thoughtsPaintingBase.concat(p.painting),
+      idle:     thoughtsIdleBase.concat(p.says),
+    };
+  };
+  const thoughtsPainting = () => moodPools().painting;
+  const thoughtsIdle     = () => moodPools().idle;
 
   // When lingering on a painting 2s, drop a random thought
   let thoughtTimer = null;
   const onImgEnterThought = () => {
     clearTimeout(thoughtTimer);
     thoughtTimer = setTimeout(() => {
-      if (curiousFor) showSay(pick(thoughtsPainting), 1800);
+      if (curiousFor) showSay(pick(thoughtsPainting()), 1800);
     }, 1800);
   };
   const cancelThought = () => { if (thoughtTimer) { clearTimeout(thoughtTimer); thoughtTimer = null; } };
@@ -492,7 +560,7 @@ const initCursor = () => {
     const kind = pick(microPool);
     if (kind === "yawn") {
       setState("is-yawn", true);
-      showSay(pick(thoughtsIdle), 900);
+      showSay(pick(thoughtsIdle()), 900);
       setTimeout(() => setState("is-yawn", false), 900);
     } else if (kind === "shiver") {
       setState("is-shiver", true);
@@ -520,13 +588,13 @@ const initCursor = () => {
   // ── SPARKLE emission ───────────────────────────────────
   const sparkleLayer = document.getElementById("ccSparkles");
   const sparkleColors = ["#ff6fa8", "#ffcc3f", "#8fd47c", "#7cc0ed", "#b58bd8", "#ff7a2a"];
-  const emitSparkles = (n = 5, colorOverride = null) => {
+  const emitSparklesAt = (x, y, n = 5, colorOverride = null) => {
     if (!sparkleLayer) return;
     for (let i = 0; i < n; i++) {
       const s = document.createElement("div");
       s.className = "cc-sparkle";
-      s.style.left = (mx + (Math.random() - .5) * 20) + "px";
-      s.style.top  = (my + (Math.random() - .5) * 20) + "px";
+      s.style.left = (x + (Math.random() - .5) * 20) + "px";
+      s.style.top  = (y + (Math.random() - .5) * 20) + "px";
       s.style.color = colorOverride || pick(sparkleColors);
       s.style.setProperty("--sz", (6 + Math.random() * 8) + "px");
       s.style.width = s.style.height = (6 + Math.random() * 8) + "px";
@@ -534,6 +602,7 @@ const initCursor = () => {
       setTimeout(() => s.remove(), 720);
     }
   };
+  const emitSparkles = (n = 5, colorOverride = null) => emitSparklesAt(mx, my, n, colorOverride);
 
   // emit sparkles on fast movement (throttled)
   let lastSparkAt = 0, lastFastMx = mx, lastFastMy = my;
@@ -1161,21 +1230,41 @@ const initLightboxTriggers = () => {
 
 
 // ─── FUZZY BREAKS — little creatures between posts ───────────────────
-const TWEEN_MOODS  = ["happy", "sleepy", "curious", "shy", "grumpy", "dreamy", "excited", "anxious", "proud", "mischievous", "philosopher", "cozy", "melodramatic"];
-const TWEEN_COLORS = ["var(--bubble)", "var(--spring)", "var(--yolk)", "var(--sky)", "var(--grape)", "var(--pumpkin)", "var(--tomato)"];
-const TWEEN_NOTES  = [
+//   YOU CAN CUSTOMIZE THESE from posts.js:
+//     window.TWEEN_NOTES   = ["your custom note", "sup", "..."];   // replaces random pool
+//     window.TWEEN_MOODS   = ["shy", "happy", ...];                // replaces random mood pool
+//     window.TWEEN_COLORS  = ["var(--bubble)", ...];               // replaces random color pool
+//   Per-post override (on the post object itself):
+//     tween: false                             // no break after this post
+//     tween: "აქ მიყვარს ყოფნა"                // forces this exact note
+//     tween: { note: "...", mood: "shy", color: "var(--grape)", hide: false }
+const TWEEN_MOODS_DEFAULT  = ["happy", "sleepy", "curious", "shy", "grumpy", "dreamy", "excited", "anxious", "proud", "mischievous", "philosopher", "cozy", "melodramatic"];
+const TWEEN_COLORS_DEFAULT = ["var(--bubble)", "var(--spring)", "var(--yolk)", "var(--sky)", "var(--grape)", "var(--pumpkin)", "var(--tomato)"];
+const TWEEN_NOTES_DEFAULT  = [
   "breathe.", "keep scrolling.", "little break.", "fuzzy intermission.",
   "ოოო~", "მე აქ ვარ", "pssst.", "more below.", "tiny nap.",
   "don't skip me.", "აქ მიყვარს ყურება", "psst — below is good."
 ];
+const TWEEN_MOODS  = (window.TWEEN_MOODS  && window.TWEEN_MOODS.length)  ? window.TWEEN_MOODS  : TWEEN_MOODS_DEFAULT;
+const TWEEN_COLORS = (window.TWEEN_COLORS && window.TWEEN_COLORS.length) ? window.TWEEN_COLORS : TWEEN_COLORS_DEFAULT;
+const TWEEN_NOTES  = (window.TWEEN_NOTES  && window.TWEEN_NOTES.length)  ? window.TWEEN_NOTES  : TWEEN_NOTES_DEFAULT;
 // simple seeded pseudo-random for stable layout per session
 let _twSeed = 0;
 const twRand = () => { _twSeed = (_twSeed * 9301 + 49297) % 233280; return _twSeed / 233280; };
 
-const makeTween = (key) => {
+const makeTween = (key, override) => {
+  // override === false → skip entirely
+  if (override === false) return "";
+  // override is a string → treat as forced note
+  // override is an object → may specify { note, mood, color, hide }
+  const ov = (typeof override === "string") ? { note: override }
+           : (override && typeof override === "object") ? override
+           : null;
+  if (ov && ov.hide) return "";
+
   _twSeed = key * 9973 + 7;
   const nCreatures = 1 + Math.floor(twRand() * 2.5); // 1-3
-  const showNote   = twRand() < 0.55;
+  const showNote   = ov?.note ? true : (twRand() < 0.55);
   const parts = [];
   // spread creatures horizontally without overlap
   const slots = [];
@@ -1187,13 +1276,13 @@ const makeTween = (key) => {
     const y    = 10 + twRand() * 55;
     const d    = (twRand() * 2.2).toFixed(1);
     const size = 48 + Math.floor(twRand() * 44); // 48-92px
-    const mood = TWEEN_MOODS[Math.floor(twRand() * TWEEN_MOODS.length)];
-    const col  = TWEEN_COLORS[Math.floor(twRand() * TWEEN_COLORS.length)];
+    const mood = ov?.mood  || TWEEN_MOODS[Math.floor(twRand() * TWEEN_MOODS.length)];
+    const col  = ov?.color || TWEEN_COLORS[Math.floor(twRand() * TWEEN_COLORS.length)];
     const rot  = (twRand() * 20 - 10).toFixed(1);
     parts.push(`<div class="floater tween" data-mood="${mood}" style="--tw-x:${x.toFixed(1)}%; --tw-y:${y.toFixed(1)}%; --tw-d:${d}s; --r:${rot}deg; width:${size}px; height:${size}px"><svg viewBox="0 0 100 100" style="color:${col}"><use href="#creature"/></svg></div>`);
   }
   if (showNote) {
-    const note = TWEEN_NOTES[Math.floor(twRand() * TWEEN_NOTES.length)];
+    const note = ov?.note || TWEEN_NOTES[Math.floor(twRand() * TWEEN_NOTES.length)];
     const nx   = 35 + twRand() * 30;
     const ny   = 30 + twRand() * 40;
     const nr   = (twRand() * 8 - 4).toFixed(1);
@@ -1209,9 +1298,10 @@ if (worksEl) {
   posts.forEach((post, index) => {
     if (post.type !== "idea") workNum++;
     html += renderPost(post, index, workNum);
-    // drop a fuzzy break after each post except the last
+    // drop a fuzzy break after each post except the last.
+    // Customize per-post via `tween:` on the post object (see posts.js).
     if (index < posts.length - 1) {
-      html += makeTween(index + 1);
+      html += makeTween(index + 1, post.tween);
     }
   });
   worksEl.innerHTML = html;

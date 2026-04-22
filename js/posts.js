@@ -2,6 +2,16 @@
    POSTS DATA
    Add a new post: paste a block at the TOP of this array.
    Images go in /images. Set type: "idea" for a text-only card.
+
+   FUZZY BREAKS BETWEEN POSTS — control the little creatures + notes:
+     - Global pools (optional): paste above `window.POSTS =`:
+         window.TWEEN_NOTES  = ["my note", "აქ მიყვარს ყოფნა", "..."];
+         window.TWEEN_MOODS  = ["shy", "happy", "cozy"];
+         window.TWEEN_COLORS = ["var(--grape)", "var(--tomato)"];
+     - Per-post (goes on the post object):
+         tween: false                                    → no break after this post
+         tween: "აქ მიყვარს ყოფნა"                        → force this note
+         tween: { note: "...", mood: "shy", color: "var(--grape)" }
    ═══════════════════════════════════════════════════════════════ */
 
 window.POSTS = [

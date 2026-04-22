@@ -2382,3 +2382,137 @@ body::after {
   .tween-note { font-size: 14px; max-width: 160px; }
 }
 
+/* ═══════════ cursor creature rotating PERSONALITY moods ═══════════
+   the cursor creature shifts mood every 45–90s (see script.js).
+   each mood adds a subtle baseline tint + posture. state classes
+   (is-curious/is-dizzy/etc.) still overlay on top. */
+.cursor-creature[class*="cc-mood-"] { --cc-color: var(--cc-mood-tint, var(--bubble)); }
+/* shy — slightly smaller, lower head */
+.cursor-creature.cc-mood-shy .cc-body { animation-duration: 2.2s; transform-origin: 50% 70%; }
+.cursor-creature.cc-mood-shy .cc-face { transform: translateY(1px); }
+/* sleepy — drowsy eyelids, slow wiggle */
+.cursor-creature.cc-mood-sleepy .cc-body { animation-duration: 3.2s; }
+.cursor-creature.cc-mood-sleepy .cc-eye  { transform: scale(1, .55); }
+/* curious — slightly bigger, faster bob */
+.cursor-creature.cc-mood-curious .cc-body { animation-duration: 1.2s; }
+.cursor-creature.cc-mood-curious .cc-eye  { transform: scale(1.1); }
+/* grumpy — squint, droopy mouth */
+.cursor-creature.cc-mood-grumpy .cc-eye { transform: scale(1, .45); }
+.cursor-creature.cc-mood-grumpy .cc-mouth { transform: scaleY(-.7) translateY(1px); }
+/* happy — slight bounce */
+.cursor-creature.cc-mood-happy .cc-body { animation: cc-happy-bob 1.2s ease-in-out infinite; }
+@keyframes cc-happy-bob {
+  0%,100% { transform: rotate(-4deg) scale(1) translateY(0); }
+  50%     { transform: rotate(4deg)  scale(1.08) translateY(-2px); }
+}
+/* dreamy — slow float, bright eyes */
+.cursor-creature.cc-mood-dreamy .cc-body { animation-duration: 2.6s; }
+.cursor-creature.cc-mood-dreamy .cc-eye { transform: scale(1.08); }
+/* excited — fast wiggle */
+.cursor-creature.cc-mood-excited .cc-body { animation-duration: .7s; }
+.cursor-creature.cc-mood-excited .cc-eye { transform: scale(1.15); }
+/* anxious — quick tremor overlay */
+.cursor-creature.cc-mood-anxious .cc-body { animation-duration: .5s; }
+.cursor-creature.cc-mood-anxious .cc-face { animation: cc-mood-jitter .24s ease-in-out infinite; }
+@keyframes cc-mood-jitter {
+  0%,100% { transform: translate(0, 0); }
+  50%     { transform: translate(.6px, -.4px); }
+}
+/* proud — chin up, slow confident bob */
+.cursor-creature.cc-mood-proud .cc-body { animation-duration: 2.0s; }
+.cursor-creature.cc-mood-proud .cc-face { transform: translateY(-1.4px); }
+/* mischievous — slanted smirk */
+.cursor-creature.cc-mood-mischievous .cc-mouth { transform: rotate(12deg) scaleX(.8); }
+.cursor-creature.cc-mood-mischievous .cc-eye { transform: scale(1, .7); }
+/* philosopher — gazing upward */
+.cursor-creature.cc-mood-philosopher .cc-body { animation-duration: 2.8s; }
+.cursor-creature.cc-mood-philosopher .cc-pupil-l,
+.cursor-creature.cc-mood-philosopher .cc-pupil-r { transform: translate(0, -1.6px); }
+/* cozy — squish, permanent tiny blush via mouth-width */
+.cursor-creature.cc-mood-cozy .cc-body { animation-duration: 2.4s; transform-origin: 50% 65%; }
+.cursor-creature.cc-mood-cozy .cc-mouth { transform: scale(.7, 1.2); }
+/* melodramatic — dramatic tilted wiggle, wide eyes */
+.cursor-creature.cc-mood-melodramatic .cc-body { animation: cc-mood-melo 1.3s ease-in-out infinite; }
+@keyframes cc-mood-melo {
+  0%,100% { transform: rotate(-8deg) scale(1);    }
+  50%     { transform: rotate(8deg)  scale(1.06); }
+}
+.cursor-creature.cc-mood-melodramatic .cc-eye { transform: scale(1.12); }
+
+
+/* ═════════ COLOR ABSORPTION — target feedback ═════════
+   Palette chips & floaters briefly get "drained" when the cursor
+   steals their color. --drain goes 0→1 during the hold. */
+
+/* palette chip being absorbed: shake + desaturate + inner shimmer */
+.palette-chip.being-absorbed {
+  animation: chip-wobble .24s ease-in-out infinite;
+  filter: saturate(calc(1 - var(--drain, 0) * .85)) brightness(calc(1 + var(--drain, 0) * .15));
+  box-shadow: 0 0 calc(var(--drain, 0) * 24px) rgba(255,255,255,.7),
+              inset 0 0 calc(var(--drain, 0) * 18px) rgba(255,255,255,.5);
+  transform: scale(calc(1 - var(--drain, 0) * .08));
+  transition: transform .15s;
+}
+@keyframes chip-wobble {
+  0%,100% { transform: scale(calc(1 - var(--drain, 0) * .08)) rotate(-1deg); }
+  50%     { transform: scale(calc(1 - var(--drain, 0) * .08)) rotate(1deg);  }
+}
+
+/* floater being absorbed: violent shake + fade + glow */
+.floater.being-absorbed .fl-svg {
+  animation: fl-drain-shake .14s ease-in-out infinite;
+  filter: saturate(calc(1 - var(--drain, 0) * .9)) brightness(calc(1 + var(--drain, 0) * .25)) drop-shadow(0 0 calc(var(--drain, 0) * 14px) rgba(255,255,255,.85));
+}
+@keyframes fl-drain-shake {
+  0%   { transform: translate(-1px, 0)  rotate(-3deg); }
+  50%  { transform: translate( 1px, 1px) rotate( 3deg); }
+  100% { transform: translate(-1px, 0)  rotate(-3deg); }
+}
+/* floater shows little escape-sparkles while being drained */
+.floater.being-absorbed::before {
+  content: "";
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(255,255,255,.55), transparent 60%);
+  opacity: var(--drain, 0);
+  pointer-events: none;
+  animation: fl-drain-pulse .5s ease-in-out infinite;
+}
+@keyframes fl-drain-pulse {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.25); }
+}
+/* floater drained aftermath: greyed out, droopy, slow recovery */
+.floater.is-drained .fl-svg {
+  filter: saturate(.1) brightness(1.12);
+  opacity: .55;
+  transition: filter 2s, opacity 2s;
+}
+.floater.is-drained .fl-mouth { transform: scaleY(-.6); transition: transform 2s; }
+
+/* upgrade the cursor gulp: bigger, punchier with a shockwave */
+.cursor-creature.is-absorbing .cc-body {
+  animation: cc-absorb-punch .9s cubic-bezier(.2,1.8,.4,1) !important;
+}
+@keyframes cc-absorb-punch {
+  0%   { transform: scale(1) rotate(0); }
+  18%  { transform: scale(1.7, .6) rotate(-12deg); }
+  38%  { transform: scale(.7, 1.5) rotate(10deg); }
+  60%  { transform: scale(1.25, .85) rotate(-4deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+/* shockwave ring on absorb */
+.cursor-creature.is-absorbing::before {
+  content: "";
+  position: absolute; top: 50%; left: 50%;
+  width: 10px; height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  border: 2px solid var(--cc-color);
+  animation: cc-absorb-ring .65s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes cc-absorb-ring {
+  0%   { transform: scale(1);  opacity: .9; }
+  100% { transform: scale(7); opacity: 0; }
+}
