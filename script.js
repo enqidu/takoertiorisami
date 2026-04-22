@@ -33,10 +33,21 @@ const TAG_COLORS = ["pink", "blue", "green", "orange", "purple", "yellow"];
 // ─── POSTS ──────────────────────────────────────────────────────────
 
 const posts = [
+ 
+    {
+    title: "Trois Couleurs",
+    date: "March 2026",
+    description: ``,
+    tags: ["creatures"],
+    images: [
+       "images/Trois couleurs.jpeg",
+    ],
+  },
+  
     {
     title: "Thailand",
     date: "March 22 2026",
-    description: `ThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThaiThai`,
+    description: `ThaiThaiThaiThaiThaThaiThaiThaiThaiThai`,
     tags: ["creatures"],
     images: [
        "images/thailand.jpg",
@@ -341,31 +352,29 @@ const renderPost = (post, index, workNum) => {
   const pid    = `post-${index}`;
   const isIdea = post.type === "idea";
 
-  // ─── Idea post: dark editorial interstitial ───
+  // ─── Idea post: warm-dark interstitial ───
   if (isIdea) {
     return `<section class="work-section work-idea reveal" id="${pid}">
       <div class="idea-inner">
-        <span class="idea-label">✦ ***</span>
+        <span class="idea-label">✦ &nbsp;&nbsp; * * * &nbsp;&nbsp; ✦</span>
         <blockquote class="idea-text">${post.description}</blockquote>
         <div class="idea-footer">
-          <span class="idea-title">— ${post.title}</span>
+          ${post.title ? `<span class="idea-title">— ${post.title}</span>` : ""}
           <span class="idea-date">${post.date}</span>
         </div>
       </div>
     </section>`;
   }
 
-  // ─── Work post: editorial section ───
-  const postNum   = String(workNum).padStart(2, "0");
-  const hasImages = post.images && post.images.length > 0;
-  const count     = hasImages ? post.images.length : 1;
+  // ─── Work post: journal entry ───
+  const postNum = String(workNum).padStart(2, "0");
 
   return `<section class="work-section reveal" id="${pid}">
-    <div class="work-index" aria-hidden="true">${postNum}</div>
-    <div class="work-header">
+    <header class="work-head">
+      <span class="work-num">${postNum}</span>
       <span class="work-date">${post.date}</span>
-      <h2 class="work-title">${post.title}</h2>
-    </div>
+    </header>
+    <h2 class="work-title">${post.title}</h2>
     <div class="work-gallery">
       <div class="gallery-frame">
         <div class="gallery-viewport" id="${pid}-viewport">
@@ -585,23 +594,20 @@ const initImageColors = () => {
       g = Math.round(g / n);
       b = Math.round(b / n);
 
-      // Blend toward page background (245,243,240) based on darkness,
-      // so very dark-edged images don't create jarring backgrounds
+      // Blend toward parchment background rgb(246,241,230)
       const lum = 0.299*r + 0.587*g + 0.114*b;
       const blend = lum < 80 ? 0.72 : lum < 160 ? 0.45 : 0.22;
-      const mix = (v) => Math.round(v * (1 - blend) + 245 * blend);
-      const sr = mix(r), sg = mix(g), sb = mix(b);
+      const mix = (v, bg) => Math.round(v * (1 - blend) + bg * blend);
+      const sr = mix(r, 246), sg = mix(g, 241), sb = mix(b, 230);
 
-      // Apply soft background behind image
       slide.style.background = `rgb(${sr},${sg},${sb})`;
 
-      // Tint the floating shadow with the raw dominant color
+      // Tint shadow with dominant color
       const vp = img.closest('.gallery-viewport');
       if (vp) {
         vp.style.boxShadow = `
-          0 30px 80px rgba(${r},${g},${b},0.22),
-          0 8px 24px rgba(${r},${g},${b},0.13),
-          0 2px 6px rgba(0,0,0,0.04)`;
+          0 8px 40px rgba(${r},${g},${b},0.18),
+          0 2px 8px rgba(${r},${g},${b},0.10)`;
       }
     } catch (e) { /* cross-origin or tainted canvas — skip silently */ }
   };
@@ -717,11 +723,9 @@ const initLightboxTriggers = () => {
 
       const sources = Array.from(imgs).map(i => i.src);
 
-      // Figure out which slide is currently visible
-      const track = vp.querySelector(".gallery-track");
-      const t     = track ? (track.style.transform || "") : "";
-      const m     = t.match(/translateX\(-(\d+)%\)/);
-      const cur   = m ? Math.round(parseInt(m[1]) / 100) : 0;
+      // Find which image was actually clicked
+      const clickedImg = e.target.closest('.gallery-slide img');
+      const cur = clickedImg ? Math.max(0, Array.from(imgs).indexOf(clickedImg)) : 0;
 
       if (window.openLightbox) window.openLightbox(sources, cur);
     });
