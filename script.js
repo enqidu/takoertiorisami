@@ -221,7 +221,6 @@ const initCursor = () => {
       curiousFor = img;
       setState("is-curious", true);
       showEmote("?", "pop-curious", 900);
-      scheduleAbsorb(img);
     }
   });
   document.addEventListener("mouseout", (e) => {
@@ -232,6 +231,17 @@ const initCursor = () => {
       cancelAbsorb();
     }
   });
+
+  // ── ABSORB: LONG-PRESS on a painting (3s) → adopt its color ─
+  document.addEventListener("mousedown", (e) => {
+    if (e.button !== 0) return;
+    const img = e.target.closest(imgSelector);
+    if (!img || anyBig()) return;
+    scheduleAbsorb(img);
+  });
+  const stopPress = () => { if (!isAbsorbing) cancelAbsorb(); };
+  document.addEventListener("mouseup", stopPress);
+  document.addEventListener("mouseleave", stopPress);
 
   // ── LOVING: over a floater creature ────────────────────
   document.addEventListener("mouseover", (e) => {
@@ -346,20 +356,16 @@ const initCursor = () => {
     }
   }, 1000);
 
-  // ── ABSORB: linger 3s on an image → visible progress ring fills → color pops ─
+  // ── ABSORB: press & hold 3s on a painting → adopt its color ─
   const ABSORB_MS = 3000;
-  let absorbTimer = null, absorbStart = 0, absorbRaf = 0;
-  const charge = document.getElementById("ccCharge");
+  let absorbTimer = null, absorbStart = 0, absorbRaf = 0, absorbImg = null;
   const scheduleAbsorb = (img) => {
     cancelAbsorb();
+    absorbImg = img;
     const baselineMx = mx, baselineMy = my;
     absorbStart = performance.now();
     setState("is-charging", true);
-    // show a tiny hint once per session
-    if (!sessionStorage.getTakoHintShown) {
-      sessionStorage.getTakoHintShown = "1";
-      showSay("hold still..", 1400);
-    }
+    showSay("hold…", 1600);
     const progress = () => {
       const t = performance.now() - absorbStart;
       const pct = Math.min(100, (t / ABSORB_MS) * 100);
@@ -368,14 +374,15 @@ const initCursor = () => {
     };
     absorbRaf = requestAnimationFrame(progress);
     absorbTimer = setTimeout(() => {
-      if (curiousFor !== img) { cancelAbsorb(); return; }
-      if (Math.hypot(mx - baselineMx, my - baselineMy) > 80) { cancelAbsorb(); return; }
+      if (absorbImg !== img) { cancelAbsorb(); return; }
+      if (Math.hypot(mx - baselineMx, my - baselineMy) > 100) { cancelAbsorb(); return; }
       absorbColorFrom(img);
     }, ABSORB_MS);
   };
   const cancelAbsorb = () => {
     if (absorbTimer) { clearTimeout(absorbTimer); absorbTimer = null; }
     if (absorbRaf) { cancelAnimationFrame(absorbRaf); absorbRaf = 0; }
+    absorbImg = null;
     setState("is-charging", false);
     creature.style.setProperty("--chg", "0");
   };
