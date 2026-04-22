@@ -278,7 +278,6 @@ const initCursor = () => {
     if (img && curiousFor === img) {
       curiousFor = null;
       setState("is-curious", false);
-      cancelAbsorb();
     }
   });
 

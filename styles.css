@@ -2458,7 +2458,11 @@ body::after {
   50%     { transform: scale(calc(1 - var(--drain, 0) * .08)) rotate(1deg);  }
 }
 
-/* floater being absorbed: violent shake + fade + glow */
+/* floater being absorbed: pause bob, violent shake + fade + glow */
+.floater.being-absorbed {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
 .floater.being-absorbed .fl-svg {
   animation: fl-drain-shake .14s ease-in-out infinite;
   filter: saturate(calc(1 - var(--drain, 0) * .9)) brightness(calc(1 + var(--drain, 0) * .25)) drop-shadow(0 0 calc(var(--drain, 0) * 14px) rgba(255,255,255,.85));
