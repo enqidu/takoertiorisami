@@ -1340,7 +1340,7 @@ body {
   pointer-events: auto;
   z-index: 1;
   --ox: 0px; --oy: 0px;
-  transition: transform .6s cubic-bezier(.4,1.5,.4,1);
+  /* no transform-transition — it fights the bob animation */
 }
 .floater svg { width: 100%; height: 100%; overflow: visible; }
 .f-1 { top: 8%;  right: 6%;  width: 110px; --r: -8deg;  animation: bob 5s ease-in-out infinite; }
@@ -1352,11 +1352,9 @@ body {
   0%,100% { transform: translate(var(--ox),var(--oy)) rotate(var(--r, -5deg)) scale(var(--s, 1)); }
   50%     { transform: translate(calc(var(--ox) + 4px), calc(var(--oy) - 16px)) rotate(calc(var(--r, -5deg) + 10deg)) scale(var(--s, 1)); }
 }
-.floater:hover {
-  animation: none;
-  transform: translate(var(--ox), var(--oy)) rotate(var(--r, -5deg)) scale(1.15);
-  filter: drop-shadow(0 6px 0 var(--ink));
-}
+/* hover: keep the bob animation, just visually highlight */
+.floater:hover { filter: drop-shadow(0 4px 0 var(--ink)) brightness(1.05); }
+.floater > svg { transition: filter .2s; }
 /* squish on the SVG child so the floater's position/rotation stays intact */
 .floater.pet > svg { animation: squish .5s cubic-bezier(.3,1.8,.4,1); transform-origin: 50% 70%; }
 

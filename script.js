@@ -175,13 +175,17 @@ const initFloaters = () => {
     mx = e.clientX / window.innerWidth;
     my = e.clientY / window.innerHeight;
   });
+  // gentle cursor pull, smoothed with lerp so cursor movement doesn't jitter
+  const state = Array.from(floaters, () => ({ x: 0, y: 0 }));
   const tick = () => {
     floaters.forEach((f, i) => {
-      const pull = (i % 3 + 1) * 6;
-      const ox = (mx - 0.5) * pull;
-      const oy = (my - 0.5) * pull;
-      f.style.setProperty("--ox", ox + "px");
-      f.style.setProperty("--oy", oy + "px");
+      const pull = 4; // gentle, consistent
+      const targetX = (mx - 0.5) * pull;
+      const targetY = (my - 0.5) * pull;
+      state[i].x += (targetX - state[i].x) * 0.08;
+      state[i].y += (targetY - state[i].y) * 0.08;
+      f.style.setProperty("--ox", state[i].x.toFixed(2) + "px");
+      f.style.setProperty("--oy", state[i].y.toFixed(2) + "px");
     });
     requestAnimationFrame(tick);
   };
