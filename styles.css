@@ -241,11 +241,9 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; filter: hue-rota
   position: relative;
 }
 
-/* Georgian word — solid filled with watercolor gradient */
+/* Georgian word — solid ink */
 .hero-line-solid {
-  background: linear-gradient(135deg, var(--clay) 0%, var(--pumpkin) 35%, var(--tomato) 65%, var(--bubble) 100%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
+  color: var(--ink);
   filter: url(#watercolor);
   transform: rotate(-1.5deg);
   transform-origin: left bottom;
@@ -780,9 +778,7 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; filter: hue-rota
   letter-spacing: -.04em;
 }
 .footer-line-solid {
-  background: linear-gradient(135deg, var(--bubble), var(--pumpkin), var(--yolk));
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--cream);
   filter: url(#watercolor);
   transform: rotate(-1deg);
 }
