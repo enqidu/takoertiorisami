@@ -182,8 +182,9 @@ const initCursor = () => {
 
   document.addEventListener("mousemove", (e) => {
     mx = e.clientX; my = e.clientY;
-    creature.style.left = mx + "px";
-    creature.style.top  = my + "px";
+    // PERF: use transform translate instead of left/top (compositor-only)
+    creature.style.setProperty("--cc-x", mx + "px");
+    creature.style.setProperty("--cc-y", my + "px");
     lastMoveAt = performance.now();
     trailPts.push({ x: mx, y: my, t: lastMoveAt });
     while (trailPts.length && lastMoveAt - trailPts[0].t > 800) trailPts.shift();
@@ -191,10 +192,15 @@ const initCursor = () => {
   });
 
   const follow = () => {
-    tx += (mx - tx) * 0.22;
-    ty += (my - ty) * 0.22;
-    trail.style.left = tx + "px";
-    trail.style.top  = ty + "px";
+    const ntx = tx + (mx - tx) * 0.22;
+    const nty = ty + (my - ty) * 0.22;
+    // skip paint invalidation if movement is sub-pixel
+    if (Math.abs(ntx - tx) > 0.3 || Math.abs(nty - ty) > 0.3) {
+      tx = ntx; ty = nty;
+      // transform (compositor-only) instead of left/top (forces layout)
+      trail.style.setProperty("--tr-x", tx + "px");
+      trail.style.setProperty("--tr-y", ty + "px");
+    }
     requestAnimationFrame(follow);
   };
   follow();

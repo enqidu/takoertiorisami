@@ -111,15 +111,12 @@ body::after {
   position: fixed; top: 0; left: 0;
   width: 44px; height: 44px;
   pointer-events: none; z-index: 9999;
-  transform: translate(-50%, -50%);
+  /* PERF: position via translate (compositor-only) instead of
+     left/top (which forces layout on every mousemove). */
+  transform: translate3d(var(--cc-x, -100px), var(--cc-y, -100px), 0) translate(-50%, -50%);
   transition: width .2s, height .2s, filter .2s;
-  /* NOTE: mix-blend-mode was a major perf hit — every mousemove
-     forced the whole viewport to recomposite, re-running SVG
-     filters on all ~20 floaters. */
   --cc-color: var(--bubble);
-  /* PERF: own compositor layer so cursor movement doesn't repaint
-     the document behind it. */
-  will-change: transform, left, top;
+  will-change: transform;
   contain: layout paint;
 }
 .cc-svg { width: 100%; height: 100%; overflow: visible; display: block; }
@@ -444,8 +441,8 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
   width: 8px; height: 8px; border-radius: 50%;
   background: var(--ink);
   pointer-events: none; z-index: 9998;
-  transform: translate(-50%, -50%);
-  transition: transform .08s linear;
+  transform: translate3d(var(--tr-x, -100px), var(--tr-y, -100px), 0) translate(-50%, -50%);
+  will-change: transform;
 }
 
 @media (hover: none), (pointer: coarse) {
