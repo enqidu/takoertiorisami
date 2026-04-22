@@ -291,8 +291,12 @@ const initScrollWobble = () => {
 };
 
 
-// ─── PET THE CREATURES — click a floater, it squishes + hearts ──────
+// ─── PET THE CREATURES — click a floater, it squishes + hearts
+//     SECRET: pet 5× within 4s and the creature runs to the game 🕹️
 const initPet = () => {
+  let petCount = 0;
+  let petTimer = null;
+  const resetPetCount = () => { petCount = 0; };
   document.querySelectorAll(".floater").forEach(el => {
     el.style.pointerEvents = "auto";
     el.style.cursor = "none";
@@ -314,7 +318,46 @@ const initPet = () => {
         setTimeout(() => h.remove(), 1400);
       }
       setTimeout(() => el.classList.remove("pet"), 600);
+
+      // secret pet-count → game
+      petCount++;
+      clearTimeout(petTimer);
+      petTimer = setTimeout(resetPetCount, 4000);
+      if (petCount >= 5) {
+        petCount = 0;
+        document.body.classList.add("party");
+        setTimeout(() => { window.location.href = "game.html"; }, 700);
+      }
     });
+  });
+
+  // SECRET: type "play" anywhere → game
+  const word = "play";
+  let wi = 0;
+  document.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, textarea")) return;
+    if (e.key.toLowerCase() === word[wi]) {
+      wi++;
+      if (wi === word.length) { wi = 0; window.location.href = "game.html"; }
+    } else { wi = 0; }
+  });
+};
+
+
+// ─── SECRET: triple-click the site name → hop to the game ────────────
+const initSiteNameSecret = () => {
+  const name = document.querySelector(".site-name");
+  if (!name) return;
+  let clicks = 0, clickTimer = null;
+  name.addEventListener("click", (e) => {
+    clicks++;
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(() => { clicks = 0; }, 600);
+    if (clicks >= 3) {
+      e.preventDefault();
+      clicks = 0;
+      window.location.href = "game.html";
+    }
   });
 };
 
@@ -478,5 +521,6 @@ initClickSplats();
 initMagnetic();
 initScrollWobble();
 initPet();
+initSiteNameSecret();
 initKonami();
 initLightbox();
