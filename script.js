@@ -1095,6 +1095,48 @@ const initLightboxTriggers = () => {
 };
 
 
+// ─── FUZZY BREAKS — little creatures between posts ───────────────────
+const TWEEN_MOODS  = ["happy", "sleepy", "curious", "shy", "grumpy", "dreamy"];
+const TWEEN_COLORS = ["var(--bubble)", "var(--spring)", "var(--yolk)", "var(--sky)", "var(--grape)", "var(--pumpkin)", "var(--tomato)"];
+const TWEEN_NOTES  = [
+  "breathe.", "keep scrolling.", "little break.", "fuzzy intermission.",
+  "ოოო~", "მე აქ ვარ", "pssst.", "more below.", "tiny nap.",
+  "don't skip me.", "აქ მიყვარს ყურება", "psst — below is good."
+];
+// simple seeded pseudo-random for stable layout per session
+let _twSeed = 0;
+const twRand = () => { _twSeed = (_twSeed * 9301 + 49297) % 233280; return _twSeed / 233280; };
+
+const makeTween = (key) => {
+  _twSeed = key * 9973 + 7;
+  const nCreatures = 1 + Math.floor(twRand() * 2.5); // 1-3
+  const showNote   = twRand() < 0.55;
+  const parts = [];
+  // spread creatures horizontally without overlap
+  const slots = [];
+  for (let i = 0; i < nCreatures; i++) {
+    let x; let tries = 0;
+    do { x = 8 + twRand() * 84; tries++; }
+    while (tries < 8 && slots.some(s => Math.abs(s - x) < 22));
+    slots.push(x);
+    const y    = 10 + twRand() * 55;
+    const d    = (twRand() * 2.2).toFixed(1);
+    const size = 48 + Math.floor(twRand() * 44); // 48-92px
+    const mood = TWEEN_MOODS[Math.floor(twRand() * TWEEN_MOODS.length)];
+    const col  = TWEEN_COLORS[Math.floor(twRand() * TWEEN_COLORS.length)];
+    const rot  = (twRand() * 20 - 10).toFixed(1);
+    parts.push(`<div class="floater tween" data-mood="${mood}" style="--tw-x:${x.toFixed(1)}%; --tw-y:${y.toFixed(1)}%; --tw-d:${d}s; --r:${rot}deg; width:${size}px; height:${size}px"><svg viewBox="0 0 100 100" style="color:${col}"><use href="#creature"/></svg></div>`);
+  }
+  if (showNote) {
+    const note = TWEEN_NOTES[Math.floor(twRand() * TWEEN_NOTES.length)];
+    const nx   = 35 + twRand() * 30;
+    const ny   = 30 + twRand() * 40;
+    const nr   = (twRand() * 8 - 4).toFixed(1);
+    parts.push(`<div class="tween-note" style="--tw-nx:${nx.toFixed(1)}%; --tw-ny:${ny.toFixed(1)}%; --tw-nr:${nr}deg">${note}</div>`);
+  }
+  return `<div class="work-tween" aria-hidden="true">${parts.join("")}</div>`;
+};
+
 // ─── MOUNT ──────────────────────────────────────────────────────────
 const worksEl = document.getElementById("works");
 if (worksEl) {
@@ -1102,6 +1144,10 @@ if (worksEl) {
   posts.forEach((post, index) => {
     if (post.type !== "idea") workNum++;
     html += renderPost(post, index, workNum);
+    // drop a fuzzy break after each post except the last
+    if (index < posts.length - 1) {
+      html += makeTween(index + 1);
+    }
   });
   worksEl.innerHTML = html;
 
