@@ -237,8 +237,9 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; filter: hue-rota
 }
 .hero-line {
   display: inline-block;
-  font-size: clamp(64px, 16vw, 240px);
+  font-size: clamp(36px, 14vw, 220px);
   position: relative;
+  max-width: 100%;
 }
 
 /* Georgian word — solid ink */
