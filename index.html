@@ -125,18 +125,18 @@
     <defs>
       <!-- watercolor: turbulence displaces outlines so type edges feel painted -->
       <filter id="watercolor" x="-5%" y="-5%" width="110%" height="110%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.022" numOctaves="2" seed="4" result="noise"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.022" numOctaves="1" seed="4" result="noise"/>
         <feDisplacementMap in="SourceGraphic" in2="noise" scale="5"/>
       </filter>
       <!-- fuzz: makes SVG creatures have fluffy edges like Tako's paintings -->
       <filter id="fuzz" x="-20%" y="-20%" width="140%" height="140%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="2" result="n"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" seed="2" result="n"/>
         <feDisplacementMap in="SourceGraphic" in2="n" scale="4"/>
         <feGaussianBlur stdDeviation="0.4"/>
       </filter>
       <!-- rough: messy ink edge -->
       <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="6"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" seed="6"/>
         <feDisplacementMap in="SourceGraphic" scale="2.2"/>
       </filter>
       <!-- reusable creature symbol: fuzzy friend -->

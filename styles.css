@@ -113,7 +113,9 @@ body::after {
   pointer-events: none; z-index: 9999;
   transform: translate(-50%, -50%);
   transition: width .2s, height .2s, filter .2s;
-  mix-blend-mode: multiply;
+  /* NOTE: mix-blend-mode was a major perf hit — every mousemove
+     forced the whole viewport to recomposite, re-running SVG
+     filters on all ~20 floaters. */
   --cc-color: var(--bubble);
 }
 .cc-svg { width: 100%; height: 100%; overflow: visible; display: block; }
