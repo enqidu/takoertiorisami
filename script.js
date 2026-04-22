@@ -557,27 +557,235 @@ const initCursor = () => {
 };
 
 
-// ─── FLOATER CREATURES — follow cursor slightly ──────────────────────
+// ─── FLOATER CREATURES — each one has personality ────────────────────
+// pupils track cursor · creatures blink, wink, yawn, sleep, peek,
+// get surprised when you approach, say tiny things, get shy, etc.
+const FLOATER_SVG = `
+  <svg viewBox="0 0 100 100" class="fl-svg">
+    <g class="fl-body">
+      <g filter="url(#fuzz)">
+        <path class="fl-shape" d="M20 62 Q10 38 28 24 Q50 8 72 24 Q90 38 80 62 Q78 84 50 86 Q22 84 20 62 Z" fill="currentColor"/>
+        <path class="fl-spikes" d="M28 20 L24 10 L32 18 M40 14 L40 4 L44 14 M60 14 L60 4 L56 14 M72 20 L76 10 L68 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </g>
+    </g>
+    <g class="fl-face">
+      <g class="fl-eye fl-eye-l">
+        <ellipse class="fl-eye-white" cx="38" cy="50" rx="7" ry="8" fill="#fffaed"/>
+        <circle class="fl-pupil fl-pupil-l" cx="38" cy="51" r="3" fill="#1a1410"/>
+        <circle class="fl-gleam fl-gleam-l" cx="39" cy="49" r="1.1" fill="#fffaed"/>
+      </g>
+      <g class="fl-eye fl-eye-r">
+        <ellipse class="fl-eye-white" cx="62" cy="50" rx="7" ry="8" fill="#fffaed"/>
+        <circle class="fl-pupil fl-pupil-r" cx="62" cy="51" r="3" fill="#1a1410"/>
+        <circle class="fl-gleam fl-gleam-r" cx="63" cy="49" r="1.1" fill="#fffaed"/>
+      </g>
+      <ellipse class="fl-blush fl-blush-l" cx="28" cy="62" rx="4" ry="2" fill="#ff9bb0" opacity="0"/>
+      <ellipse class="fl-blush fl-blush-r" cx="72" cy="62" rx="4" ry="2" fill="#ff9bb0" opacity="0"/>
+      <ellipse class="fl-mouth" cx="50" cy="66" rx="4" ry="2.5" fill="#e4483b"/>
+      <text class="fl-zzz" x="72" y="22" font-size="14" fill="#1a1410" opacity="0" font-family="DM Mono, monospace">z</text>
+    </g>
+  </svg>
+`;
+
+const FL_PERSONALITIES = {
+  shy:     { says: ["ოი..", "um", "hi?", "ჰმ", "..", "o.o"], blinkMs: [1800, 4200], mood: "shy" },
+  sleepy:  { says: ["zzz", "mm..", "yawn", "sleep?", "ოო"],  blinkMs: [700, 1700],  mood: "sleepy" },
+  curious: { says: ["oh?", "რა?", "hmm", "what?", "?"],       blinkMs: [3000, 5500], mood: "curious" },
+  grumpy:  { says: ["ჰმ", "pff", "no", "-_-", "bleh"],         blinkMs: [2500, 5000], mood: "grumpy" },
+  happy:   { says: ["!", "yay", "ჰოი", "~", ":D", "ოო!"],      blinkMs: [3500, 6500], mood: "happy" },
+  dreamy:  { says: ["★", "♥", "~", "◌", "..♪"],                 blinkMs: [3000, 6000], mood: "dreamy" },
+};
+const FL_POOL = Object.keys(FL_PERSONALITIES);
+
 const initFloaters = () => {
-  if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-  const floaters = document.querySelectorAll(".floater");
+  const floaters = Array.from(document.querySelectorAll(".floater, .crew-creature"));
   if (!floaters.length) return;
-  let mx = 0.5, my = 0.5;
+  const hoverable = matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  // build inline SVG for each floater (preserve existing color style)
+  floaters.forEach((f, i) => {
+    const existing = f.querySelector("svg");
+    const color = existing ? existing.getAttribute("style") : (f.getAttribute("data-color") || "");
+    if (f.classList.contains("floater")) {
+      f.innerHTML = FLOATER_SVG + `<div class="fl-bubble"></div>`;
+    } else {
+      f.innerHTML = FLOATER_SVG;
+    }
+    const svg = f.querySelector(".fl-svg");
+    if (color) svg.setAttribute("style", color);
+    // personality: use data-mood or pick random
+    const mood = f.getAttribute("data-mood") || FL_POOL[Math.floor(Math.random() * FL_POOL.length)];
+    f.dataset.mood = mood;
+    f._personality = FL_PERSONALITIES[mood] || FL_PERSONALITIES.curious;
+  });
+
+  if (!hoverable) return; // on touch devices keep them still
+
+  // cursor tracking (normalized -0.5..0.5)
+  let mx = 0.5, my = 0.5, pageX = 0, pageY = 0;
   document.addEventListener("mousemove", (e) => {
     mx = e.clientX / window.innerWidth;
     my = e.clientY / window.innerHeight;
+    pageX = e.clientX; pageY = e.clientY;
   });
-  // gentle cursor pull, smoothed with lerp so cursor movement doesn't jitter
-  const state = Array.from(floaters, () => ({ x: 0, y: 0 }));
+
+  const state = floaters.map(() => ({ x: 0, y: 0, px: 0, py: 0, near: false, busy: false, lastBlink: 0, nextBehavior: 0 }));
+
+  const setTempState = (el, cls, ms) => {
+    el.classList.add(cls);
+    setTimeout(() => el.classList.remove(cls), ms);
+  };
+
+  const showBubble = (el, text, ms = 1200) => {
+    const b = el.querySelector(".fl-bubble");
+    if (!b) return;
+    b.textContent = text;
+    b.classList.add("on");
+    clearTimeout(b._t);
+    b._t = setTimeout(() => b.classList.remove("on"), ms);
+  };
+
+  const blink = (el) => setTempState(el, "fl-blink", 130);
+  const wink  = (el) => setTempState(el, Math.random() < 0.5 ? "fl-wink-l" : "fl-wink-r", 320);
+  const giggle = (el) => setTempState(el, "fl-giggle", 440);
+  const sniff = (el) => setTempState(el, "fl-sniff", 900);
+  const peek  = (el) => {
+    const dirs = ["fl-peek-l", "fl-peek-r", "fl-peek-u", "fl-peek-d"];
+    setTempState(el, dirs[Math.floor(Math.random() * dirs.length)], 700);
+  };
+
+  // random behavior scheduler per creature
+  const scheduleBehavior = (el, s, p) => {
+    const [lo, hi] = p.blinkMs;
+    s.nextBehavior = performance.now() + lo + Math.random() * (hi - lo);
+  };
+
+  const pickBehavior = (el, p) => {
+    if (el.classList.contains("fl-surprised") || el.classList.contains("fl-happy")) {
+      blink(el); return;
+    }
+    const r = Math.random();
+    // sleepy creatures sleep more
+    if (p.mood === "sleepy") {
+      if (r < 0.3) {
+        el.classList.add("fl-sleep");
+        setTimeout(() => el.classList.remove("fl-sleep"), 2400 + Math.random() * 2200);
+        return;
+      }
+      if (r < 0.55) { el.classList.add("fl-sleepy"); setTimeout(() => el.classList.remove("fl-sleepy"), 1600); return; }
+    }
+    // shy creatures look down / blush
+    if (p.mood === "shy" && r < 0.35) {
+      el.classList.add("fl-shy");
+      setTimeout(() => el.classList.remove("fl-shy"), 1600);
+      return;
+    }
+    // grumpy
+    if (p.mood === "grumpy" && r < 0.3) {
+      el.classList.add("fl-grumpy");
+      setTimeout(() => el.classList.remove("fl-grumpy"), 1800);
+      return;
+    }
+    // happy creatures giggle
+    if (p.mood === "happy" && r < 0.25) { giggle(el); return; }
+    // dreamy: peek at nothing
+    if (p.mood === "dreamy" && r < 0.4) { peek(el); return; }
+    // default menu
+    if (r < 0.5) blink(el);
+    else if (r < 0.7) wink(el);
+    else if (r < 0.85) peek(el);
+    else sniff(el);
+    // sometimes say something
+    if (Math.random() < 0.22) {
+      showBubble(el, p.says[Math.floor(Math.random() * p.says.length)], 1100);
+    }
+  };
+
+  floaters.forEach((el, i) => scheduleBehavior(el, state[i], el._personality));
+
   const tick = () => {
+    const now = performance.now();
     floaters.forEach((f, i) => {
-      const pull = 4; // gentle, consistent
-      const targetX = (mx - 0.5) * pull;
-      const targetY = (my - 0.5) * pull;
-      state[i].x += (targetX - state[i].x) * 0.08;
-      state[i].y += (targetY - state[i].y) * 0.08;
-      f.style.setProperty("--ox", state[i].x.toFixed(2) + "px");
-      f.style.setProperty("--oy", state[i].y.toFixed(2) + "px");
+      const s = state[i];
+      const isFloater = f.classList.contains("floater");
+
+      // cursor-pull offset for body (only floaters, not crew creatures which bob in place)
+      if (isFloater) {
+        const pull = 4;
+        const tx = (mx - 0.5) * pull;
+        const ty = (my - 0.5) * pull;
+        s.x += (tx - s.x) * 0.08;
+        s.y += (ty - s.y) * 0.08;
+        f.style.setProperty("--ox", s.x.toFixed(2) + "px");
+        f.style.setProperty("--oy", s.y.toFixed(2) + "px");
+      }
+
+      // pupil tracking toward cursor (relative to this creature)
+      const r = f.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top  + r.height / 2;
+      const dx = pageX - cx, dy = pageY - cy;
+      const dist = Math.hypot(dx, dy);
+      // normalize → small eye offset
+      const maxOff = 3.2;
+      const ang = Math.atan2(dy, dx);
+      const mag = Math.min(1, dist / 320);
+      const pxTarget = Math.cos(ang) * maxOff * mag;
+      const pyTarget = Math.sin(ang) * maxOff * mag;
+      s.px += (pxTarget - s.px) * 0.12;
+      s.py += (pyTarget - s.py) * 0.12;
+      if (!f.classList.contains("fl-peek-l") &&
+          !f.classList.contains("fl-peek-r") &&
+          !f.classList.contains("fl-peek-u") &&
+          !f.classList.contains("fl-peek-d") &&
+          !f.classList.contains("fl-sleep") &&
+          !f.classList.contains("fl-shy")) {
+        f.style.setProperty("--flpx", s.px.toFixed(2) + "px");
+        f.style.setProperty("--flpy", s.py.toFixed(2) + "px");
+      }
+
+      // proximity reactions
+      const near = dist < 140;
+      const veryNear = dist < 80;
+      if (near !== s.near) {
+        s.near = near;
+        const p = f._personality;
+        if (near) {
+          // wake up if sleeping
+          f.classList.remove("fl-sleep", "fl-sleepy");
+          // happy/loving personalities bloom
+          if (p.mood === "happy" || p.mood === "dreamy") {
+            f.classList.add("fl-happy");
+          } else if (p.mood === "shy") {
+            f.classList.add("fl-shy");
+            if (Math.random() < 0.5) showBubble(f, p.says[Math.floor(Math.random() * p.says.length)], 1000);
+          } else if (p.mood === "grumpy") {
+            f.classList.add("fl-grumpy");
+            if (Math.random() < 0.4) showBubble(f, p.says[Math.floor(Math.random() * p.says.length)], 900);
+          } else {
+            // curious/sleepy get surprised
+            f.classList.add("fl-surprised");
+            setTimeout(() => f.classList.remove("fl-surprised"), 700);
+            if (Math.random() < 0.4) showBubble(f, "!", 700);
+          }
+        } else {
+          f.classList.remove("fl-happy", "fl-shy", "fl-grumpy", "fl-surprised");
+        }
+      }
+      if (veryNear && !f._gleamTs) {
+        f._gleamTs = now;
+        if (Math.random() < 0.3) {
+          const p = f._personality;
+          showBubble(f, p.says[Math.floor(Math.random() * p.says.length)], 1100);
+        }
+      }
+      if (!veryNear && f._gleamTs && now - f._gleamTs > 400) f._gleamTs = 0;
+
+      // behavior tick
+      if (now >= s.nextBehavior) {
+        pickBehavior(f, f._personality);
+        scheduleBehavior(f, s, f._personality);
+      }
     });
     requestAnimationFrame(tick);
   };
