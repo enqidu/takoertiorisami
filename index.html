@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tamar Chachava - xelovani</title>
+  <title>Tako ერთიორისამი — creature lab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
@@ -11,53 +11,125 @@
 </head>
 <body>
 
-  <!-- Nav -->
+  <!-- SVG FILTER DEFS — the secret sauce: watercolor + fuzz + paper edges -->
+  <svg class="svg-defs" width="0" height="0" aria-hidden="true" style="position:absolute">
+    <defs>
+      <!-- watercolor: turbulence displaces outlines so type edges feel painted -->
+      <filter id="watercolor" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.022" numOctaves="2" seed="4" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="5"/>
+      </filter>
+      <!-- fuzz: makes SVG creatures have fluffy edges like Tako's paintings -->
+      <filter id="fuzz" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="2" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="4"/>
+        <feGaussianBlur stdDeviation="0.4"/>
+      </filter>
+      <!-- rough: messy ink edge -->
+      <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="6"/>
+        <feDisplacementMap in="SourceGraphic" scale="2.2"/>
+      </filter>
+      <!-- reusable creature symbol: fuzzy friend -->
+      <symbol id="creature" viewBox="0 0 100 100">
+        <g filter="url(#fuzz)" class="fuzz">
+          <path d="M20 62 Q10 38 28 24 Q50 8 72 24 Q90 38 80 62 Q78 84 50 86 Q22 84 20 62 Z" fill="currentColor"/>
+          <!-- spikes -->
+          <path d="M28 20 L24 10 L32 18 M40 14 L40 4 L44 14 M60 14 L60 4 L56 14 M72 20 L76 10 L68 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        </g>
+        <!-- eyes: outside filter so they stay crisp -->
+        <ellipse cx="38" cy="50" rx="7" ry="8" fill="#fffaed"/>
+        <ellipse cx="62" cy="50" rx="7" ry="8" fill="#fffaed"/>
+        <circle cx="39" cy="52" r="3" fill="#1a1410"/>
+        <circle cx="63" cy="52" r="3" fill="#1a1410"/>
+        <circle cx="40" cy="50" r="1" fill="#fffaed"/>
+        <circle cx="64" cy="50" r="1" fill="#fffaed"/>
+        <!-- little mouth -->
+        <ellipse cx="50" cy="66" rx="4" ry="2.5" fill="#e4483b"/>
+      </symbol>
+      <!-- splat symbol -->
+      <symbol id="splat" viewBox="0 0 100 100">
+        <g filter="url(#rough)">
+          <path d="M50 10 Q70 18 78 34 Q96 42 86 60 Q92 78 70 82 Q58 96 42 86 Q22 94 14 74 Q-2 62 10 44 Q6 24 28 20 Q36 6 50 10 Z" fill="currentColor"/>
+        </g>
+      </symbol>
+      <!-- squiggle -->
+      <symbol id="squiggle" viewBox="0 0 200 30">
+        <path d="M0 15 Q20 0 40 15 T80 15 T120 15 T160 15 T200 15" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#rough)"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- CREATURE CURSOR -->
+  <div class="cursor-creature" id="cursorCreature">
+    <svg viewBox="0 0 100 100">
+      <g style="color: var(--bubble)"><use href="#creature"/></g>
+    </svg>
+  </div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+
+  <!-- NAV -->
   <nav class="nav">
     <a href="index.html" class="site-name">Xelovneba</a>
     <div class="nav-links">
-      <a href="index.html" class="nav-link active">Works</a>
-      <a href="about" class="nav-link">Tamar Chachava</a>
+      <a href="index.html" class="nav-link active">works</a>
+      <a href="about" class="nav-link">tamar</a>
     </div>
   </nav>
 
-  <!-- HERO — full viewport, massive typography -->
+  <!-- HERO -->
   <section class="hero">
+    <!-- decorative splats -->
+    <svg class="hero-deco splat-1" style="color: var(--bubble); opacity:.6"><use href="#splat"/></svg>
+    <svg class="hero-deco splat-2" style="color: var(--spring); opacity:.55"><use href="#splat"/></svg>
+    <svg class="hero-deco splat-3" style="color: var(--yolk); opacity:.7"><use href="#splat"/></svg>
+
+    <!-- floating eye that watches cursor -->
+    <div class="hero-eye" id="heroEye">
+      <div class="eye-white">
+        <div class="iris" id="heroIris"></div>
+      </div>
+    </div>
+
     <div class="hero-content">
-      <p class="hero-tag">portfolio?</p>
+      <p class="hero-tag">portfolio ?</p>
       <h1 class="hero-title">
         <span class="hero-line hero-line-solid">თაკო</span>
         <span class="hero-line hero-line-outline">ერთიორისამი</span>
       </h1>
     </div>
+
     <div class="hero-bottom">
       <p class="hero-scroll">arts ↓</p>
-      <div class="hero-marquee">
-        <div class="marquee-track">
-          <span>My art ✦ My art ✦ My art ✦ My art</span>
-          <span>My art ✦ My art ✦ My art ✦ My art ✦ My art </span>
-        </div>
+    </div>
+
+    <div class="hero-marquee">
+      <div class="marquee-track">
+        <span>✦ my art ✦ creature lab ✦ ყველი + ყავა ✦ acrylic ✦ watercolor ✦ fuzz ✦ eyes ✦ my art ✦</span>
+        <span>✦ my art ✦ creature lab ✦ ყველი + ყავა ✦ acrylic ✦ watercolor ✦ fuzz ✦ eyes ✦ my art ✦</span>
       </div>
     </div>
   </section>
 
-  <!-- Works — rendered by script.js -->
+  <!-- WORKS (populated by script.js) -->
   <main class="works" id="works"></main>
 
-  <!-- Footer -->
+  <!-- FOOTER -->
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-big-text">
         <span class="footer-line-solid">დამიკავშირდით</span>
-        <span class="footer-line-outline">Contact Me </span>
+        <span class="footer-line-outline">say hi :P</span>
       </div>
       <div class="footer-marquee">
         <div class="marquee-track">
-          <span> ◌ ჩაჩავა თამარ ◌ </span>
+          <span>◌ ჩაჩავა თამარ ◌ chachava tamar ◌ ჩაჩავა თამარ ◌ chachava tamar ◌</span>
+          <span>◌ ჩაჩავა თამარ ◌ chachava tamar ◌ ჩაჩავა თამარ ◌ chachava tamar ◌</span>
         </div>
       </div>
       <div class="footer-links">
-        <a href="about">About</a>
-        <a href="mailto:takochachava1@gmail.com">Contact - takochachava1@gmail.com </a>
+        <a href="about">about</a>
+        <a href="mailto:takochachava1@gmail.com">takochachava1@gmail.com</a>
       </div>
     </div>
   </footer>
