@@ -17,8 +17,8 @@
   const finalT   = document.getElementById("finalTime");
   const goMsg    = document.getElementById("goMsg");
 
-  const PAIRS = 8; // 16 cards, 4×4
   const posts = (window.POSTS || []).filter(p => p.images && p.images.length > 0);
+  const PAIRS = Math.max(2, Math.min(8, posts.length));
 
   let moves = 0, found = 0, startedAt = 0, timerId = null;
   let flipped = [];        // currently face-up cards awaiting resolution
@@ -36,14 +36,7 @@
   };
 
   const pickImages = () => {
-    // collect one image per post; fall back to repeat if fewer than PAIRS
-    const imgs = [];
-    for (const p of posts) imgs.push(p.images[0]);
-    if (imgs.length < PAIRS) {
-      // duplicate to fill
-      let i = 0;
-      while (imgs.length < PAIRS && posts.length) imgs.push(posts[i++ % posts.length].images[0]);
-    }
+    const imgs = posts.map(p => p.images[0]);
     return shuffle(imgs).slice(0, PAIRS);
   };
 
