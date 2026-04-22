@@ -175,8 +175,38 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
   75%     { transform: rotate(6deg) translateY(-1px); }
 }
 
+/* ── STATE: CHARGING — visible progress ring while lingering on a painting ── */
+.cursor-creature .cc-charge {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: conic-gradient(var(--tomato) calc(var(--chg, 0) * 1%), transparent 0);
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
+          mask: radial-gradient(circle, transparent 58%, #000 60%);
+  transition: opacity .2s;
+}
+.cursor-creature.is-charging .cc-charge { opacity: .9; }
+.cursor-creature.is-charging .cc-body   { animation: cc-inhale 1.6s ease-in-out infinite; }
+@keyframes cc-inhale {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08, .94); }
+}
+.cursor-creature.is-charging .cc-eye { transform: scale(1.1); }
+.cursor-creature.is-charging .cc-mouth { transform: scale(.5, 1.6); }
+
 /* ── STATE: absorbing color from painting ───── */
 .cursor-creature.is-absorbing .cc-body { animation: cc-absorb 1.2s cubic-bezier(.3,1.6,.4,1); }
+.cursor-creature.is-absorbing .cc-charge {
+  opacity: 1;
+  animation: cc-charge-flash .9s ease-out forwards;
+}
+@keyframes cc-charge-flash {
+  0%   { transform: scale(1); opacity: 1; filter: blur(0); }
+  60%  { transform: scale(1.8); opacity: .6; filter: blur(2px); }
+  100% { transform: scale(2.4); opacity: 0; filter: blur(6px); }
+}
 @keyframes cc-absorb {
   0%   { transform: scale(1); }
   30%  { transform: scale(1.4) rotate(-8deg); }

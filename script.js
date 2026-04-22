@@ -346,19 +346,38 @@ const initCursor = () => {
     }
   }, 1000);
 
-  // ── ABSORB: linger 10s on an image → adopt a painterly color ─
-  let absorbTimer = null;
+  // ── ABSORB: linger 3s on an image → visible progress ring fills → color pops ─
+  const ABSORB_MS = 3000;
+  let absorbTimer = null, absorbStart = 0, absorbRaf = 0;
+  const charge = document.getElementById("ccCharge");
   const scheduleAbsorb = (img) => {
     cancelAbsorb();
     const baselineMx = mx, baselineMy = my;
+    absorbStart = performance.now();
+    setState("is-charging", true);
+    // show a tiny hint once per session
+    if (!sessionStorage.getTakoHintShown) {
+      sessionStorage.getTakoHintShown = "1";
+      showSay("hold still..", 1400);
+    }
+    const progress = () => {
+      const t = performance.now() - absorbStart;
+      const pct = Math.min(100, (t / ABSORB_MS) * 100);
+      creature.style.setProperty("--chg", pct.toFixed(1));
+      if (pct < 100) absorbRaf = requestAnimationFrame(progress);
+    };
+    absorbRaf = requestAnimationFrame(progress);
     absorbTimer = setTimeout(() => {
-      if (curiousFor !== img) return;
-      if (Math.hypot(mx - baselineMx, my - baselineMy) > 80) return;
+      if (curiousFor !== img) { cancelAbsorb(); return; }
+      if (Math.hypot(mx - baselineMx, my - baselineMy) > 80) { cancelAbsorb(); return; }
       absorbColorFrom(img);
-    }, 10000);
+    }, ABSORB_MS);
   };
   const cancelAbsorb = () => {
     if (absorbTimer) { clearTimeout(absorbTimer); absorbTimer = null; }
+    if (absorbRaf) { cancelAnimationFrame(absorbRaf); absorbRaf = 0; }
+    setState("is-charging", false);
+    creature.style.setProperty("--chg", "0");
   };
 
   // pick the most vivid, mid-brightness color from anywhere in the image
@@ -406,11 +425,13 @@ const initCursor = () => {
       const [r, g, b] = best;
       const color = `rgb(${r}, ${g}, ${b})`;
       isAbsorbing = true;
+      setState("is-charging", false);
       setState("is-absorbing", true);
-      showEmote("★", "pop-absorb", 1200);
+      showEmote("✦", "pop-absorb", 1400);
+      showSay("mine now", 1400);
       // mid-animation flash to new color
       setTimeout(() => creature.style.setProperty("--cc-color", color), 350);
-      setTimeout(() => { isAbsorbing = false; setState("is-absorbing", false); }, 1200);
+      setTimeout(() => { isAbsorbing = false; setState("is-absorbing", false); creature.style.setProperty("--chg", "0"); }, 1400);
     } catch (err) {
       // CORS or decode error — skip silently
     }
