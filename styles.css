@@ -2440,6 +2440,34 @@ body::after {
 .cursor-creature.cc-mood-melodramatic .cc-eye { transform: scale(1.12); }
 
 
+/* ═════════ LITE MODE — performance shortcuts ═════════
+   Applied on mobile, low-power devices, or prefers-reduced-motion.
+   Kills the heavy SVG filters (#fuzz, #watercolor, #rough) and
+   mix-blend-mode: multiply that were forcing per-frame GPU
+   compositing for every creature on screen. */
+html.lite [filter] { filter: none !important; }
+html.lite .floater,
+html.lite .crew-creature,
+html.lite .cursor-creature,
+html.lite .hero-marquee,
+html.lite .gallery-slide img,
+html.lite .click-splat,
+html.lite .portrait-frame img,
+html.lite [style*="filter:"],
+html.lite [style*="mix-blend-mode"] {
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+html.lite .cursor-creature,
+html.lite .hero-marquee { mix-blend-mode: normal; }
+/* and drop the fuzz animation flourishes */
+html.lite .floater .fl-svg,
+html.lite .cursor-creature svg g {
+  filter: none !important;
+}
+/* static sparkles cost less than animated ones */
+html.lite .cc-sparkle { animation-duration: .35s !important; }
+
 /* ═════════ COLOR ABSORPTION — target feedback ═════════
    Palette chips & floaters briefly get "drained" when the cursor
    steals their color. --drain goes 0→1 during the hold. */

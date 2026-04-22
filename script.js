@@ -8,6 +8,17 @@
 // posts are loaded from /js/posts.js (window.POSTS)
 const posts = window.POSTS || [];
 
+// ─── PERFORMANCE: lite mode on mobile / low-power ─────────────
+// Disables heavy SVG filters (#fuzz, #watercolor) and mix-blend-mode
+// so the GPU isn't composting on every frame. Toggled via html.lite.
+const IS_TOUCH  = !matchMedia("(hover: hover) and (pointer: fine)").matches;
+const REDUCE_FX = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const LOW_POWER = (navigator.hardwareConcurrency || 8) < 4
+                || (navigator.deviceMemory || 8) < 4;
+const LITE_MODE = IS_TOUCH || REDUCE_FX || LOW_POWER
+                || (window.innerWidth <= 720);
+if (LITE_MODE) document.documentElement.classList.add("lite");
+
 
 // ─── PLACEHOLDER FALLBACKS (fuzzy creatures, in case images missing) ────
 const makePlaceholder = (type, color = "var(--bubble)") => `
@@ -356,7 +367,7 @@ const initCursor = () => {
       setState("is-dizzy", false);
     }
   };
-  setInterval(checkCircular, 120);
+  setInterval(checkCircular, 220);
 
   // ── READING: click on a textual element ────────────────
   const readableSel = "p, h1, h2, h3, h4, h5, h6, blockquote, li, .work-desc, .idea-text, .hero-tag, .work-title, .site-name";
@@ -611,11 +622,11 @@ const initCursor = () => {
     const dy = my - lastFastMy;
     const v = Math.hypot(dx, dy);
     lastFastMx = mx; lastFastMy = my;
-    if (v > 55 && performance.now() - lastSparkAt > 110) {
+    if (v > 55 && performance.now() - lastSparkAt > 160) {
       emitSparkles(1);
       lastSparkAt = performance.now();
     }
-  }, 40);
+  }, 120);
 
   // sparkles on excited click
   document.addEventListener("click", () => { if (!anyBig()) emitSparkles(6); });
@@ -920,7 +931,8 @@ const initFloaters = () => {
         scheduleBehavior(f, s, f._personality);
       }
     });
-    requestAnimationFrame(tick);
+    // throttle: skip alternate frames (~30fps is plenty for bobbing creatures)
+    requestAnimationFrame(() => requestAnimationFrame(tick));
   };
   tick();
 };
