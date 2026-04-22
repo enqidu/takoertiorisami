@@ -244,7 +244,8 @@ const initCursor = () => {
   scheduleMoodShift();
 
   // ── PUPILS look toward mouse direction ──────────────────
-  let lastMx = mx, lastMy = my;
+  // PERF: skip style writes when pupil values stabilize (no movement).
+  let lastMx = mx, lastMy = my, lastPx = 0, lastPy = 0;
   const lookTick = () => {
     if (!isDizzy && !isReading && pupilL && pupilR) {
       const dx = mx - lastMx;
@@ -253,16 +254,21 @@ const initCursor = () => {
       const ang = Math.atan2(dy, dx);
       const lx = Math.cos(ang) * 2.5 * mag;
       const ly = Math.sin(ang) * 2.5 * mag;
-      creature.style.setProperty("--plx", lx.toFixed(2) + "px");
-      creature.style.setProperty("--ply", ly.toFixed(2) + "px");
-      creature.style.setProperty("--prx", lx.toFixed(2) + "px");
-      creature.style.setProperty("--pry", ly.toFixed(2) + "px");
+      // only write if meaningfully different (avoids paint invalidation)
+      if (Math.abs(lx - lastPx) > 0.05 || Math.abs(ly - lastPy) > 0.05) {
+        creature.style.setProperty("--plx", lx.toFixed(2) + "px");
+        creature.style.setProperty("--ply", ly.toFixed(2) + "px");
+        creature.style.setProperty("--prx", lx.toFixed(2) + "px");
+        creature.style.setProperty("--pry", ly.toFixed(2) + "px");
+        lastPx = lx; lastPy = ly;
+      }
     }
     lastMx += (mx - lastMx) * 0.15;
     lastMy += (my - lastMy) * 0.15;
-    requestAnimationFrame(lookTick);
+    // throttle to ~30fps — pupils don't need 60
+    requestAnimationFrame(() => requestAnimationFrame(lookTick));
   };
-  lookTick();
+  requestAnimationFrame(lookTick);
 
   // ── HOVER: grow on interactive targets, context emotes ──
   const hoverTargets = "a, button, .gallery-viewport, .work-gallery, .portrait-frame, .lightbox-close, .lightbox-nav, .tag, .click-zone, .match-card, .game-btn";
@@ -299,7 +305,15 @@ const initCursor = () => {
   document.addEventListener("mousedown", (e) => {
     if (e.button !== 0) return;
     const target = e.target.closest(absorbSelector);
-    if (!target || anyBig()) return;
+    if (!target) return;
+    // allow chaining: if user is mid-celebration of a previous absorb,
+    // end it early and start a new one on the new target.
+    if (isAbsorbing) {
+      isAbsorbing = false;
+      setState("is-absorbing", false);
+      creature.style.setProperty("--chg", "0");
+    }
+    if (anyBig()) return; // still blocked by reading/dizzy
     scheduleAbsorb(target);
   });
   const stopPress = () => { if (!isAbsorbing) cancelAbsorb(); };
@@ -500,6 +514,7 @@ const initCursor = () => {
     }
     // cursor gulps color at 180ms (mid-animation)
     setTimeout(() => creature.style.setProperty("--cc-color", color), 180);
+    // Short lockout (500ms) so user can chain-steal from another target.
     setTimeout(() => {
       isAbsorbing = false;
       setState("is-absorbing", false);
@@ -509,7 +524,7 @@ const initCursor = () => {
         absorbTarget.style.removeProperty("--drain");
         absorbTarget = null;
       }
-    }, 1100);
+    }, 500);
   };
 
   // ── passive idle blinks ────────────────────────────────
