@@ -423,6 +423,137 @@ const initCursor = () => {
     eyes.forEach(e => e.setAttribute("ry", "1"));
     setTimeout(() => eyes.forEach(e => e.setAttribute("ry", "8")), 120);
   }, 4200);
+
+  // ── SAY bubble: random thought words ───────────────────
+  const say = document.getElementById("ccSay");
+  let sayHideTimer = null;
+  const showSay = (text, ms = 1400) => {
+    if (!say) return;
+    clearTimeout(sayHideTimer);
+    say.textContent = text;
+    say.classList.add("is-show");
+    sayHideTimer = setTimeout(() => say.classList.remove("is-show"), ms);
+  };
+  const thoughtsPainting = ["ოოო", "ვაიმე", "მშვენიერია", "hmm", "cute", "pretty", "fuzz!", "colors~", "nice", "ძალიან მაგარია"];
+  const thoughtsIdle     = ["mm", "...", "hi?", "oi", "ქ?", "zz"];
+  const thoughtsClick    = ["!", "ok!", "ჰო", "yay", "✦"];
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+
+  // When lingering on a painting 2s, drop a random thought
+  let thoughtTimer = null;
+  const onImgEnterThought = () => {
+    clearTimeout(thoughtTimer);
+    thoughtTimer = setTimeout(() => {
+      if (curiousFor) showSay(pick(thoughtsPainting), 1800);
+    }, 1800);
+  };
+  const cancelThought = () => { if (thoughtTimer) { clearTimeout(thoughtTimer); thoughtTimer = null; } };
+  document.addEventListener("mouseover", (e) => {
+    if (e.target.closest(imgSelector)) onImgEnterThought();
+  });
+  document.addEventListener("mouseout", (e) => {
+    if (e.target.closest(imgSelector)) cancelThought();
+  });
+
+  // ── IDLE micro-behaviors: random cute twitches ─────────
+  // plays yawn/shiver/sneeze/look-around during quiet moments
+  const microPool = ["yawn", "shiver", "sneeze", "look", "look"];
+  let microTimer = null;
+  const playMicro = () => {
+    if (anyBig() || isExcited || isLoving) return;
+    const kind = pick(microPool);
+    if (kind === "yawn") {
+      setState("is-yawn", true);
+      showSay(pick(thoughtsIdle), 900);
+      setTimeout(() => setState("is-yawn", false), 900);
+    } else if (kind === "shiver") {
+      setState("is-shiver", true);
+      setTimeout(() => setState("is-shiver", false), 520);
+    } else if (kind === "sneeze") {
+      setState("is-sneeze", true);
+      showEmote("!", "pop-sneeze", 600);
+      // puff of sparkles
+      emitSparkles(8, "#ffcc3f");
+      setTimeout(() => setState("is-sneeze", false), 520);
+    } else {
+      setState("is-looking", true);
+      setTimeout(() => setState("is-looking", false), 900);
+    }
+  };
+  const scheduleMicro = () => {
+    clearTimeout(microTimer);
+    microTimer = setTimeout(() => {
+      playMicro();
+      scheduleMicro();
+    }, 5000 + Math.random() * 6000);
+  };
+  scheduleMicro();
+
+  // ── SPARKLE emission ───────────────────────────────────
+  const sparkleLayer = document.getElementById("ccSparkles");
+  const sparkleColors = ["#ff6fa8", "#ffcc3f", "#8fd47c", "#7cc0ed", "#b58bd8", "#ff7a2a"];
+  const emitSparkles = (n = 5, colorOverride = null) => {
+    if (!sparkleLayer) return;
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement("div");
+      s.className = "cc-sparkle";
+      s.style.left = (mx + (Math.random() - .5) * 20) + "px";
+      s.style.top  = (my + (Math.random() - .5) * 20) + "px";
+      s.style.color = colorOverride || pick(sparkleColors);
+      s.style.setProperty("--sz", (6 + Math.random() * 8) + "px");
+      s.style.width = s.style.height = (6 + Math.random() * 8) + "px";
+      sparkleLayer.appendChild(s);
+      setTimeout(() => s.remove(), 720);
+    }
+  };
+
+  // emit sparkles on fast movement (throttled)
+  let lastSparkAt = 0, lastFastMx = mx, lastFastMy = my;
+  setInterval(() => {
+    if (anyBig()) return;
+    const dx = mx - lastFastMx;
+    const dy = my - lastFastMy;
+    const v = Math.hypot(dx, dy);
+    lastFastMx = mx; lastFastMy = my;
+    if (v > 55 && performance.now() - lastSparkAt > 110) {
+      emitSparkles(1);
+      lastSparkAt = performance.now();
+    }
+  }, 40);
+
+  // sparkles on excited click
+  document.addEventListener("click", () => { if (!anyBig()) emitSparkles(6); });
+
+  // ── EDGE-NERVOUS: cursor near viewport edge ────────────
+  setInterval(() => {
+    if (anyBig()) return;
+    const margin = 28;
+    const near = mx < margin || my < margin ||
+                 mx > window.innerWidth - margin || my > window.innerHeight - margin;
+    if (near && !creature.classList.contains("is-nervous")) {
+      setState("is-nervous", true);
+      showEmote("!!", "pop-nervous", 800);
+    } else if (!near && creature.classList.contains("is-nervous")) {
+      setState("is-nervous", false);
+    }
+  }, 150);
+
+  // ── DOUBLE-CLICK PARTY ─────────────────────────────────
+  document.addEventListener("dblclick", () => {
+    if (anyBig()) return;
+    setState("is-party", true);
+    showSay(pick(["★☆★", "woo!", "yay!", "წვეულება!"]), 1400);
+    // confetti burst
+    for (let i = 0; i < 4; i++) setTimeout(() => emitSparkles(5), i * 120);
+    setTimeout(() => setState("is-party", false), 1400);
+  });
+
+  // say something on click (not reading)
+  document.addEventListener("click", (e) => {
+    if (anyBig()) return;
+    if (e.target.closest(readableSel)) return; // reading handles its own
+    if (Math.random() < 0.4) showSay(pick(thoughtsClick), 900);
+  });
 };
 
 
