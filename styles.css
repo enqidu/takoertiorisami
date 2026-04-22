@@ -104,23 +104,125 @@ body::after {
 .nav, .hero, .works, .about-content, .site-footer { position: relative; z-index: 2; }
 
 /* ═══════════════════════════════════════════════════════════════
-   CURSOR — a little fuzzy creature
+   CURSOR — a little fuzzy creature with emotions
+   States: idle · is-curious · is-dizzy · is-reading · is-absorbing
    ═══════════════════════════════════════════════════════════════ */
 .cursor-creature {
   position: fixed; top: 0; left: 0;
-  width: 38px; height: 38px;
+  width: 44px; height: 44px;
   pointer-events: none; z-index: 9999;
   transform: translate(-50%, -50%);
   transition: width .2s, height .2s, filter .2s;
   mix-blend-mode: multiply;
+  --cc-color: var(--bubble);
 }
-.cursor-creature svg { width: 100%; height: 100%; overflow: visible; }
-.cursor-creature .fuzz { animation: wiggle 1.6s ease-in-out infinite; transform-origin: center; }
-@keyframes wiggle {
+.cc-svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.cc-body { color: var(--cc-color); transform-origin: 50% 55%; animation: cc-wiggle 1.6s ease-in-out infinite; }
+@keyframes cc-wiggle {
   0%,100% { transform: rotate(-4deg) scale(1); }
   50%     { transform: rotate(4deg)  scale(1.05); }
 }
-body.cursor-hover .cursor-creature { width: 68px; height: 68px; filter: hue-rotate(60deg); }
+
+/* pupils can look around via CSS custom props */
+.cc-pupil-l { transform: translate(var(--plx, 0px), var(--ply, 0px)); transition: transform .18s cubic-bezier(.3,1.4,.4,1); }
+.cc-pupil-r { transform: translate(var(--prx, 0px), var(--pry, 0px)); transition: transform .18s cubic-bezier(.3,1.4,.4,1); }
+.cc-eye { transition: transform .18s, ry .2s; transform-box: fill-box; transform-origin: center; }
+.cc-mouth { transition: rx .2s, ry .2s, transform .25s; transform-box: fill-box; transform-origin: center; }
+
+/* ── STATE: hover over interactive ────────────── */
+body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
+
+/* ── STATE: curious (near a painting) ────────── */
+.cursor-creature.is-curious { width: 58px; height: 58px; }
+.cursor-creature.is-curious .cc-body { animation-duration: .9s; }
+.cursor-creature.is-curious .cc-eye  { transform: scale(1.25); }
+.cursor-creature.is-curious .cc-mouth { transform: scale(.6, 1.4); }
+
+/* ── STATE: dizzy (spun in a circle) ──────────── */
+.cursor-creature.is-dizzy .cc-body  { animation: cc-spin 1.2s linear infinite; }
+.cursor-creature.is-dizzy .cc-pupil-l,
+.cursor-creature.is-dizzy .cc-pupil-r { animation: cc-swirl-eye 1.1s linear infinite; transition: none; }
+.cursor-creature.is-dizzy .cc-mouth { transform: scale(1.2, .5) translateY(1px); }
+@keyframes cc-spin {
+  0%   { transform: rotate(0); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes cc-swirl-eye {
+  0%   { transform: translate( 2.5px, 0); }
+  25%  { transform: translate( 0,  2.5px); }
+  50%  { transform: translate(-2.5px, 0); }
+  75%  { transform: translate( 0, -2.5px); }
+  100% { transform: translate( 2.5px, 0); }
+}
+.cursor-creature.is-dizzy .cc-swirl { opacity: 1; animation: cc-swirl-ring 1.2s linear infinite; }
+
+/* ── STATE: reading (clicked text) ──────────── */
+.cursor-creature.is-reading .cc-pupil-l,
+.cursor-creature.is-reading .cc-pupil-r { animation: cc-scan 1.4s ease-in-out; transition: none; }
+.cursor-creature.is-reading .cc-eye { transform: scale(1, 0.8); }
+.cursor-creature.is-reading .cc-body { animation: cc-nod 1.4s ease-in-out; }
+@keyframes cc-scan {
+  0%   { transform: translate(-3px, 0); }
+  40%  { transform: translate( 3px, 0); }
+  50%  { transform: translate(-3px, 0); }
+  90%  { transform: translate( 3px, 0); }
+  100% { transform: translate( 0,   0); }
+}
+@keyframes cc-nod {
+  0%,100% { transform: rotate(0) scale(1); }
+  25%     { transform: rotate(-6deg) translateY(-1px); }
+  50%     { transform: rotate(0) translateY(1px); }
+  75%     { transform: rotate(6deg) translateY(-1px); }
+}
+
+/* ── STATE: absorbing color from painting ───── */
+.cursor-creature.is-absorbing .cc-body { animation: cc-absorb 1.2s cubic-bezier(.3,1.6,.4,1); }
+@keyframes cc-absorb {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.4) rotate(-8deg); }
+  60%  { transform: scale(.8, 1.2) rotate(6deg); }
+  100% { transform: scale(1); }
+}
+
+/* ── EMOTE BUBBLE ────────────────────────────── */
+.cc-emote {
+  position: absolute;
+  top: -22px; right: -26px;
+  font-family: var(--display); font-weight: 800;
+  font-size: 18px;
+  color: var(--ink);
+  background: var(--yolk);
+  border: 2px solid var(--ink);
+  border-radius: 50% 50% 50% 6px;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  transform: scale(0) rotate(-10deg);
+  transition: transform .25s cubic-bezier(.3,1.8,.4,1);
+  pointer-events: none;
+}
+.cc-emote.is-show { transform: scale(1) rotate(-10deg); }
+.cc-emote.pop-curious { background: var(--bubble); }
+.cc-emote.pop-read    { background: var(--spring); }
+.cc-emote.pop-dizzy   { background: var(--grape); color: var(--paper); }
+.cc-emote.pop-absorb  { background: var(--pumpkin); }
+
+/* dizzy ring of stars swirling above head */
+.cc-swirl {
+  position: absolute;
+  left: 50%; top: -14px;
+  width: 40px; height: 18px;
+  transform: translateX(-50%);
+  opacity: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, var(--yolk) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 50% 50%, var(--tomato) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 80% 50%, var(--bubble) 0 2px, transparent 2.5px);
+  pointer-events: none;
+}
+@keyframes cc-swirl-ring {
+  0%   { transform: translateX(-50%) rotate(0); }
+  100% { transform: translateX(-50%) rotate(360deg); }
+}
 
 .cursor-trail {
   position: fixed; top: 0; left: 0;
@@ -237,12 +339,14 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; filter: hue-rota
 }
 .hero-line {
   display: inline-block;
-  font-size: clamp(24px, 12vw, 220px);
-  letter-spacing: -.05em;
+  font-size: clamp(24px, 9.5vw, 170px);
+  letter-spacing: -.04em;
   position: relative;
   max-width: 100%;
   overflow-wrap: normal;
+  white-space: nowrap;
 }
+.hero-line-outline { font-size: clamp(22px, 8.5vw, 148px); }
 
 /* Georgian word — solid ink */
 .hero-line-solid {
@@ -261,10 +365,9 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; filter: hue-rota
 .hero-line-outline {
   color: transparent;
   -webkit-text-stroke: 2.5px var(--ink);
-  margin-left: .08em;
   transform: rotate(1deg);
   transform-origin: left top;
-  text-shadow: 6px 6px 0 var(--yolk), 6px 6px 0 0 var(--ink);
+  text-shadow: 6px 6px 0 var(--yolk);
 }
 
 /* hero bottom */
@@ -1575,9 +1678,9 @@ body::after {
 /* MARQUEE: multiply blend */
 .hero-marquee { mix-blend-mode: multiply; }
 
-/* CUSTOM SCROLLBAR: gradient */
+/* CUSTOM SCROLLBAR: single ink */
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--bubble), var(--pumpkin), var(--yolk), var(--spring), var(--sky), var(--grape));
+  background: var(--ink);
   border: 3px solid var(--cream-2);
   border-radius: 999px;
 }
