@@ -131,7 +131,8 @@ const initGallery = (pid, total) => {
 
 
 // ─── CREATURE CURSOR with EMOTIONS ──────────────────────────────────
-// States: idle · is-curious · is-dizzy · is-reading · is-absorbing
+// States: is-curious · is-dizzy · is-reading · is-absorbing
+//         is-excited · is-loving · is-bored · is-squish-up / is-squish-down
 const initCursor = () => {
   const creature = document.getElementById("cursorCreature");
   const trail    = document.getElementById("cursorTrail");
@@ -143,14 +144,17 @@ const initCursor = () => {
 
   let mx = -100, my = -100;
   let tx = -100, ty = -100;
-  const trailPts = []; // for circular-motion detection
+  let lastMoveAt = performance.now();
+  const trailPts = [];
 
   document.addEventListener("mousemove", (e) => {
     mx = e.clientX; my = e.clientY;
     creature.style.left = mx + "px";
     creature.style.top  = my + "px";
-    trailPts.push({ x: mx, y: my, t: performance.now() });
-    while (trailPts.length && performance.now() - trailPts[0].t > 800) trailPts.shift();
+    lastMoveAt = performance.now();
+    trailPts.push({ x: mx, y: my, t: lastMoveAt });
+    while (trailPts.length && lastMoveAt - trailPts[0].t > 800) trailPts.shift();
+    if (isBored) { isBored = false; setState("is-bored", false); }
   });
 
   const follow = () => {
@@ -162,7 +166,7 @@ const initCursor = () => {
   };
   follow();
 
-  // ── emote bubble helper ─────────────────────────────────
+  // ── emote bubble ────────────────────────────────────────
   let emoteHideTimer = null;
   const showEmote = (text, variant = "", ms = 1200) => {
     if (!emote) return;
@@ -174,9 +178,11 @@ const initCursor = () => {
 
   // ── state flags ─────────────────────────────────────────
   let isDizzy = false, isReading = false, isAbsorbing = false;
+  let isExcited = false, isLoving = false, isBored = false;
   const setState = (name, on) => creature.classList.toggle(name, on);
+  const anyBig = () => isDizzy || isReading || isAbsorbing;
 
-  // ── PUPILS look toward mouse direction when idle ───────
+  // ── PUPILS look toward mouse direction ──────────────────
   let lastMx = mx, lastMy = my;
   const lookTick = () => {
     if (!isDizzy && !isReading && pupilL && pupilR) {
@@ -197,7 +203,7 @@ const initCursor = () => {
   };
   lookTick();
 
-  // ── HOVER: grow on interactive targets ──────────────────
+  // ── HOVER: grow on interactive targets, context emotes ──
   const hoverTargets = "a, button, .gallery-viewport, .work-gallery, .portrait-frame, .lightbox-close, .lightbox-nav, .tag, .click-zone, .match-card, .game-btn";
   document.addEventListener("mouseover", (e) => {
     if (e.target.closest(hoverTargets)) document.body.classList.add("cursor-hover");
@@ -206,12 +212,12 @@ const initCursor = () => {
     if (e.target.closest(hoverTargets)) document.body.classList.remove("cursor-hover");
   });
 
-  // ── CURIOUS: hovering over / near a painting image ─────
+  // ── CURIOUS: hovering over a painting image ────────────
   const imgSelector = ".gallery-slide img, .portrait-frame img, .match-card img";
   let curiousFor = null;
   document.addEventListener("mouseover", (e) => {
     const img = e.target.closest(imgSelector);
-    if (img && !isAbsorbing && !isDizzy) {
+    if (img && !anyBig()) {
       curiousFor = img;
       setState("is-curious", true);
       showEmote("?", "pop-curious", 900);
@@ -227,12 +233,39 @@ const initCursor = () => {
     }
   });
 
+  // ── LOVING: over a floater creature ────────────────────
+  document.addEventListener("mouseover", (e) => {
+    const f = e.target.closest(".floater");
+    if (f && !anyBig()) {
+      isLoving = true;
+      setState("is-loving", true);
+      showEmote("♥", "pop-love", 1200);
+    }
+  });
+  document.addEventListener("mouseout", (e) => {
+    if (e.target.closest(".floater") && isLoving) {
+      isLoving = false;
+      setState("is-loving", false);
+    }
+  });
+
+  // ── HOVERING tags/buttons: flashy short emotes ─────────
+  let lastContextEmoteAt = 0;
+  document.addEventListener("mouseover", (e) => {
+    const now = performance.now();
+    if (now - lastContextEmoteAt < 700) return;
+    if (anyBig()) return;
+    const tag = e.target.closest(".tag");
+    const btn = e.target.closest("button, .nav-link, .game-btn");
+    if (tag) { showEmote("~", "pop-tag", 700); lastContextEmoteAt = now; }
+    else if (btn) { showEmote("✦", "pop-excited", 700); lastContextEmoteAt = now; }
+  });
+
   // ── DIZZY: detect circular motion ───────────────────────
   let dizzyEndAt = 0;
   const checkCircular = () => {
     if (isReading || isAbsorbing) return;
     if (trailPts.length < 12) return;
-    // sum turning angles across last 600ms
     const pts = trailPts.slice(-24);
     let sumAngle = 0, lastAng = null;
     for (let i = 1; i < pts.length; i++) {
@@ -248,7 +281,6 @@ const initCursor = () => {
       }
       lastAng = ang;
     }
-    // >= ~1.6 full turns in < 800ms → dizzy
     if (Math.abs(sumAngle) > Math.PI * 3.2) {
       if (!isDizzy) {
         isDizzy = true;
@@ -268,29 +300,58 @@ const initCursor = () => {
   const readableSel = "p, h1, h2, h3, h4, h5, h6, blockquote, li, .work-desc, .idea-text, .hero-tag, .work-title, .site-name";
   document.addEventListener("click", (e) => {
     const t = e.target.closest(readableSel);
-    if (!t) return;
-    const text = (t.textContent || "").trim();
-    if (text.length < 4) return;
-    // don't override dizzy/absorb
-    if (isDizzy || isAbsorbing) return;
-    isReading = true;
-    setState("is-reading", true);
-    showEmote("!", "pop-read", 1400);
-    setTimeout(() => {
-      isReading = false;
-      setState("is-reading", false);
-    }, 1400);
+    if (t) {
+      const text = (t.textContent || "").trim();
+      if (text.length >= 4 && !anyBig()) {
+        isReading = true;
+        setState("is-reading", true);
+        showEmote("!", "pop-read", 1400);
+        setTimeout(() => { isReading = false; setState("is-reading", false); }, 1400);
+        return;
+      }
+    }
+    // otherwise → excited bounce
+    if (anyBig()) return;
+    isExcited = true;
+    setState("is-excited", true);
+    showEmote("✦", "pop-excited", 600);
+    setTimeout(() => { isExcited = false; setState("is-excited", false); }, 360);
   });
 
-  // ── ABSORB: 10s hovering still on an image → sample color ─
+  // ── SCROLL: squish direction ───────────────────────────
+  let lastScroll = window.scrollY, scrollTimer = null;
+  window.addEventListener("scroll", () => {
+    if (anyBig()) return;
+    const sy = window.scrollY;
+    const d = sy - lastScroll;
+    lastScroll = sy;
+    if (Math.abs(d) < 3) return;
+    setState("is-squish-up", d < 0);
+    setState("is-squish-down", d > 0);
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      setState("is-squish-up", false);
+      setState("is-squish-down", false);
+    }, 180);
+  }, { passive: true });
+
+  // ── BORED: mouse idle > 6s ─────────────────────────────
+  setInterval(() => {
+    if (anyBig() || isLoving || isExcited) return;
+    const idleMs = performance.now() - lastMoveAt;
+    if (idleMs > 6000 && !isBored) {
+      isBored = true;
+      setState("is-bored", true);
+      showEmote("z", "pop-bored", 1600);
+    }
+  }, 1000);
+
+  // ── ABSORB: linger 10s on an image → adopt a painterly color ─
   let absorbTimer = null;
-  let absorbStart = 0;
   const scheduleAbsorb = (img) => {
     cancelAbsorb();
-    absorbStart = performance.now();
     const baselineMx = mx, baselineMy = my;
     absorbTimer = setTimeout(() => {
-      // only fire if still hovering same img, not moved far
       if (curiousFor !== img) return;
       if (Math.hypot(mx - baselineMx, my - baselineMy) > 80) return;
       absorbColorFrom(img);
@@ -300,53 +361,64 @@ const initCursor = () => {
     if (absorbTimer) { clearTimeout(absorbTimer); absorbTimer = null; }
   };
 
+  // pick the most vivid, mid-brightness color from anywhere in the image
   const absorbColorFrom = (img) => {
     try {
-      const rect = img.getBoundingClientRect();
-      const rx = (mx - rect.left) / rect.width;
-      const ry = (my - rect.top)  / rect.height;
-      if (rx < 0 || rx > 1 || ry < 0 || ry > 1) return;
+      // downscale to a fixed 100×100 so sampling is uniform & fast
+      const W = 100, H = 100;
       const c = document.createElement("canvas");
-      const w = Math.max(1, img.naturalWidth || img.width);
-      const h = Math.max(1, img.naturalHeight || img.height);
-      c.width = w; c.height = h;
+      c.width = W; c.height = H;
       const ctx = c.getContext("2d", { willReadFrequently: true });
-      ctx.drawImage(img, 0, 0, w, h);
-      const px = ctx.getImageData(Math.floor(rx * w), Math.floor(ry * h), 1, 1).data;
-      // avoid near-white/near-black/fully-transparent picks — nudge to find a saturated pixel
-      let [r, g, b, a] = px;
-      if (a < 20 || (r + g + b > 720) || (r + g + b < 40)) {
-        // sample a small neighborhood and pick the most saturated
-        const sample = ctx.getImageData(Math.max(0, Math.floor(rx*w)-6), Math.max(0, Math.floor(ry*h)-6), 13, 13).data;
-        let best = [r,g,b], bestSat = 0;
-        for (let i = 0; i < sample.length; i += 4) {
-          const R = sample[i], G = sample[i+1], B = sample[i+2];
-          const mx2 = Math.max(R,G,B), mn = Math.min(R,G,B);
-          const sat = mx2 === 0 ? 0 : (mx2 - mn) / mx2;
-          if (sat > bestSat && mx2 > 30 && mx2 < 245) { bestSat = sat; best = [R,G,B]; }
+      ctx.drawImage(img, 0, 0, W, H);
+      const data = ctx.getImageData(0, 0, W, H).data;
+
+      let best = null, bestScore = -1;
+      // scan full image on a 3px stride
+      for (let y = 3; y < H - 3; y += 3) {
+        for (let x = 3; x < W - 3; x += 3) {
+          const i = (y * W + x) * 4;
+          const R = data[i], G = data[i+1], B = data[i+2], A = data[i+3];
+          if (A < 200) continue;
+          const sum = R + G + B;
+          if (sum < 150 || sum > 680) continue; // skip near-black/near-white
+          const mx2 = Math.max(R, G, B);
+          const mn2 = Math.min(R, G, B);
+          const sat = mx2 === 0 ? 0 : (mx2 - mn2) / mx2;
+          const bright = sum / 3;
+          // reward saturation, prefer colors in mid-bright zone (60–210)
+          const brightBonus = 60 - Math.min(60, Math.abs(bright - 135));
+          const score = sat * 180 + brightBonus;
+          if (score > bestScore) { bestScore = score; best = [R, G, B]; }
         }
-        [r,g,b] = best;
       }
+      // if nothing scored (grayscale image), take a mid-bright grey instead of black
+      if (!best) {
+        let sumR = 0, sumG = 0, sumB = 0, n = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i+3] < 200) continue;
+          const s = data[i] + data[i+1] + data[i+2];
+          if (s < 120 || s > 680) continue;
+          sumR += data[i]; sumG += data[i+1]; sumB += data[i+2]; n++;
+        }
+        best = n ? [Math.round(sumR/n), Math.round(sumG/n), Math.round(sumB/n)] : [181, 139, 216];
+      }
+
+      const [r, g, b] = best;
       const color = `rgb(${r}, ${g}, ${b})`;
       isAbsorbing = true;
       setState("is-absorbing", true);
       showEmote("★", "pop-absorb", 1200);
-      // flash to new color mid-animation
-      setTimeout(() => {
-        creature.style.setProperty("--cc-color", color);
-      }, 350);
-      setTimeout(() => {
-        isAbsorbing = false;
-        setState("is-absorbing", false);
-      }, 1200);
+      // mid-animation flash to new color
+      setTimeout(() => creature.style.setProperty("--cc-color", color), 350);
+      setTimeout(() => { isAbsorbing = false; setState("is-absorbing", false); }, 1200);
     } catch (err) {
-      // CORS or decode error — skip
+      // CORS or decode error — skip silently
     }
   };
 
-  // occasional blink during idle
+  // ── passive idle blinks ────────────────────────────────
   setInterval(() => {
-    if (isDizzy || isReading || isAbsorbing) return;
+    if (anyBig()) return;
     const eyes = creature.querySelectorAll(".cc-eye");
     eyes.forEach(e => e.setAttribute("ry", "1"));
     setTimeout(() => eyes.forEach(e => e.setAttribute("ry", "8")), 120);

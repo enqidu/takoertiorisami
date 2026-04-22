@@ -184,6 +184,42 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
   100% { transform: scale(1); }
 }
 
+/* ── STATE: loving (over a floater) ─────────── */
+.cursor-creature.is-loving .cc-body  { animation: cc-love 1s ease-in-out infinite; }
+.cursor-creature.is-loving .cc-mouth { transform: scale(1.5, 1.2) translateY(-1px); }
+@keyframes cc-love {
+  0%,100% { transform: scale(1) rotate(-4deg); }
+  50%     { transform: scale(1.12) rotate(4deg); }
+}
+
+/* ── STATE: excited (click) ─────────────────── */
+.cursor-creature.is-excited .cc-body { animation: cc-bounce .36s cubic-bezier(.3,1.8,.4,1); }
+@keyframes cc-bounce {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.3, .8) translateY(2px); }
+  70%  { transform: scale(.9, 1.15) translateY(-3px); }
+  100% { transform: scale(1); }
+}
+
+/* ── STATE: bored (idle >6s) ────────────────── */
+.cursor-creature.is-bored .cc-body   { animation: cc-sigh 3s ease-in-out infinite; }
+.cursor-creature.is-bored .cc-eye    { ry: 2; transform: scaleY(.25) translateY(2px); }
+.cursor-creature.is-bored .cc-mouth  { transform: scale(.6, .5); }
+@keyframes cc-sigh {
+  0%,100% { transform: translateY(0) rotate(-2deg); }
+  50%     { transform: translateY(1.5px) rotate(2deg); }
+}
+
+/* ── STATE: scroll squish ───────────────────── */
+.cursor-creature.is-squish-down .cc-body { transform: scale(1.15, .7); transition: transform .12s; }
+.cursor-creature.is-squish-up   .cc-body { transform: scale(.75, 1.2); transition: transform .12s; }
+
+/* ── Emote variant colors ───────────────────── */
+.cc-emote.pop-love    { background: var(--tomato); color: var(--paper); }
+.cc-emote.pop-tag     { background: var(--sky); }
+.cc-emote.pop-excited { background: var(--yolk); }
+.cc-emote.pop-bored   { background: var(--paper); color: var(--ink-mute); font-style: italic; }
+
 /* ── EMOTE BUBBLE ────────────────────────────── */
 .cc-emote {
   position: absolute;
