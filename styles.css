@@ -1072,7 +1072,6 @@ body.party { animation: party-bg 1.2s linear infinite; }
   100% { background: var(--cream); }
 }
 body.party .work-gallery { animation: party-shake .5s linear infinite; }
-body.party .work-title  { animation: party-rainbow 2s linear infinite; }
 @keyframes party-shake {
   0%,100% { transform: rotate(var(--base-tilt, 0deg)); }
   25%     { transform: rotate(calc(var(--base-tilt, 0deg) + 3deg)) translateY(-4px); }
@@ -1536,13 +1535,9 @@ body {
   color: var(--ink);
 }
 
-/* IDEA POST text gets a subtle shimmer */
+/* IDEA POST text — calm ink */
 .idea-text {
-  background: linear-gradient(90deg, var(--cream) 0%, var(--bubble) 30%, var(--yolk) 50%, var(--sky) 70%, var(--cream) 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer-text 8s linear infinite;
+  color: var(--ink);
 }
 @keyframes shimmer-text {
   0%   { background-position: -100% 0; }

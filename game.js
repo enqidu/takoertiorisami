@@ -1,153 +1,145 @@
 /* ═══════════════════════════════════════════════════════════════
-   CATCH THE CREATURE — game logic
-   CSS handles visuals; this just wires up state + random picks.
+   MATCH THE PAINTINGS — memory game using Tamar's works
    ═══════════════════════════════════════════════════════════════ */
 
 (function () {
-  const board   = document.getElementById("gameBoard");
+  const board    = document.getElementById("matchBoard");
   if (!board) return;
 
-  const scoreEl   = document.getElementById("gameScore");
-  const comboEl   = document.getElementById("gameCombo");
-  const bestEl    = document.getElementById("gameBest");
-  const timerEl   = document.getElementById("gameTimer");
-  const timerBar  = document.getElementById("gameTimerBar");
-  const timerWrap = timerBar.parentElement;
-  const startBtn  = document.getElementById("gameStart");
-  const againBtn  = document.getElementById("gameAgain");
-  const overlay   = document.getElementById("gameOver");
-  const finalEl   = document.getElementById("finalScore");
-  const goMsg     = document.getElementById("goMsg");
-  const creatures = Array.from(board.querySelectorAll(".cell-creature"));
+  const movesEl  = document.getElementById("gameMoves");
+  const pairsEl  = document.getElementById("gamePairs");
+  const timeEl   = document.getElementById("gameTime");
+  const bestEl   = document.getElementById("gameBest");
+  const startBtn = document.getElementById("gameStart");
+  const againBtn = document.getElementById("gameAgain");
+  const overlay  = document.getElementById("gameOver");
+  const finalM   = document.getElementById("finalMoves");
+  const finalT   = document.getElementById("finalTime");
+  const goMsg    = document.getElementById("goMsg");
 
-  const DURATION  = 30;     // seconds
-  const START_POP = 900;    // ms between pops at start
-  const END_POP   = 380;    // ms at the end (faster)
-  const UP_START  = 900;    // ms a creature stays up at start
-  const UP_END    = 500;    // ms a creature stays up at end
+  const PAIRS = 8; // 16 cards, 4×4
+  const posts = (window.POSTS || []).filter(p => p.images && p.images.length > 0);
 
-  let score = 0, combo = 0, best = Number(localStorage.getItem("tako_best") || 0);
-  let playing = false;
-  let popTimer = null;
-  let endTimer = null;
-  let startedAt = 0;
-  let lastCell = -1;
+  let moves = 0, found = 0, startedAt = 0, timerId = null;
+  let flipped = [];        // currently face-up cards awaiting resolution
+  let locked = false;      // during 2-card compare
+  let best = Number(localStorage.getItem("tako_match_best") || 0);
+  bestEl.textContent = best ? `${best} moves` : "—";
 
-  const setScore = (n) => { score = n; scoreEl.textContent = n; };
-  const setCombo = (n) => {
-    combo = n;
-    comboEl.textContent = `×${1 + Math.floor(combo / 3)}`;
-    comboEl.parentElement.classList.toggle("is-hot", combo >= 3);
-    if (combo >= 3) {
-      comboEl.parentElement.classList.remove("is-hot");
-      // retrigger animation
-      void comboEl.parentElement.offsetWidth;
-      comboEl.parentElement.classList.add("is-hot");
+  const shuffle = (arr) => {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
     }
-  };
-  bestEl.textContent = best;
-
-  const randomCell = () => {
-    let i = Math.floor(Math.random() * creatures.length);
-    if (i === lastCell) i = (i + 1 + Math.floor(Math.random() * (creatures.length - 1))) % creatures.length;
-    lastCell = i;
-    return i;
+    return a;
   };
 
-  const popOne = () => {
-    if (!playing) return;
-    const i = randomCell();
-    const el = creatures[i];
-    if (el.classList.contains("is-up") || el.classList.contains("is-hit")) return scheduleNext();
-    el.classList.add("is-up");
-    const elapsed = (Date.now() - startedAt) / 1000;
-    const t = Math.min(1, elapsed / DURATION);
-    const upFor = UP_START + (UP_END - UP_START) * t;
-    setTimeout(() => {
-      if (el.classList.contains("is-up") && !el.classList.contains("is-hit")) {
-        // missed — combo break
-        el.classList.remove("is-up");
-        setCombo(0);
+  const pickImages = () => {
+    // collect one image per post; fall back to repeat if fewer than PAIRS
+    const imgs = [];
+    for (const p of posts) imgs.push(p.images[0]);
+    if (imgs.length < PAIRS) {
+      // duplicate to fill
+      let i = 0;
+      while (imgs.length < PAIRS && posts.length) imgs.push(posts[i++ % posts.length].images[0]);
+    }
+    return shuffle(imgs).slice(0, PAIRS);
+  };
+
+  const fmtTime = (s) => s < 60 ? `${s}s` : `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+
+  const tick = () => {
+    const s = Math.floor((Date.now() - startedAt) / 1000);
+    timeEl.textContent = fmtTime(s);
+  };
+
+  const setMoves = (n) => { moves = n; movesEl.textContent = n; };
+  const setPairs = (n) => { found = n; pairsEl.textContent = `${n}/${PAIRS}`; };
+
+  const buildBoard = () => {
+    const imgs = pickImages();
+    const deck = shuffle([...imgs, ...imgs]); // pairs
+
+    board.innerHTML = deck.map((src, i) => `
+      <button class="match-card" data-src="${src}" data-i="${i}" aria-label="card">
+        <span class="card-inner">
+          <span class="card-back">
+            <svg viewBox="0 0 100 100"><g style="color: var(--bubble)"><use href="#creature"/></g></svg>
+          </span>
+          <span class="card-front">
+            <img src="${src}" alt="" loading="lazy" draggable="false"/>
+          </span>
+        </span>
+      </button>
+    `).join("");
+
+    board.querySelectorAll(".match-card").forEach(c => c.addEventListener("click", onCardClick));
+  };
+
+  const onCardClick = (e) => {
+    const card = e.currentTarget;
+    if (locked) return;
+    if (card.classList.contains("is-flip") || card.classList.contains("is-matched")) return;
+
+    card.classList.add("is-flip");
+    flipped.push(card);
+
+    if (flipped.length === 2) {
+      setMoves(moves + 1);
+      locked = true;
+      const [a, b] = flipped;
+      if (a.dataset.src === b.dataset.src) {
+        setTimeout(() => {
+          a.classList.add("is-matched");
+          b.classList.add("is-matched");
+          flipped = [];
+          locked = false;
+          setPairs(found + 1);
+          if (found === PAIRS) endGame();
+        }, 380);
+      } else {
+        setTimeout(() => {
+          a.classList.remove("is-flip");
+          b.classList.remove("is-flip");
+          flipped = [];
+          locked = false;
+        }, 780);
       }
-    }, upFor);
-    scheduleNext();
-  };
-
-  const scheduleNext = () => {
-    const elapsed = (Date.now() - startedAt) / 1000;
-    const t = Math.min(1, elapsed / DURATION);
-    const gap = START_POP + (END_POP - START_POP) * t;
-    popTimer = setTimeout(popOne, gap);
-  };
-
-  const onHit = (e) => {
-    const btn = e.currentTarget;
-    if (!playing || !btn.classList.contains("is-up") || btn.classList.contains("is-hit")) return;
-    btn.classList.remove("is-up");
-    btn.classList.add("is-hit");
-    setCombo(combo + 1);
-    const mult = 1 + Math.floor(combo / 3);
-    setScore(score + mult);
-    // floating +score
-    const pop = document.createElement("span");
-    pop.className = "score-pop";
-    pop.textContent = `+${mult}`;
-    btn.parentElement.appendChild(pop);
-    setTimeout(() => pop.remove(), 900);
-    setTimeout(() => btn.classList.remove("is-hit"), 500);
-  };
-
-  creatures.forEach(c => c.addEventListener("click", onHit));
-
-  const tickTimer = () => {
-    if (!playing) return;
-    const elapsed = (Date.now() - startedAt) / 1000;
-    const remaining = Math.max(0, DURATION - elapsed);
-    timerEl.textContent = Math.ceil(remaining);
-    if (remaining <= 0) return endGame();
-    requestAnimationFrame(tickTimer);
+    }
   };
 
   const startGame = () => {
-    score = 0; combo = 0; lastCell = -1;
-    setScore(0); setCombo(0);
-    timerEl.textContent = DURATION;
-    creatures.forEach(c => c.classList.remove("is-up", "is-hit"));
+    setMoves(0);
+    setPairs(0);
+    timeEl.textContent = "0s";
     overlay.classList.remove("is-active");
-    playing = true;
+    flipped = []; locked = false;
+    buildBoard();
     startedAt = Date.now();
-    timerWrap.style.setProperty("--duration", DURATION + "s");
-    timerWrap.classList.remove("is-playing");
-    void timerWrap.offsetWidth; // reflow to restart CSS anim
-    timerWrap.classList.add("is-playing");
+    clearInterval(timerId);
+    timerId = setInterval(tick, 250);
     startBtn.style.display = "none";
-    requestAnimationFrame(tickTimer);
-    endTimer = setTimeout(endGame, DURATION * 1000);
-    scheduleNext();
   };
 
   const endGame = () => {
-    playing = false;
-    clearTimeout(popTimer);
-    clearTimeout(endTimer);
-    timerWrap.classList.remove("is-playing");
-    creatures.forEach(c => c.classList.remove("is-up"));
-    finalEl.textContent = score;
-    if (score > best) {
-      best = score;
-      localStorage.setItem("tako_best", best);
-      bestEl.textContent = best;
-      goMsg.textContent = "new high score !!! 🏆";
-    } else if (score === 0) {
-      goMsg.textContent = "...did you mean to play?";
-    } else if (score < 10) {
-      goMsg.textContent = "they were too quick for you.";
-    } else if (score < 25) {
-      goMsg.textContent = "not bad. you've got a good eye.";
-    } else if (score < 50) {
+    clearInterval(timerId);
+    const s = Math.floor((Date.now() - startedAt) / 1000);
+    finalM.textContent = moves;
+    finalT.textContent = fmtTime(s);
+    if (!best || moves < best) {
+      best = moves;
+      localStorage.setItem("tako_match_best", best);
+      bestEl.textContent = `${best} moves`;
+      goMsg.textContent = "new personal best! 🏆";
+    } else if (moves <= PAIRS + 2) {
+      goMsg.textContent = "freakishly good memory.";
+    } else if (moves <= PAIRS + 6) {
       goMsg.textContent = "respectable. tako is impressed.";
+    } else if (moves <= PAIRS + 12) {
+      goMsg.textContent = "you got there in the end.";
     } else {
-      goMsg.textContent = "absolute menace to fuzzy creatures.";
+      goMsg.textContent = "the creatures remember you.";
     }
     overlay.classList.add("is-active");
     startBtn.style.display = "inline-flex";
@@ -155,4 +147,8 @@
 
   startBtn.addEventListener("click", startGame);
   againBtn.addEventListener("click", startGame);
+
+  // build an initial (un-started) board so the page isn't empty
+  buildBoard();
+  setPairs(0);
 })();

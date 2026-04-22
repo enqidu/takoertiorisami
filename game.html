@@ -7,11 +7,11 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
-  <title>CATCH THE CREATURE — Tako's little game</title>
-  <meta name="description" content="A tiny hand-painted whack-a-mole game by Tamar Chachava. Catch the fuzzy creatures before they vanish." />
+  <title>MATCH THE PAINTINGS — Tako's little game</title>
+  <meta name="description" content="A tiny memory game using paintings by Tamar Chachava. Flip two cards, find the matching work." />
 
-  <meta property="og:title" content="CATCH THE CREATURE — a game by Tako" />
-  <meta property="og:description" content="A quirky hand-painted CSS mini-game." />
+  <meta property="og:title" content="MATCH THE PAINTINGS — a game by Tako" />
+  <meta property="og:description" content="A memory-match game using Tamar Chachava's paintings." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://takoertiorisami.xyz/assets/og-image.png" />
 
@@ -68,57 +68,39 @@
     <div class="nav-links">
       <a href="index.html" class="nav-link">works</a>
       <a href="about.html" class="nav-link">tamar</a>
-      <a href="game.html" class="nav-link active">play</a>
     </div>
   </nav>
 
   <main class="game-page">
     <header class="game-header">
       <h1 class="game-title">
-        <span class="game-title-solid">catch</span>
-        <span class="game-title-outline">the creature</span>
+        <span class="game-title-solid">match</span>
+        <span class="game-title-outline">the paintings</span>
       </h1>
-      <p class="game-sub">30 seconds. click the fuzzies before they hide. ♥ miss one and lose your combo.</p>
+      <p class="game-sub">flip two cards. find the matching work. remember the creatures.</p>
     </header>
 
     <section class="game-hud">
-      <div class="hud-pill hud-score"><span class="hud-label">score</span><span id="gameScore">0</span></div>
-      <div class="hud-pill hud-combo"><span class="hud-label">combo</span><span id="gameCombo">×1</span></div>
-      <div class="hud-pill hud-best"><span class="hud-label">best</span><span id="gameBest">0</span></div>
-      <div class="hud-timer">
-        <div class="hud-timer-bar" id="gameTimerBar"></div>
-        <span class="hud-timer-num" id="gameTimer">30</span>
-      </div>
+      <div class="hud-pill hud-moves"><span class="hud-label">moves</span><span id="gameMoves">0</span></div>
+      <div class="hud-pill hud-pairs"><span class="hud-label">found</span><span id="gamePairs">0</span></div>
+      <div class="hud-pill hud-time"><span class="hud-label">time</span><span id="gameTime">0s</span></div>
+      <div class="hud-pill hud-best"><span class="hud-label">best</span><span id="gameBest">—</span></div>
     </section>
 
-    <section class="game-board" id="gameBoard">
-      <!-- 9 cells, creatures pop in/out -->
-      <div class="game-cell" data-cell="0"><div class="cell-hole"></div><button class="cell-creature" data-i="0" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
-      <div class="game-cell" data-cell="1"><div class="cell-hole"></div><button class="cell-creature" data-i="1" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
-      <div class="game-cell" data-cell="2"><div class="cell-hole"></div><button class="cell-creature" data-i="2" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
-      <div class="game-cell" data-cell="3"><div class="cell-hole"></div><button class="cell-creature" data-i="3" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
-      <div class="game-cell" data-cell="4"><div class="cell-hole"></div><button class="cell-creature" data-i="4" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
-      <div class="game-cell" data-cell="5"><div class="cell-hole"></div><button class="cell-creature" data-i="5" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
-      <div class="game-cell" data-cell="6"><div class="cell-hole"></div><button class="cell-creature" data-i="6" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
-      <div class="game-cell" data-cell="7"><div class="cell-hole"></div><button class="cell-creature" data-i="7" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
-      <div class="game-cell" data-cell="8"><div class="cell-hole"></div><button class="cell-creature" data-i="8" aria-label="catch"><svg viewBox="0 0 100 100"><use href="#creature"/></svg></button></div>
-    </section>
+    <section class="match-board" id="matchBoard" aria-label="memory cards"></section>
 
     <section class="game-controls">
       <button class="game-btn game-start" id="gameStart">
-        <span class="btn-label">start</span>
+        <span class="btn-label">new round</span>
         <span class="btn-wiggle">→</span>
       </button>
-      <p class="game-hint">tip: the creatures get faster. good luck.</p>
+      <p class="game-hint">tip: fewer moves = better score.</p>
     </section>
 
-    <!-- End-of-round overlay -->
     <div class="game-over" id="gameOver">
       <div class="game-over-card">
-        <h2 class="go-title">
-          <span class="go-title-solid">time's up!</span>
-        </h2>
-        <p class="go-score">you caught <span id="finalScore">0</span></p>
+        <h2 class="go-title"><span class="go-title-solid">you did it!</span></h2>
+        <p class="go-score">finished in <span id="finalMoves">0</span> moves · <span id="finalTime">0s</span></p>
         <p class="go-msg" id="goMsg">not bad.</p>
         <button class="game-btn game-again" id="gameAgain">play again</button>
       </div>

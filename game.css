@@ -1,6 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   CATCH THE CREATURE — game page
-   CSS handles all layout, timer bar, pop animations, splat feedback
+   MATCH THE PAINTINGS — memory game page
    ═══════════════════════════════════════════════════════════════ */
 
 .game-page {
@@ -19,16 +18,13 @@
   line-height: .88; letter-spacing: -.03em;
 }
 .game-title-solid {
-  background: linear-gradient(135deg, var(--pumpkin), var(--bubble), var(--grape));
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--ink);
   filter: url(#watercolor);
   transform: rotate(-2deg);
 }
 .game-title-outline {
   color: transparent;
   -webkit-text-stroke: 2.5px var(--ink);
-  text-shadow: 5px 5px 0 var(--yolk);
   transform: rotate(1deg);
   margin-top: 4px;
 }
@@ -65,72 +61,29 @@
   color: var(--ink-mute);
   font-weight: 400;
 }
-.hud-score { background: var(--yolk); transform: rotate(-2deg); }
-.hud-combo { background: var(--bubble); transform: rotate(2deg); }
-.hud-best  { background: var(--spring); transform: rotate(-1deg); }
-
-/* combo pulses when > 1 */
-.hud-combo.is-hot { animation: combo-pulse .4s ease-out; }
-@keyframes combo-pulse {
-  0%   { transform: rotate(2deg) scale(1); }
-  50%  { transform: rotate(-4deg) scale(1.2); background: var(--pumpkin); color: var(--paper); }
-  100% { transform: rotate(2deg) scale(1); }
-}
-
-/* timer bar */
-.hud-timer {
-  position: relative;
-  width: 100%; max-width: 280px;
-  height: 28px;
-  background: var(--paper);
-  border: 2.5px solid var(--ink);
-  border-radius: 999px;
-  box-shadow: 4px 4px 0 var(--ink);
-  overflow: hidden;
-  transform: rotate(-.5deg);
-}
-.hud-timer-bar {
-  position: absolute; inset: 0;
-  width: 100%;
-  background: linear-gradient(90deg, var(--spring), var(--yolk), var(--pumpkin), var(--tomato));
-  transform-origin: left;
-  transition: transform 1s linear, background .3s;
-}
-.hud-timer.is-playing .hud-timer-bar { animation: timer-drain var(--duration, 30s) linear forwards; }
-@keyframes timer-drain {
-  to { transform: scaleX(0); }
-}
-.hud-timer-num {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: 15px;
-  color: var(--ink);
-  mix-blend-mode: difference; filter: invert(1);
-  letter-spacing: .05em;
-}
+.hud-moves { background: var(--yolk); transform: rotate(-2deg); }
+.hud-pairs { background: var(--bubble); transform: rotate(2deg); }
+.hud-time  { background: var(--spring); transform: rotate(-1deg); }
+.hud-best  { background: var(--paper); transform: rotate(1deg); }
 
 /* ── BOARD ──────────────────────────────────────────────── */
-.game-board {
+.match-board {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  aspect-ratio: 1;
-  max-width: 620px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 22px;
   background: var(--paper);
   border: 3px solid var(--ink);
   border-radius: 24px;
   box-shadow: 10px 10px 0 var(--ink), -16px -16px 0 var(--bubble);
-  transform: rotate(-.8deg);
+  transform: rotate(-.5deg);
   position: relative;
 }
-
 /* paper-tape corners */
-.game-board::before,
-.game-board::after {
+.match-board::before,
+.match-board::after {
   content: "";
   position: absolute;
   width: 110px; height: 28px;
@@ -138,103 +91,91 @@
   box-shadow: 0 2px 6px rgba(0,0,0,.12);
   z-index: 3;
 }
-.game-board::before { top: -14px; left: -18px; transform: rotate(-22deg); background: rgba(255,204,63,.8); }
-.game-board::after  { top: -14px; right: -18px; transform: rotate(20deg);  background: rgba(124,192,237,.75); }
+.match-board::before { top: -14px; left: -18px; transform: rotate(-22deg); background: rgba(255,204,63,.8); }
+.match-board::after  { top: -14px; right: -18px; transform: rotate(20deg);  background: rgba(124,192,237,.75); }
 
-/* ── CELLS ──────────────────────────────────────────────── */
-.game-cell {
+/* ── CARDS ──────────────────────────────────────────────── */
+.match-card {
   position: relative;
   aspect-ratio: 1;
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden;
-  border-radius: 18px;
-  background: var(--cream-2);
-  filter: url(#rough);
-}
-/* different hole color per cell index — like her color-block paper */
-.game-cell[data-cell="0"] { background: var(--thai); }
-.game-cell[data-cell="1"] { background: var(--mint); }
-.game-cell[data-cell="2"] { background: var(--yolk); }
-.game-cell[data-cell="3"] { background: #c4e0ff; }
-.game-cell[data-cell="4"] { background: #ffd9e6; }
-.game-cell[data-cell="5"] { background: #e3d4ff; }
-.game-cell[data-cell="6"] { background: #ffe3c4; }
-.game-cell[data-cell="7"] { background: var(--mint); }
-.game-cell[data-cell="8"] { background: var(--thai); }
-
-/* hole */
-.cell-hole {
-  position: absolute;
-  bottom: -12%; left: 50%;
-  transform: translateX(-50%);
-  width: 78%; aspect-ratio: 2.3 / 1;
-  background: radial-gradient(ellipse at 50% 30%, rgba(0,0,0,.42) 0%, rgba(0,0,0,.18) 55%, transparent 80%);
-  border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
-  filter: blur(1px);
-}
-
-/* creature button */
-.cell-creature {
-  position: absolute;
-  left: 50%; bottom: -14%;
-  width: 72%; aspect-ratio: 1;
-  transform: translateX(-50%) translateY(100%);
-  transition: transform .22s cubic-bezier(.3,1.7,.4,1), opacity .18s;
-  pointer-events: none;
-  opacity: 0;
+  perspective: 800px;
+  background: none;
+  border: 0;
+  padding: 0;
   cursor: none;
-  background: none; border: 0; padding: 0;
 }
-.cell-creature svg { width: 100%; height: 100%; color: var(--bubble); }
-.cell-creature[data-i="0"] svg { color: var(--bubble); }
-.cell-creature[data-i="1"] svg { color: var(--spring); }
-.cell-creature[data-i="2"] svg { color: var(--grape); }
-.cell-creature[data-i="3"] svg { color: var(--sky); }
-.cell-creature[data-i="4"] svg { color: var(--pumpkin); }
-.cell-creature[data-i="5"] svg { color: var(--tomato); }
-.cell-creature[data-i="6"] svg { color: var(--yolk); }
-.cell-creature[data-i="7"] svg { color: var(--grape); }
-.cell-creature[data-i="8"] svg { color: var(--bubble); }
+.card-inner {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  transition: transform .5s cubic-bezier(.3,1.3,.4,1);
+  border-radius: 14px;
+}
+.match-card.is-flip .card-inner,
+.match-card.is-matched .card-inner {
+  transform: rotateY(180deg);
+}
+.card-back, .card-front {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 14px;
+  border: 2.5px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.card-back {
+  background: var(--cream-2);
+  padding: 14%;
+}
+.card-back svg { width: 100%; height: 100%; }
+.card-front {
+  background: var(--paper);
+  transform: rotateY(180deg);
+}
+.card-front img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  -webkit-user-drag: none;
+}
 
-/* active = popped up */
-.cell-creature.is-up {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-  pointer-events: auto;
-  animation: creature-bob .8s ease-in-out infinite;
+/* rotate each card slightly, sketchbook feel */
+.match-card:nth-child(4n+1) .card-inner { transform: rotate(-1.5deg); }
+.match-card:nth-child(4n+2) .card-inner { transform: rotate(1deg); }
+.match-card:nth-child(4n+3) .card-inner { transform: rotate(-.5deg); }
+.match-card:nth-child(4n)   .card-inner { transform: rotate(2deg); }
+
+.match-card.is-flip:nth-child(4n+1) .card-inner,
+.match-card.is-matched:nth-child(4n+1) .card-inner { transform: rotate(-1.5deg) rotateY(180deg); }
+.match-card.is-flip:nth-child(4n+2) .card-inner,
+.match-card.is-matched:nth-child(4n+2) .card-inner { transform: rotate(1deg) rotateY(180deg); }
+.match-card.is-flip:nth-child(4n+3) .card-inner,
+.match-card.is-matched:nth-child(4n+3) .card-inner { transform: rotate(-.5deg) rotateY(180deg); }
+.match-card.is-flip:nth-child(4n) .card-inner,
+.match-card.is-matched:nth-child(4n) .card-inner   { transform: rotate(2deg) rotateY(180deg); }
+
+/* different back color per card position (painterly paper) */
+.match-card:nth-child(5n+1) .card-back { background: #fde2d1; }
+.match-card:nth-child(5n+2) .card-back { background: #d4efe4; }
+.match-card:nth-child(5n+3) .card-back { background: #fff0b8; }
+.match-card:nth-child(5n+4) .card-back { background: #e7dcff; }
+.match-card:nth-child(5n)   .card-back { background: #c7e4ff; }
+
+/* matched: gentle glow halo */
+.match-card.is-matched .card-front {
+  box-shadow: 3px 3px 0 var(--ink), 0 0 0 4px var(--bubble);
+  animation: matched-pop .5s cubic-bezier(.3,1.8,.4,1);
 }
-@keyframes creature-bob {
-  0%,100% { transform: translateX(-50%) translateY(0) rotate(-3deg); }
-  50%     { transform: translateX(-50%) translateY(-4px) rotate(3deg); }
+@keyframes matched-pop {
+  0%   { transform: rotateY(180deg) scale(1); }
+  50%  { transform: rotateY(180deg) scale(1.08); }
+  100% { transform: rotateY(180deg) scale(1); }
 }
 
-/* caught: splat + vanish */
-.cell-creature.is-hit {
-  animation: hit-splat .45s cubic-bezier(.3,1.6,.4,1) forwards;
-  pointer-events: none;
-}
-@keyframes hit-splat {
-  0%   { transform: translateX(-50%) translateY(0) scale(1) rotate(0); opacity: 1; }
-  40%  { transform: translateX(-50%) translateY(-20%) scale(1.4, .7) rotate(12deg); opacity: 1; }
-  100% { transform: translateX(-50%) translateY(0) scale(.2) rotate(-30deg); opacity: 0; }
-}
-
-/* floating score +1 when hit */
-.score-pop {
-  position: absolute;
-  left: 50%; top: 20%;
-  transform: translate(-50%, 0);
-  font-family: var(--display); font-weight: 800;
-  font-size: 28px;
-  color: var(--tomato);
-  text-shadow: 2px 2px 0 var(--paper);
-  pointer-events: none;
-  animation: score-pop .9s ease-out forwards;
-}
-@keyframes score-pop {
-  0%   { transform: translate(-50%, 0) scale(.5); opacity: 0; }
-  20%  { transform: translate(-50%, -10%) scale(1.2); opacity: 1; }
-  100% { transform: translate(-50%, -80%) scale(1); opacity: 0; }
+/* hover: slight lift */
+.match-card:not(.is-flip):not(.is-matched):hover .card-inner {
+  transform: translateY(-4px) rotate(-2deg);
 }
 
 /* ── CONTROLS ──────────────────────────────────────────── */
@@ -291,6 +232,7 @@
   padding: 20px;
 }
 .game-over.is-active { display: flex; animation: fade-in .3s ease; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 
 .game-over-card {
   max-width: 460px; width: 100%;
@@ -308,7 +250,6 @@
   0%   { transform: rotate(-2deg) scale(.7); opacity: 0; }
   100% { transform: rotate(-2deg) scale(1); opacity: 1; }
 }
-
 .go-title {
   font-family: var(--display); font-weight: 800;
   font-size: clamp(36px, 6vw, 54px);
@@ -316,9 +257,7 @@
   margin-bottom: 18px;
 }
 .go-title-solid {
-  background: linear-gradient(135deg, var(--tomato), var(--pumpkin), var(--yolk));
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--ink);
   filter: url(#watercolor);
 }
 .go-score {
@@ -330,15 +269,9 @@
 .go-score span {
   font-family: var(--display);
   font-weight: 800;
-  font-size: 48px;
   color: var(--tomato);
   display: inline-block;
-  padding: 0 8px;
-  animation: wiggle-score 1.5s ease-in-out infinite;
-}
-@keyframes wiggle-score {
-  0%,100% { transform: rotate(-3deg); }
-  50%     { transform: rotate(3deg) scale(1.05); }
+  padding: 0 4px;
 }
 .go-msg {
   font-family: var(--mono);
@@ -355,8 +288,10 @@
 /* ── RESPONSIVE ────────────────────────────────────────── */
 @media (max-width: 600px) {
   .game-page { padding: 100px 4vw 80px; }
-  .game-board { gap: 12px; padding: 16px; }
+  .match-board { gap: 10px; padding: 14px; }
   .hud-pill { font-size: 16px; padding: 8px 14px; }
-  .hud-timer { max-width: 100%; }
   .game-btn { font-size: 20px; padding: 14px 30px; }
+}
+@media (max-width: 420px) {
+  .match-board { grid-template-columns: repeat(3, 1fr); }
 }
