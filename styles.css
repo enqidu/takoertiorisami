@@ -117,6 +117,10 @@ body::after {
      forced the whole viewport to recomposite, re-running SVG
      filters on all ~20 floaters. */
   --cc-color: var(--bubble);
+  /* PERF: own compositor layer so cursor movement doesn't repaint
+     the document behind it. */
+  will-change: transform, left, top;
+  contain: layout paint;
 }
 .cc-svg { width: 100%; height: 100%; overflow: visible; display: block; }
 .cc-body { color: var(--cc-color); transform-origin: 50% 55%; animation: cc-wiggle 1.6s ease-in-out infinite; }
@@ -229,9 +233,11 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
   animation: cc-charge-flash .9s ease-out forwards;
 }
 @keyframes cc-charge-flash {
-  0%   { transform: scale(1); opacity: 1; filter: blur(0); }
-  60%  { transform: scale(1.8); opacity: .6; filter: blur(2px); }
-  100% { transform: scale(2.4); opacity: 0; filter: blur(6px); }
+  /* PERF: removed per-frame filter: blur() — was forcing GPU
+     rasterization each frame. Rely on transform+opacity only. */
+  0%   { transform: scale(1);   opacity: 1; }
+  60%  { transform: scale(1.8); opacity: .6; }
+  100% { transform: scale(2.4); opacity: 0; }
 }
 @keyframes cc-absorb {
   0%   { transform: scale(1); }
@@ -1656,6 +1662,10 @@ body {
   z-index: 1;
   --ox: 0px; --oy: 0px;
   /* no transform-transition — it fights the bob animation */
+  /* PERF: promote to own compositor layer so paints don't ripple to
+     siblings; contain paint/layout to isolate the cost. */
+  will-change: transform;
+  contain: layout paint;
 }
 .floater svg { width: 100%; height: 100%; overflow: visible; }
 .f-1 { top: 8%;  right: 6%;  width: 110px; --r: -8deg;  animation: bob 5s ease-in-out infinite; }
@@ -2495,7 +2505,9 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
 }
 .floater.being-absorbed .fl-svg {
   animation: fl-drain-shake .14s ease-in-out infinite;
-  filter: saturate(calc(1 - var(--drain, 0) * .9)) brightness(calc(1 + var(--drain, 0) * .25)) drop-shadow(0 0 calc(var(--drain, 0) * 14px) rgba(255,255,255,.85));
+  /* PERF: dropped drop-shadow() — creates an offscreen blur surface
+     every frame. Just desaturate, which is a single-pass filter. */
+  filter: saturate(calc(1 - var(--drain, 0) * .9));
 }
 @keyframes fl-drain-shake {
   0%   { transform: translate(-1px, 0)  rotate(-3deg); }
@@ -2516,13 +2528,15 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   0%,100% { transform: scale(1); }
   50%     { transform: scale(1.25); }
 }
-/* floater drained aftermath: greyed out, droopy, slow recovery */
+/* floater drained aftermath: greyed out, droopy, quick recovery
+   (no filter transition — animating filter is GPU-expensive;
+   fade via opacity only, which is compositor-free) */
 .floater.is-drained .fl-svg {
-  filter: saturate(.1) brightness(1.12);
-  opacity: .55;
-  transition: filter 2s, opacity 2s;
+  filter: saturate(.15);
+  opacity: .6;
+  transition: opacity 1.2s;
 }
-.floater.is-drained .fl-mouth { transform: scaleY(-.6); transition: transform 2s; }
+.floater.is-drained .fl-mouth { transform: scaleY(-.6); transition: transform 1s; }
 
 /* upgrade the cursor gulp: bigger, punchier with a shockwave */
 .cursor-creature.is-absorbing .cc-body {

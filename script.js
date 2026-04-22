@@ -744,7 +744,30 @@ const initFloaters = () => {
     pageX = e.clientX; pageY = e.clientY;
   });
 
-  const state = floaters.map(() => ({ x: 0, y: 0, px: 0, py: 0, near: false, busy: false, lastBlink: 0, nextBehavior: 0 }));
+  const state = floaters.map(() => ({ x: 0, y: 0, px: 0, py: 0, near: false, busy: false, lastBlink: 0, nextBehavior: 0, cx: 0, cy: 0, visible: true }));
+
+  // PERF: cache each floater's center position — getBoundingClientRect
+  // inside the tick loop was forcing 21 layout reflows every frame.
+  // Recompute only on scroll/resize. Small bob error is invisible.
+  const updateRects = () => {
+    floaters.forEach((f, i) => {
+      const r = f.getBoundingClientRect();
+      state[i].cx = r.left + r.width / 2;
+      state[i].cy = r.top  + r.height / 2;
+    });
+  };
+  updateRects();
+  window.addEventListener("scroll", updateRects, { passive: true });
+  window.addEventListener("resize", updateRects);
+
+  // PERF: skip tick work for offscreen floaters
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      const i = floaters.indexOf(e.target);
+      if (i >= 0) state[i].visible = e.isIntersecting;
+    });
+  }, { rootMargin: "100px" });
+  floaters.forEach(f => io.observe(f));
 
   const setTempState = (el, cls, ms) => {
     el.classList.add(cls);
@@ -851,6 +874,8 @@ const initFloaters = () => {
     const now = performance.now();
     floaters.forEach((f, i) => {
       const s = state[i];
+      // skip entirely for offscreen floaters — saves paint + layout
+      if (!s.visible) return;
       const isFloater = f.classList.contains("floater");
 
       // cursor-pull offset for body (only floaters, not crew creatures which bob in place)
@@ -864,10 +889,8 @@ const initFloaters = () => {
         f.style.setProperty("--oy", s.y.toFixed(2) + "px");
       }
 
-      // pupil tracking toward cursor (relative to this creature)
-      const r = f.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top  + r.height / 2;
+      // pupil tracking toward cursor using cached center (no layout reflow)
+      const cx = s.cx, cy = s.cy;
       const dx = pageX - cx, dy = pageY - cy;
       const dist = Math.hypot(dx, dy);
       // normalize → small eye offset
