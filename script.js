@@ -731,13 +731,9 @@ const FLOATER_SVG = `
       <ellipse class="fl-blush fl-blush-l" cx="28" cy="62" rx="4" ry="2" fill="#ff9bb0" opacity="0"/>
       <ellipse class="fl-blush fl-blush-r" cx="72" cy="62" rx="4" ry="2" fill="#ff9bb0" opacity="0"/>
       <ellipse class="fl-mouth" cx="50" cy="66" rx="4" ry="2.5" fill="#e4483b"/>
-      <!-- PUK: gentle concerned brows + soft curved smile (hidden by default) -->
-      <g class="fl-brows">
-        <line x1="32" y1="42" x2="42" y2="40" stroke="#1a1410" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="58" y1="40" x2="68" y2="42" stroke="#1a1410" stroke-width="1.8" stroke-linecap="round"/>
-      </g>
+      <!-- PUK: big happy curved smile (hidden by default) -->
       <g class="fl-smile">
-        <path d="M43 66 Q 50 71 57 66" stroke="#1a1410" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+        <path d="M38 64 Q 50 76 62 64" stroke="#1a1410" stroke-width="1.9" fill="none" stroke-linecap="round"/>
       </g>
       <!-- CRAZY: tongue (hidden by default; shown when data-mood="crazy") -->
       <ellipse class="fl-tongue" cx="55" cy="74" rx="2.4" ry="3.2" fill="#ff6fa8" opacity="0"/>
@@ -782,7 +778,7 @@ const FL_PERSONALITIES = {
   crazy:        { says: ["YESSSS", "i love this!!", "OH MY GOD", "wee wee!", "oof!", "i'm SO good"], blinkMs: [600, 1400], mood: "crazy" },
   girlish:      { says: ["adam driver..", "ugh", "i'm a writer", "i could write that", "is it me?", "♥"], blinkMs: [3000, 5500], mood: "girlish" },
   oversleep:    { says: ["zzzzz", "five more", "..nh", "(asleep)", "Z", "mmm"],     blinkMs: [400, 1100],  mood: "oversleep" },
-  puk:          { says: ["pff", "no", "ჰმ", "fine.", "leave it", "go away"],         blinkMs: [2400, 4800], mood: "puk" },
+  puk:          { says: ["hi!", "oh hey", "shucks", "haha", "ah", "neat"],          blinkMs: [3200, 6000], mood: "puk" },
 };
 const FL_POOL = Object.keys(FL_PERSONALITIES);
 
