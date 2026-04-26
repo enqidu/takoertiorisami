@@ -778,6 +778,7 @@ const FL_PERSONALITIES = {
   cozy:         { says: ["mm~", "warm", "soft", "nice.", "♨"],              blinkMs: [3200, 5800], mood: "cozy" },
   melodramatic: { says: ["alas!", "oh no!", "ვაიმე!", "the pain", "*gasp*"], blinkMs: [2000, 4500], mood: "melodramatic" },
   // CUSTOM CREW MOODS
+  truk:         { says: ["hi!", "oh boy", "neat", "haha", "hi friend", "shucks"],   blinkMs: [3200, 6000], mood: "truk" },
   cool:         { says: ["yeah", "mhm", "obviously", "sure", "♪", "..yep"],          blinkMs: [4500, 8000], mood: "cool" },
   crazy:        { says: ["YESSSS", "i love this!!", "OH MY GOD", "wee wee!", "oof!", "i'm SO good"], blinkMs: [600, 1400], mood: "crazy" },
   girlish:      { says: ["adam driver..", "ugh", "i'm a writer", "i could write that", "is it me?", "♥"], blinkMs: [3000, 5500], mood: "girlish" },

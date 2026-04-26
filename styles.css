@@ -2778,6 +2778,15 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   transform-origin: 50% 60%;
 }
 
+/* — TRUK: a cheerful little guy. Yellow hair, soft arched brows,
+     simple curved smile, gentle blush. — */
+[data-mood="truk"] .fl-spikes { stroke: #ffd333; }
+[data-mood="truk"] .fl-brows  { opacity: 1; }
+[data-mood="truk"] .fl-mouth  { display: none; }
+[data-mood="truk"] .fl-smile  { opacity: 1; }
+[data-mood="truk"] .fl-blush-l,
+[data-mood="truk"] .fl-blush-r { opacity: .5 !important; }
+
 /* — TINY: hard scale-down for nikala — drop both layout box AND visual — */
 .crew-creature.is-tiny {
   width: 38px !important;
