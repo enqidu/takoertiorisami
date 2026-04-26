@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Tamar Chachava — CV · Graphic designer & illustrator</title>
+  <meta name="description" content="Curriculum vitae for Tamar Chachava — graphic designer and illustrator based in Tbilisi, Georgia." />
+  <meta name="author" content="Tamar Chachava" />
+  <link rel="canonical" href="https://takoertiorisami.xyz/cv.html" />
+
+  <meta property="og:title" content="CV — Tamar Chachava" />
+  <meta property="og:description" content="Graphic designer & illustrator from Tbilisi, Georgia." />
+  <meta property="og:type" content="profile" />
+  <meta property="og:url" content="https://takoertiorisami.xyz/cv.html" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=20260422" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── tokens ── */
+    :root {
+      --paper:    #f6efde;
+      --paper-2:  #efe6cd;
+      --ink:      #1a1410;
+      --ink-2:    #2f261d;
+      --ink-3:    #50402f;
+      --ink-mute: #7a6a55;
+      --accent:   #b34225;
+      --rule:     rgba(26, 20, 16, .14);
+
+      --serif: "EB Garamond", "Times New Roman", serif;
+      --mono:  "DM Mono", "Courier New", monospace;
+    }
+
+    /* ── reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    a { color: inherit; text-decoration: none; }
+    a:hover { color: var(--accent); }
+
+    /* ── base ── */
+    body {
+      font-family: var(--serif);
+      color: var(--ink);
+      background: var(--paper);
+      font-size: 15px;
+      line-height: 1.55;
+      font-feature-settings: "kern", "liga", "onum";
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      padding: 56px 28px;
+      min-height: 100vh;
+    }
+    ::selection { background: var(--ink); color: var(--paper); }
+
+    /* ── page ── */
+    .page {
+      position: relative;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 64px 56px 72px;
+      background: var(--paper);
+    }
+
+    /* ── floating actions (hidden on print) ── */
+    .actions {
+      position: fixed;
+      top: 18px; right: 22px;
+      display: flex; gap: 10px;
+      z-index: 50;
+    }
+    .actions a, .actions button {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      background: transparent;
+      border: 1px solid var(--ink);
+      border-radius: 0;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .actions a:hover, .actions button:hover {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .actions .pdf {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .actions .pdf:hover {
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    /* ── header ── */
+    .head {
+      display: grid;
+      gap: 14px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--ink);
+      margin-bottom: 32px;
+    }
+    .head .kicker {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+    h1.name {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: clamp(40px, 7vw, 60px);
+      line-height: .95;
+      letter-spacing: -.018em;
+      color: var(--ink);
+    }
+    .role {
+      font-family: var(--serif);
+      font-size: 17px;
+      line-height: 1.45;
+      color: var(--ink-2);
+      letter-spacing: -.003em;
+      max-width: 56ch;
+    }
+    .role em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .contact {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 28px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .04em;
+      color: var(--ink);
+      margin-top: 6px;
+    }
+    .contact a { border-bottom: 1px solid transparent; }
+    .contact a:hover { border-bottom-color: var(--ink); color: var(--ink); }
+    .contact .label {
+      color: var(--ink-mute);
+      text-transform: uppercase;
+      letter-spacing: .26em;
+      font-size: 9px;
+      margin-right: 8px;
+    }
+    @media (max-width: 520px) {
+      .contact { grid-template-columns: 1fr; }
+    }
+
+    /* ── sections ── */
+    section {
+      padding: 24px 0;
+      border-top: 1px solid var(--rule);
+    }
+    section:first-of-type { border-top: 0; padding-top: 0; }
+
+    h2 {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 18px;
+      font-weight: 400;
+    }
+
+    /* ── about paragraph ── */
+    .about {
+      font-family: var(--serif);
+      font-size: 17px;
+      line-height: 1.5;
+      letter-spacing: -.005em;
+      color: var(--ink);
+      max-width: 56ch;
+    }
+
+    /* ── experience / education entries ── */
+    .entry {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 22px;
+      padding: 14px 0;
+    }
+    .entry + .entry { border-top: 1px solid var(--rule); }
+
+    .entry-when {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .04em;
+      color: var(--ink-mute);
+      padding-top: 4px;
+    }
+    .entry-body h3 {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 19px;
+      letter-spacing: -.01em;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .entry-body h3 .at {
+      font-style: normal;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-left: 6px;
+    }
+    .entry-body p,
+    .entry-body ul {
+      font-family: var(--serif);
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink-2);
+    }
+    .entry-body ul { list-style: none; padding-left: 0; margin-top: 6px; }
+    .entry-body li {
+      padding: 3px 0 3px 16px;
+      position: relative;
+    }
+    .entry-body li::before {
+      content: "—";
+      position: absolute; left: 0; top: 3px;
+      color: var(--ink-mute);
+      font-family: var(--serif);
+    }
+    .entry-body .note {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-top: 8px;
+    }
+
+    @media (max-width: 520px) {
+      .entry { grid-template-columns: 1fr; gap: 4px; }
+    }
+
+    /* ── skills table ── */
+    .skills {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 0;
+    }
+    .skills > * { padding: 10px 0; border-top: 1px solid var(--rule); }
+    .skills > *:nth-child(1), .skills > *:nth-child(2) { border-top: 0; padding-top: 4px; }
+    .skills dt {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+    .skills dd {
+      font-family: var(--serif);
+      font-size: 15px;
+      letter-spacing: -.005em;
+      color: var(--ink);
+    }
+    @media (max-width: 520px) {
+      .skills { grid-template-columns: 1fr; }
+      .skills > *:nth-child(2) { padding-top: 0; }
+    }
+
+    /* ── language strip ── */
+    .langs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 32px;
+      font-family: var(--serif);
+      font-size: 15px;
+    }
+    .langs > div {
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+    }
+    .langs .lang {
+      font-style: italic;
+      letter-spacing: -.005em;
+    }
+    .langs .level {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    /* ── honours line ── */
+    .honour {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 22px;
+    }
+    .honour-when {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .04em;
+      color: var(--ink-mute);
+    }
+    .honour-body {
+      font-family: var(--serif);
+      font-size: 15px;
+      line-height: 1.5;
+      letter-spacing: -.003em;
+      color: var(--ink);
+    }
+    @media (max-width: 520px) {
+      .honour { grid-template-columns: 1fr; }
+    }
+
+    /* ── colophon ── */
+    .colophon {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+    @media (max-width: 520px) {
+      .colophon { flex-direction: column; }
+    }
+
+    /* ──────────────────────────────────────────────
+       PRINT — A4, ink-friendly, hide chrome
+       ────────────────────────────────────────────── */
+    @page { size: A4; margin: 16mm; }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        font-size: 11pt;
+      }
+      .actions { display: none !important; }
+      .page {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+      }
+      h1.name { font-size: 30pt !important; }
+      .role { font-size: 12.5pt; }
+      .contact { font-size: 9pt; }
+      .about { font-size: 11pt; }
+      .entry-body h3 { font-size: 12.5pt; }
+      .entry-body p, .entry-body ul, .entry-body li { font-size: 10.5pt; }
+      .skills dd { font-size: 10.5pt; }
+      .honour-body { font-size: 10.5pt; }
+      a { text-decoration: none; }
+      section { break-inside: avoid; }
+      .entry { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- floating actions (hidden when printing) -->
+  <nav class="actions" aria-label="Actions">
+    <a href="index.html" title="Back to works">← Works</a>
+    <button class="pdf" type="button" id="downloadPdf" title="Save as PDF">↓ PDF</button>
+  </nav>
+
+  <main class="page">
+
+    <header class="head">
+      <p class="kicker">Curriculum Vitae</p>
+      <h1 class="name">Tamar Chachava</h1>
+      <p class="role">Graphic designer and illustrator. Hand-painted creatures in <em>watercolor</em> and <em>acrylic</em>; brand and editorial work in digital.</p>
+
+      <div class="contact" aria-label="Contact">
+        <div><span class="label">Email</span><a href="mailto:takochachava1@gmail.com">takochachava1@gmail.com</a></div>
+        <div><span class="label">Based</span>Tbilisi, Georgia</div>
+        <div><span class="label">Web</span><a href="https://takoertiorisami.xyz" target="_blank" rel="noopener">takoertiorisami.xyz</a></div>
+        <div><span class="label">Behance</span><a href="https://www.behance.net/takoertiorisami" target="_blank" rel="noopener">behance.net/takoertiorisami</a></div>
+      </div>
+    </header>
+
+    <section aria-labelledby="h-about">
+      <h2 id="h-about">Profile</h2>
+      <p class="about">Graphic designer and illustrator from Tbilisi. Hand-painted creatures in watercolor and acrylic; brand and editorial work in digital. Background in psychology — interested in why a thing makes someone look twice.</p>
+    </section>
+
+    <section aria-labelledby="h-exp">
+      <h2 id="h-exp">Experience</h2>
+
+      <div class="entry">
+        <div class="entry-when">2025 — present</div>
+        <div class="entry-body">
+          <h3>Graphic Designer <span class="at">· Campshare · Tbilisi</span></h3>
+          <p>Campaign visuals across social platforms — posters, key art and rolling brand assets in service of a consistent visual identity.</p>
+          <ul>
+            <li>Designed seasonal campaigns end-to-end: concept, visuals, social rollout</li>
+            <li>Built repeatable templates for ongoing posts and stories</li>
+            <li>Maintained tone and visual system across recurring campaigns</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-when">2025 — present</div>
+        <div class="entry-body">
+          <h3>Graphic Designer &amp; Illustrator <span class="at">· Freelance</span></h3>
+          <p>Brand and visual identity work, social-first design, and editorial illustration for independent clients.</p>
+          <ul>
+            <li>Logo and brand systems for two cosmetics and beauty brands</li>
+            <li>Social media graphics, layouts and packaging direction</li>
+            <li>Digital illustrations for editorial and commercial use</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-edu">
+      <h2 id="h-edu">Education</h2>
+
+      <div class="entry">
+        <div class="entry-when">2021 — 2026</div>
+        <div class="entry-body">
+          <h3>BA, Psychology <span class="at">· Caucasus University · Tbilisi</span></h3>
+          <p class="note">100% State Grant · Top-501, National Unified Examinations 2021</p>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-when">Feb — Jun 2024</div>
+        <div class="entry-body">
+          <h3>Erasmus+ Exchange <span class="at">· University of Coimbra · Portugal</span></h3>
+          <p>Six months of psychology coursework in an EU academic context.</p>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-when">2025 — present</div>
+        <div class="entry-body">
+          <h3>Continuing graphic design education</h3>
+          <p>Smartfish Academy &nbsp;·&nbsp; 10x Academy</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-skills">
+      <h2 id="h-skills">Skills</h2>
+      <dl class="skills">
+        <dt>Brand identity</dt><dd>logos, marks and type-led systems</dd>
+        <dt>Editorial</dt><dd>layouts, posters, social-first design</dd>
+        <dt>Illustration</dt><dd>watercolor, acrylic, ink and digital</dd>
+        <dt>Tooling</dt><dd>Illustrator, Photoshop, InDesign, Fresco, CorelDRAW</dd>
+      </dl>
+    </section>
+
+    <section aria-labelledby="h-langs">
+      <h2 id="h-langs">Languages</h2>
+      <div class="langs">
+        <div><span class="lang">Georgian</span><span class="level">Native</span></div>
+        <div><span class="lang">English</span><span class="level">C2 read · C1 speak</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-honours">
+      <h2 id="h-honours">Honours</h2>
+      <div class="honour">
+        <div class="honour-when">2021</div>
+        <div class="honour-body">100% State Grant, Caucasus University &mdash; Top-501, National Unified Examinations of Georgia.</div>
+      </div>
+    </section>
+
+    <footer class="colophon">
+      <span>© 2026 Tamar Chachava · Tbilisi</span>
+      <span>Set in EB Garamond &amp; DM Mono</span>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("downloadPdf").addEventListener("click", () => window.print());
+  </script>
+</body>
+</html>

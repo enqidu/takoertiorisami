@@ -16,6 +16,13 @@
 
 window.POSTS = [
   {
+    title: "The Shoes Off Campaign",
+    date: "March 2026",
+    description: `posters for a small household problem — shoe trails after every hangout. solved with quirky slippers from temu, offered to guests on arrival. inspired by asian graphic design.`,
+    tags: ["graphic design", "poster", "campaign"],
+    images: ["images/shoes-off-1.webp", "images/shoes-off-2.webp", "images/shoes-off-3.webp"],
+  },
+  {
     title: "Trois Couleurs",
     date: "March 2026",
     description: ``,
@@ -31,10 +38,10 @@ window.POSTS = [
   },
   {
     title: "",
-    date: "March 2025",
+    date: "April 2026",
     type: "idea",
-    description: `I'm watching Twin Peaks. Shitting my pants.`,
-    tags: ["summer", "season", "anticipation"],
+    description: `watching twin peaks for the first time. the red room won't leave.`,
+    tags: ["notes", "watching"],
     images: [],
   },
   {
@@ -60,6 +67,13 @@ window.POSTS = [
     images: ["images/virtxa.png"],
   },
   {
+    title: "Mrs Peanut Butter — Brand Identity",
+    date: "October 2025",
+    description: `fictional brand identity for a peanut butter company built on three ingredients: roasted nuts, olive oil, salt. a dog mascot, classy-with-a-twist, packaging and illustration.`,
+    tags: ["graphic design", "brand identity", "packaging"],
+    images: ["images/mrs-peanut-1.webp", "images/mrs-peanut-2.webp", "images/mrs-peanut-3.webp"],
+  },
+  {
     title: "",
     date: "March 2025",
     type: "idea",
@@ -76,20 +90,11 @@ window.POSTS = [
     placeholder: "creature",
   },
   {
-    title: "ენაცვალოს ჩემი ძუძუნი",
-    date: "January 2025",
+    title: "",
+    date: "April 2026",
     type: "idea",
-    description: `ენაცვალოს ჩემი ძუძუნი
-მწყემსის, გარაის ყლესაო,
-აეგრე დასჩვრეტს საოხრეს,
-როგორც "ბერდენკა" ხესაო,
-მეხი კი ჩამოვათხლიშე
-ინტელიგენტის ყლესაო,
-მიადებს, მეებრიცება,
-თან მიაშველებს ხელსაო,
-ბოლოს ბოდიშსაც მაიხდის:
-- ლექცია მქონდა დღესაო..`,
-    tags: ["მუტელი"],
+    description: `currently sketching with andrew loomis. heads as soft little eggs, hands like polite families. relearning how to look.`,
+    tags: ["notes", "sketching", "loomis"],
     images: [],
   },
   {
