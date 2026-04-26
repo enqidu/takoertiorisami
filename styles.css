@@ -2705,10 +2705,16 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
 [data-mood="crazy"] .fl-blush-l,
 [data-mood="crazy"] .fl-blush-r { opacity: .85 !important; }
 
-/* faster, more energetic bounce */
-[data-mood="crazy"] .fl-body {
+/* faster, more energetic bounce — applied to the whole SVG so body
+   AND face bounce together (otherwise the face slips off the body) */
+[data-mood="crazy"] .fl-svg {
   animation: vazha-bounce 0.7s ease-in-out infinite alternate !important;
   transform-origin: 50% 100%;
+  transform-box: fill-box;
+}
+[data-mood="crazy"] .fl-body {
+  /* explicitly clear any inherited body-only bounce */
+  animation: none !important;
 }
 @keyframes vazha-bounce {
   from { transform: rotate(-9deg)  translateY(0)   scale(1,   .98); }
