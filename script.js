@@ -1085,10 +1085,12 @@ const initScrollWobble = () => {
 
 
 // ─── PET THE CREATURES — click a floater, it squishes + hearts
-//     SECRET: pet 5× within 4s and the creature runs to the game 🕹️
+//     SECRET: pet 12× within 4s and the creature runs to the game 🕹️
 const initPet = () => {
   let petCount = 0;
   let petTimer = null;
+  const PET_GOAL = 12;        // clicks needed to trigger the game
+  const PET_IDLE_MS = 4000;   // reset to 0 after this much inactivity
   const resetPetCount = () => { petCount = 0; };
   document.querySelectorAll(".floater").forEach(el => {
     el.style.pointerEvents = "auto";
@@ -1115,8 +1117,8 @@ const initPet = () => {
       // secret pet-count → game
       petCount++;
       clearTimeout(petTimer);
-      petTimer = setTimeout(resetPetCount, 4000);
-      if (petCount >= 5) {
+      petTimer = setTimeout(resetPetCount, PET_IDLE_MS);
+      if (petCount >= PET_GOAL) {
         petCount = 0;
         document.body.classList.add("party");
         setTimeout(() => { window.location.href = "game.html"; }, 700);

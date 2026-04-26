@@ -1772,7 +1772,26 @@ body {
 }
 
 /* HERO-TITLE: gooey blob mask background */
-.hero-content { position: relative; z-index: 2; }
+/* pointer-events: none on the wrapper so clicks pass through to the
+   floater creatures positioned behind it (top/center floaters were
+   getting eaten by the title's hit area). Children re-enable pointer
+   events for any future interactive descendant. */
+.hero-content { position: relative; z-index: 2; pointer-events: none; }
+.hero-content a, .hero-content button, .hero-content [data-clickable] { pointer-events: auto; }
+
+/* CREW BIO — short personality line under each crew member */
+.crew-bio {
+  display: block;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--ink-mute);
+  max-width: 22ch;
+  text-align: center;
+  margin: 8px auto 0;
+  padding: 0 6px;
+}
 
 /* HERO DECO BLOBS: wobble their shape over time */
 .hero-deco {
