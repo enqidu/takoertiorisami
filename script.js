@@ -1375,6 +1375,48 @@ if (worksEl) {
   initTilt();
 }
 
+// ─── FREAKY MODE — fast spam-clicks anywhere → cursor loses its mind
+//   Threshold: 6 clicks within 700ms. Holds the freak for ~2.4s after
+//   the last qualifying click; resets cleanly. Desktop only (touch
+//   devices don't have the cursor creature).
+const initFreaky = () => {
+  const creature = document.getElementById("cursorCreature");
+  const emote    = document.getElementById("ccEmote");
+  if (!creature) return;
+  if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
+  const WINDOW_MS = 700;
+  const TRIGGER   = 6;
+  const HOLD_MS   = 2400;
+
+  let clickTimes = [];
+  let freakOff   = null;
+
+  const popEmote = (txt) => {
+    if (!emote) return;
+    emote.textContent = txt;
+    emote.className = "cc-emote pop-freak";
+    setTimeout(() => { emote.className = "cc-emote"; emote.textContent = ""; }, 480);
+  };
+
+  document.addEventListener("click", () => {
+    const now = performance.now();
+    clickTimes.push(now);
+    clickTimes = clickTimes.filter(t => now - t < WINDOW_MS);
+    if (clickTimes.length >= TRIGGER) {
+      if (!creature.classList.contains("cc-freaky")) {
+        creature.classList.add("cc-freaky");
+        popEmote("!?");
+      }
+      clearTimeout(freakOff);
+      freakOff = setTimeout(() => {
+        creature.classList.remove("cc-freaky");
+        clickTimes = [];
+      }, HOLD_MS);
+    }
+  }, true);
+};
+
 // GLOBAL
 initCursor();
 initFloaters();
@@ -1387,3 +1429,4 @@ initPet();
 initSiteNameSecret();
 initKonami();
 initLightbox();
+initFreaky();

@@ -1582,26 +1582,37 @@ body.party .work-gallery { animation: party-shake .5s linear infinite; }
 .gallery-slide img[src]:not([src=""]) ~ *,
 .gallery-viewport .gallery-slide:has(img[complete]) ::before { animation: none; opacity: 0; }
 
-/* ── 30. Hover on gallery shows sticker "view" ───────────────── */
+/* ── 30. Tap hint — small chip tucked in the bottom-right corner ─ */
 .gallery-viewport::after {
-  content: "✦ tap ✦";
+  content: "tap";
   position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%) scale(0) rotate(-10deg);
-  padding: 10px 18px;
+  bottom: 10px; right: 10px;
+  transform: scale(0) rotate(-6deg);
+  transform-origin: 100% 100%;
+  padding: 3px 9px;
   background: var(--bubble);
   color: var(--ink);
-  font-family: var(--display); font-weight: 800;
-  font-size: 18px;
-  border: 2.5px solid var(--ink);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  border: 1px solid var(--ink);
   border-radius: 999px;
-  box-shadow: 4px 4px 0 var(--ink);
+  box-shadow: 1.5px 1.5px 0 var(--ink);
   pointer-events: none;
-  transition: transform .35s cubic-bezier(.3,1.8,.4,1);
+  transition: transform .3s cubic-bezier(.3,1.8,.4,1);
   z-index: 10;
 }
-.work-gallery:hover .gallery-viewport::after {
-  transform: translate(-50%, -50%) scale(1) rotate(-6deg);
+.work-gallery:hover .gallery-viewport::after,
+.work-gallery:active .gallery-viewport::after {
+  transform: scale(1) rotate(-3deg);
+}
+/* on touch devices, show it always (tucked in the corner) */
+@media (hover: none), (pointer: coarse) {
+  .gallery-viewport::after {
+    transform: scale(1) rotate(-3deg);
+    opacity: .85;
+  }
 }
 
 /* ── 31. Global hover tilt ON body while cursor moves ────────── */
@@ -2590,3 +2601,47 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
    work card were too large and covered the works. Hidden here. */
 .work-gallery::before,
 .work-gallery::after { display: none !important; }
+
+/* ─── FREAKY MODE — cursor creature loses its mind on rapid clicks ── */
+.cursor-creature.cc-freaky { animation: cc-freaky-hue .55s linear infinite; }
+.cursor-creature.cc-freaky .cc-body  { animation: cc-freaky-body  .18s linear infinite !important; transform-origin: 50% 60%; }
+.cursor-creature.cc-freaky .cc-eye   { animation: cc-freaky-eye   .14s linear infinite !important; transform-box: fill-box; transform-origin: center; }
+.cursor-creature.cc-freaky .cc-pupil-l,
+.cursor-creature.cc-freaky .cc-pupil-r { animation: cc-freaky-pupils .15s linear infinite !important; transition: none !important; }
+.cursor-creature.cc-freaky .cc-mouth { animation: cc-freaky-mouth .17s linear infinite !important; transform-box: fill-box; transform-origin: center; }
+
+@keyframes cc-freaky-hue {
+  0%   { filter: hue-rotate(0deg)   saturate(1.6); }
+  50%  { filter: hue-rotate(180deg) saturate(2); }
+  100% { filter: hue-rotate(360deg) saturate(1.6); }
+}
+@keyframes cc-freaky-body {
+  0%, 100% { transform: rotate(-14deg) scale(1.10); }
+  25%      { transform: rotate( 12deg) scale(1.28); }
+  50%      { transform: rotate( -8deg) scale(0.92); }
+  75%      { transform: rotate( 18deg) scale(1.18); }
+}
+@keyframes cc-freaky-eye {
+  0%, 100% { transform: scale(1.4, 1.45); }
+  50%      { transform: scale(1.1, 1.15); }
+}
+@keyframes cc-freaky-pupils {
+  0%   { transform: translate( 3.2px,  2.5px); }
+  25%  { transform: translate(-3.2px,  3px); }
+  50%  { transform: translate(-2.6px, -3px); }
+  75%  { transform: translate( 3px,   -2.6px); }
+  100% { transform: translate( 3.2px,  2.5px); }
+}
+@keyframes cc-freaky-mouth {
+  0%, 100% { transform: scale(1.6, 1.5); }
+  50%      { transform: scale(.5, .8); }
+}
+
+/* "!?" emote pop styling for the freaky trigger moment */
+.cc-emote.pop-freak {
+  background: var(--tomato);
+  color: var(--paper);
+  font-weight: 800;
+  letter-spacing: -.04em;
+  animation: cc-emote-pop .48s cubic-bezier(.3,1.8,.4,1);
+}
