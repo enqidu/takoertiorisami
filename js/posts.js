@@ -20,7 +20,7 @@ window.POSTS = [
     date: "April 2026",
     description: `posters set in the world of arcane (netflix / league of legends) — each one made to be pasted on the walls of the undercity. character details and typography drawn pen-tool by hand.`,
     tags: ["graphic design", "poster", "illustration", "fan art"],
-    images: ["images/arcane-1.webp", "images/arcane-2.webp", "images/arcane-3.webp", "images/arcane-4.webp"],
+    images: ["images/arcane-1.webp", "images/arcane-2.webp", "images/arcane-3b.webp", "images/arcane-4.webp"],
     behance: "https://www.behance.net/gallery/248275345/Underground-Poster-Series-Arcane",
   },
   {
@@ -58,14 +58,14 @@ window.POSTS = [
     date: "March 2026",
     description: `Drawn in Dachi's house while listening to Public Enemy and watching documentary about Manosphere`,
     tags: ["creatures"],
-    images: ["images/three monkeys.png"],
+    images: ["images/three monkeys.jpg"],
   },
   {
     title: "Pumpkin Head",
     date: "March 2025",
     description: `ეს დავხატე როდესაც მინდოდა მეჭამა გოგრის სუპი.`,
     tags: ["creatures"],
-    images: ["images/pumpkin.png"],
+    images: ["images/pumpkin.jpg"],
     placeholder: "pumpkin",
   },
   {
@@ -73,7 +73,7 @@ window.POSTS = [
     date: "February 2026",
     description: `virtxa virtxa`,
     tags: ["creatures"],
-    images: ["images/virtxa.png"],
+    images: ["images/virtxa.jpg"],
   },
   {
     title: "Mrs Peanut Butter — Brand Identity",
@@ -96,7 +96,7 @@ window.POSTS = [
     date: "February 2025",
     description: `ვარდისფერია ძმა.`,
     tags: ["Pink", "Close"],
-    images: ["images/pink.png", "images/pink2.png"],
+    images: ["images/pink.jpg", "images/pink2.jpg"],
     placeholder: "creature",
   },
   {
@@ -112,7 +112,7 @@ window.POSTS = [
     date: "December 2024",
     description: `გრიდი სადაც დავჩხარტე ჭყურტები `,
     tags: ["canvas", "acrylic", "ensemble", "creatures"],
-    images: ["images/grid.png"],
+    images: ["images/grid.jpg"],
     placeholder: "eyes",
   },
   {

@@ -2646,6 +2646,16 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   animation: cc-emote-pop .48s cubic-bezier(.3,1.8,.4,1);
 }
 
+/* ─── PERF: skip rendering off-screen work cards ──────────────────────
+   `content-visibility: auto` lets the browser cull paint/layout for
+   anything outside the viewport. Massive win on a long scroll page
+   with heavy SVG filters and animations. The intrinsic-size hint
+   prevents scroll-jumps when content materializes. */
+.work-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 800px;
+}
+
 /* ─── BEHANCE "see more" link inside a work — small chip under tags ── */
 .work-behance {
   display: inline-flex;
