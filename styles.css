@@ -2672,8 +2672,8 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   transform: rotate(-12deg) translateX(-2px);
 }
 
-/* — bow + butt + smile + tongue overlays — hidden by default — */
-.fl-bow, .fl-butt, .fl-smile, .fl-tongue { opacity: 0; transition: opacity .3s; }
+/* — bow + butt + brows + smile + tongue overlays — hidden by default — */
+.fl-bow, .fl-butt, .fl-brows, .fl-smile, .fl-tongue { opacity: 0; transition: opacity .3s; }
 
 /* — CRAZY-HAPPY (vazha): cross-eyes, tongue, big smile, BOUNCY — */
 [data-mood="crazy"] .fl-tongue { opacity: 1; }
@@ -2757,11 +2757,9 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   100%     { transform: translateY(-14px) scale(1.6); opacity: 0; }
 }
 
-/* — PUK: a happy little creature. Wide innocent eyes + big curved
-     smile + soft blush. Nothing else. — */
-[data-mood="puk"] .fl-eye-white { rx: 8 !important; ry: 9 !important; }
-[data-mood="puk"] .fl-pupil  { r: 3 !important; }
-[data-mood="puk"] .fl-gleam  { r: 1.5 !important; }
+/* — PUK: default creature face + yellow hair + amazed brows + cute smile. — */
+[data-mood="puk"] .fl-spikes { stroke: #ffd333; }   /* yellow hair on top */
+[data-mood="puk"] .fl-brows  { opacity: 1; }
 [data-mood="puk"] .fl-mouth  { display: none; }
 [data-mood="puk"] .fl-smile  { opacity: 1; }
 [data-mood="puk"] .fl-blush-l,

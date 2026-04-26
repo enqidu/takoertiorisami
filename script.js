@@ -731,9 +731,13 @@ const FLOATER_SVG = `
       <ellipse class="fl-blush fl-blush-l" cx="28" cy="62" rx="4" ry="2" fill="#ff9bb0" opacity="0"/>
       <ellipse class="fl-blush fl-blush-r" cx="72" cy="62" rx="4" ry="2" fill="#ff9bb0" opacity="0"/>
       <ellipse class="fl-mouth" cx="50" cy="66" rx="4" ry="2.5" fill="#e4483b"/>
-      <!-- PUK: big happy curved smile (hidden by default) -->
+      <!-- PUK: amazed eyebrow arches + small cute smile (hidden by default) -->
+      <g class="fl-brows">
+        <path d="M30 38 Q 36 32 42 38" stroke="#1a1410" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M58 38 Q 64 32 70 38" stroke="#1a1410" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </g>
       <g class="fl-smile">
-        <path d="M38 64 Q 50 76 62 64" stroke="#1a1410" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+        <path d="M44 65 Q 50 70 56 65" stroke="#1a1410" stroke-width="1.8" fill="none" stroke-linecap="round"/>
       </g>
       <!-- CRAZY: tongue (hidden by default; shown when data-mood="crazy") -->
       <ellipse class="fl-tongue" cx="55" cy="74" rx="2.4" ry="3.2" fill="#ff6fa8" opacity="0"/>
