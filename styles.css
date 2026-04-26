@@ -2672,8 +2672,8 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   transform: rotate(-12deg) translateX(-2px);
 }
 
-/* — bow + butt + tongue overlays — hidden by default — */
-.fl-bow, .fl-butt, .fl-tongue { opacity: 0; transition: opacity .3s; }
+/* — bow + butt + pants + tongue overlays — hidden by default — */
+.fl-bow, .fl-butt, .fl-pants, .fl-tongue { opacity: 0; transition: opacity .3s; }
 
 /* — CRAZY-HAPPY (vazha): cross-eyes, tongue, big smile, BOUNCY — */
 [data-mood="crazy"] .fl-tongue { opacity: 1; }
@@ -2751,16 +2751,15 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   100%     { transform: translateY(-14px) scale(1.6); opacity: 0; }
 }
 
-/* — PUK (formerly tuk): grumpy + small butt below body — */
-[data-mood="puk"] .fl-butt { opacity: 1; }
-[data-mood="puk"] .fl-mouth {
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: translateY(2px) scale(.7, .55);
-  fill: #1a1410;
+/* — PUK (formerly tuk): BACK VIEW. No face. Pants pulled down, bare butt. — */
+[data-mood="puk"] .fl-face  { display: none !important; }
+[data-mood="puk"] .fl-butt  { opacity: 1; }
+[data-mood="puk"] .fl-pants { opacity: 1; }
+/* slight forward lean to suggest he's bending over the toilet, butters-style */
+[data-mood="puk"] .fl-body {
+  transform: translateY(-1px) scale(1, .97);
+  transform-origin: 50% 100%;
 }
-[data-mood="puk"] .fl-pupil-l,
-[data-mood="puk"] .fl-pupil-r { transform: translateY(-2px); }
 
 /* — TINY: hard scale-down for nikala — drop both layout box AND visual — */
 .crew-creature.is-tiny {
