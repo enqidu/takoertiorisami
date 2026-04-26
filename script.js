@@ -724,9 +724,12 @@ const FLOATER_SVG = `
       <line x1="22" y1="84" x2="78" y2="84" stroke="#1a1410" stroke-width=".7" opacity=".35"/>
     </g>
     <g class="fl-butt">
-      <circle cx="43" cy="94" r="7" fill="#ffd5bc" stroke="#1a1410" stroke-width="1.5"/>
-      <circle cx="57" cy="94" r="7" fill="#ffd5bc" stroke="#1a1410" stroke-width="1.5"/>
-      <line x1="50" y1="89" x2="50" y2="100" stroke="#1a1410" stroke-width="1.4" stroke-linecap="round"/>
+      <!-- back cheek (smaller, behind, upper-left of bulge) -->
+      <circle cx="14" cy="76" r="8" fill="currentColor" stroke="#1a1410" stroke-width="1.5"/>
+      <!-- front cheek (bigger, in front, lower-left) -->
+      <circle cx="22" cy="86" r="9.5" fill="currentColor" stroke="#1a1410" stroke-width="1.5"/>
+      <!-- crack between cheeks -->
+      <line x1="20" y1="74" x2="14" y2="90" stroke="#1a1410" stroke-width="1.3" stroke-linecap="round"/>
     </g>
     <g class="fl-face">
       <g class="fl-eye fl-eye-l">
@@ -798,17 +801,27 @@ const initFloaters = () => {
   floaters.forEach((f, i) => {
     const existing = f.querySelector("svg");
     const color = existing ? existing.getAttribute("style") : (f.getAttribute("data-color") || "");
-    if (f.classList.contains("floater")) {
-      f.innerHTML = FLOATER_SVG + `<div class="fl-bubble"></div>`;
-    } else {
-      f.innerHTML = FLOATER_SVG;
-    }
+    // bubble for everyone — crew creatures need it too so they can announce names on hover
+    f.innerHTML = FLOATER_SVG + `<div class="fl-bubble"></div>`;
     const svg = f.querySelector(".fl-svg");
     if (color) svg.setAttribute("style", color);
     // personality: use data-mood or pick random
     const mood = f.getAttribute("data-mood") || FL_POOL[Math.floor(Math.random() * FL_POOL.length)];
     f.dataset.mood = mood;
     f._personality = FL_PERSONALITIES[mood] || FL_PERSONALITIES.curious;
+
+    // NAME ANNOUNCE — when hovered, named creatures say their own name
+    const name = f.getAttribute("data-name");
+    if (name) {
+      f.addEventListener("pointerenter", () => {
+        const b = f.querySelector(".fl-bubble");
+        if (!b) return;
+        b.textContent = name;
+        b.classList.add("on");
+        clearTimeout(b._nameT);
+        b._nameT = setTimeout(() => b.classList.remove("on"), 1600);
+      });
+    }
   });
 
   if (!hoverable) return; // on touch devices keep them still

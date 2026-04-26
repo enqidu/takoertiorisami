@@ -2757,14 +2757,33 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   100%     { transform: translateY(-14px) scale(1.6); opacity: 0; }
 }
 
-/* — PUK (formerly tuk): BACK VIEW. No face, no pants — just back + butt. — */
-[data-mood="puk"] .fl-face  { display: none !important; }
-[data-mood="puk"] .fl-butt  { opacity: 1; }
+/* — PUK: 3/4 mooning view, moon-emoji style.
+     Small partial face on the right, butt bulging from lower-left. — */
 [data-mood="puk"] .fl-pants { display: none !important; }
-/* slight squash to suggest the back side */
-[data-mood="puk"] .fl-body {
-  transform: translateY(-1px) scale(1, .97);
-  transform-origin: 50% 100%;
+[data-mood="puk"] .fl-butt  { opacity: 1; }
+[data-mood="puk"] .fl-bow,
+[data-mood="puk"] .fl-shades,
+[data-mood="puk"] .fl-tongue,
+[data-mood="puk"] .fl-zzz   { display: none !important; }
+
+/* face: shrink + shift to the right side (3/4 turned away) */
+[data-mood="puk"] .fl-face   { transform: translate(12px, -2px); }
+[data-mood="puk"] .fl-eye-white { rx: 3.5 !important; ry: 4.2 !important; }
+[data-mood="puk"] .fl-pupil  { r: 1.8 !important; }
+[data-mood="puk"] .fl-gleam  { opacity: 0; }
+[data-mood="puk"] .fl-blush  { opacity: 0 !important; }
+[data-mood="puk"] .fl-mouth {
+  fill: #1a1410;
+  rx: 2.2;
+  ry: 1.4;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: translateY(-1px);
+}
+/* slight overall squash for "looking back" feel */
+[data-mood="puk"] .fl-svg {
+  transform: scale(1.02, 0.97);
+  transform-origin: 50% 60%;
 }
 
 /* — TINY: hard scale-down for nikala — drop both layout box AND visual — */
