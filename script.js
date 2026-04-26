@@ -108,6 +108,7 @@ const renderPost = (post, index, workNum) => {
     <div class="work-body">
       <p class="work-desc">${post.description}</p>
       <div class="work-tags">${renderTags(post.tags)}</div>
+      ${post.behance ? `<a class="work-behance" href="${post.behance}" target="_blank" rel="noopener">see more on behance ↗</a>` : ""}
     </div>
   </section>`;
 };

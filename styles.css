@@ -2645,3 +2645,28 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   letter-spacing: -.04em;
   animation: cc-emote-pop .48s cubic-bezier(.3,1.8,.4,1);
 }
+
+/* ─── BEHANCE "see more" link inside a work — small chip under tags ── */
+.work-behance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 6px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: lowercase;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 var(--ink);
+  transition: transform .15s, box-shadow .15s, background .15s;
+  text-decoration: none;
+}
+.work-behance:hover {
+  transform: translate(-1px,-1px) rotate(-1deg);
+  box-shadow: 3px 3px 0 var(--ink);
+  background: var(--bubble);
+}

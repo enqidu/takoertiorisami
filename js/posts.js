@@ -21,6 +21,7 @@ window.POSTS = [
     description: `posters set in the world of arcane (netflix / league of legends) — each one made to be pasted on the walls of the undercity. character details and typography drawn pen-tool by hand.`,
     tags: ["graphic design", "poster", "illustration", "fan art"],
     images: ["images/arcane-1.webp", "images/arcane-2.webp", "images/arcane-3.webp", "images/arcane-4.webp"],
+    behance: "https://www.behance.net/gallery/248275345/Underground-Poster-Series-Arcane",
   },
   {
     title: "The Shoes Off Campaign",
@@ -28,6 +29,7 @@ window.POSTS = [
     description: `posters for a small household problem — shoe trails after every hangout. solved with quirky slippers from temu, offered to guests on arrival. inspired by asian graphic design.`,
     tags: ["graphic design", "poster", "campaign"],
     images: ["images/shoes-off-1.webp", "images/shoes-off-2.webp", "images/shoes-off-3.webp"],
+    behance: "https://www.behance.net/gallery/248193705/The-Shoes-Off-Campaign",
   },
   {
     title: "Trois Couleurs",
@@ -79,6 +81,7 @@ window.POSTS = [
     description: `fictional brand identity for a peanut butter company built on three ingredients: roasted nuts, olive oil, salt. a dog mascot, classy-with-a-twist, packaging and illustration.`,
     tags: ["graphic design", "brand identity", "packaging"],
     images: ["images/mrs-peanut-1.webp", "images/mrs-peanut-2.webp", "images/mrs-peanut-3.webp"],
+    behance: "https://www.behance.net/gallery/235691509/Brand-Identity-for-Mrs-Peanut-Butter",
   },
   {
     title: "",
