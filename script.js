@@ -206,9 +206,17 @@ const initCursor = () => {
   follow();
 
   // ── emote bubble ────────────────────────────────────────
+  // QUIET MODE: throttle automatic emotes heavily so the cursor isn't
+  // constantly popping ♥ / ! / ? / ✦. Special moments (absorb, party,
+  // freak, mood-rotation) opt in via force=true.
   let emoteHideTimer = null;
-  const showEmote = (text, variant = "", ms = 1200) => {
+  let lastEmoteAt = 0;
+  const EMOTE_GAP_MS = 9000;
+  const showEmote = (text, variant = "", ms = 1200, force = false) => {
     if (!emote) return;
+    const now = performance.now();
+    if (!force && now - lastEmoteAt < EMOTE_GAP_MS) return;
+    lastEmoteAt = now;
     clearTimeout(emoteHideTimer);
     emote.textContent = text;
     emote.className = "cc-emote is-show " + variant;
@@ -503,8 +511,8 @@ const initCursor = () => {
     isAbsorbing = true;
     setState("is-charging", false);
     setState("is-absorbing", true);
-    showEmote("✦", "pop-absorb", 1100);
-    showSay(target.classList.contains("floater") ? "stole it!" : "mine now!", 1200);
+    showEmote("✦", "pop-absorb", 1100, true);
+    showSay(target.classList.contains("floater") ? "stole it!" : "mine now!", 1200, true);
     // burst sparkles in the target's color
     try {
       const rx = (target.getBoundingClientRect().left + target.offsetWidth / 2);
@@ -544,8 +552,15 @@ const initCursor = () => {
   // ── SAY bubble: random thought words ───────────────────
   const say = document.getElementById("ccSay");
   let sayHideTimer = null;
-  const showSay = (text, ms = 1400) => {
+  // QUIET MODE: speech bubbles are silent by default — only special
+  // moments (absorb, party, mood-announce) pass through.
+  let lastSayAt = 0;
+  const SAY_GAP_MS = 25000;
+  const showSay = (text, ms = 1400, force = false) => {
     if (!say) return;
+    const now = performance.now();
+    if (!force && now - lastSayAt < SAY_GAP_MS) return;
+    lastSayAt = now;
     clearTimeout(sayHideTimer);
     say.textContent = text;
     say.classList.add("is-show");
@@ -670,7 +685,7 @@ const initCursor = () => {
   document.addEventListener("dblclick", () => {
     if (anyBig()) return;
     setState("is-party", true);
-    showSay(pick(["★☆★", "woo!", "yay!", "წვეულება!"]), 1400);
+    showSay(pick(["★☆★", "woo!", "yay!", "წვეულება!"]), 1400, true);
     // confetti burst
     for (let i = 0; i < 4; i++) setTimeout(() => emitSparkles(5), i * 120);
     setTimeout(() => setState("is-party", false), 1400);
