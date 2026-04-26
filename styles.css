@@ -2782,19 +2782,20 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   transform-origin: 50% 60%;
 }
 
-/* — TRUK: maximum cuteness — big sparkly eyes, soft brows, wide
-     curved smile, full rosy blush, yellow hair. — */
-[data-mood="truk"] .fl-spikes { stroke: #ffd333; }
-[data-mood="truk"] .fl-eye-white { rx: 8.6 !important; ry: 9.6 !important; }
-[data-mood="truk"] .fl-pupil  { r: 3.6 !important; }
-[data-mood="truk"] .fl-gleam  { r: 1.9 !important; }
-[data-mood="truk"] .fl-brows  { opacity: .9; }
-[data-mood="truk"] .fl-mouth  { display: none; }
-[data-mood="truk"] .fl-smile  { opacity: 1; }
+/* — TRUK: huge innocent eyes, tiny inward-set pupils, no brows,
+     thin gentle smile line, yellow hair, soft blush. — */
+[data-mood="truk"] .fl-spikes    { stroke: #ffd333; }
+[data-mood="truk"] .fl-eye-white { rx: 9.5 !important; ry: 10.5 !important; }
+[data-mood="truk"] .fl-pupil-l   { r: 2 !important; transform: translate(3px, .5px) !important; }
+[data-mood="truk"] .fl-pupil-r   { r: 2 !important; transform: translate(-3px, .5px) !important; }
+[data-mood="truk"] .fl-gleam     { display: none; }
+[data-mood="truk"] .fl-brows     { opacity: 0; }
+[data-mood="truk"] .fl-mouth     { display: none; }
+[data-mood="truk"] .fl-smile     { opacity: 1; }
 [data-mood="truk"] .fl-blush-l,
 [data-mood="truk"] .fl-blush-r {
-  opacity: .9 !important;
-  transform: scale(1.35);
+  opacity: .55 !important;
+  transform: scale(1.1);
   transform-box: fill-box;
   transform-origin: center;
 }
