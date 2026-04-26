@@ -2669,61 +2669,54 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   transform: rotate(-12deg) translateX(-2px);
 }
 
-/* — CRAZY: dilated twitching pupils, wide-open mouth, body shake — */
+/* — CRAZY (vazha): happy & dumb — derpy cross-eyes, big open smile,
+     tongue out, blush on, slow happy bob. Not violent — silly. — */
+.fl-tongue { opacity: 0; transition: opacity .3s; }
+[data-mood="crazy"] .fl-tongue { opacity: 1; }
+
 [data-mood="crazy"] .fl-pupil-l {
-  r: 4.5;
-  fill: #1a1410;
   transform-box: fill-box;
   transform-origin: center;
-  animation: crazy-pupil-l .18s linear infinite !important;
+  transform: translate(-2.2px, 1.8px) !important; /* looking down-left */
   transition: none !important;
 }
 [data-mood="crazy"] .fl-pupil-r {
-  r: 4.5;
-  fill: #1a1410;
   transform-box: fill-box;
   transform-origin: center;
-  animation: crazy-pupil-r .16s linear infinite !important;
+  transform: translate(2.4px, -2.2px) !important;  /* looking up-right (cross-eyed) */
   transition: none !important;
 }
-[data-mood="crazy"] .fl-eye-white { rx: 8.5; ry: 9.5; }
-[data-mood="crazy"] .fl-gleam { opacity: 0; }
+[data-mood="crazy"] .fl-gleam-l {
+  transform: translate(-2.2px, 1.8px);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+[data-mood="crazy"] .fl-gleam-r {
+  transform: translate(2.4px, -2.2px);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* big dumb open-mouth smile — scale the mouth ellipse way up + push down */
 [data-mood="crazy"] .fl-mouth {
-  rx: 5;
-  ry: 5;
   fill: #1a1410;
   transform-box: fill-box;
   transform-origin: center;
-  animation: crazy-mouth .26s ease-in-out infinite alternate !important;
-}
-[data-mood="crazy"] .fl-body {
-  animation: crazy-shake .22s linear infinite !important;
-  transform-origin: 50% 65%;
+  transform: translateY(3px) scale(2.3, 1.9);
 }
 
-@keyframes crazy-pupil-l {
-  0%   { transform: translate( 1.2px,  1px); }
-  25%  { transform: translate(-1.2px,  1.2px); }
-  50%  { transform: translate(-1px,  -1.2px); }
-  75%  { transform: translate( 1px,  -1px); }
-  100% { transform: translate( 1.2px,  1px); }
+/* always-on blush (a bit too happy) */
+[data-mood="crazy"] .fl-blush-l,
+[data-mood="crazy"] .fl-blush-r { opacity: .8 !important; }
+
+/* slow happy bob — not a violent shake */
+[data-mood="crazy"] .fl-body {
+  animation: vazha-bob 1.6s ease-in-out infinite alternate !important;
+  transform-origin: 50% 100%;
 }
-@keyframes crazy-pupil-r {
-  0%   { transform: translate(-1px,  1px); }
-  25%  { transform: translate( 1.2px,  1.2px); }
-  50%  { transform: translate( 1.2px, -1px); }
-  75%  { transform: translate(-1.2px, -1.2px); }
-  100% { transform: translate(-1px,  1px); }
-}
-@keyframes crazy-mouth {
-  from { transform: scale(1, 1) rotate(-8deg); }
-  to   { transform: scale(1.2, 0.7) rotate(10deg); }
-}
-@keyframes crazy-shake {
-  0%, 100% { transform: rotate(-3deg) translate(0, 0); }
-  25%      { transform: rotate( 5deg) translate(1px, -1px); }
-  50%      { transform: rotate(-6deg) translate(-1px, 1px); }
-  75%      { transform: rotate( 4deg) translate(1px, 0); }
+@keyframes vazha-bob {
+  from { transform: rotate(-5deg) translateY(0); }
+  to   { transform: rotate( 6deg) translateY(-3px); }
 }
 
 /* ─── PERF: skip rendering off-screen work cards ──────────────────────

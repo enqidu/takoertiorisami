@@ -322,7 +322,7 @@ const initCursor = () => {
   // ── ABSORB: LONG-PRESS on a PALETTE CHIP or FUZZY CREATURE ──
   // (no longer absorbs from paintings — only palette swatches &
   // other floaters, which get briefly "drained" of their color.)
-  const absorbSelector = ".palette-chip, .floater";
+  const absorbSelector = ".palette-chip, .floater, .crew-creature";
   document.addEventListener("mousedown", (e) => {
     if (e.button !== 0) return;
     const target = e.target.closest(absorbSelector);
@@ -467,7 +467,7 @@ const initCursor = () => {
     const baselineMx = mx, baselineMy = my;
     absorbStart = performance.now();
     setState("is-charging", true);
-    showSay(target.classList.contains("palette-chip") ? "mmm.." : "hehe..", 1400);
+    showSay(target.classList.contains("palette-chip") ? "mmm.." : "hehe..", 1400, true);
     const progress = () => {
       const t = performance.now() - absorbStart;
       const pct = Math.min(100, (t / ABSORB_MS) * 100);
@@ -498,8 +498,8 @@ const initCursor = () => {
   // read color straight from the target element (palette chip bg
   // or floater creature body) — no canvas sampling needed.
   const readTargetColor = (el) => {
-    // floater: SVG uses currentColor, so check computed color on the shape
-    if (el.classList.contains("floater")) {
+    // floater + crew creatures: SVG uses currentColor, check computed color on the shape
+    if (el.classList.contains("floater") || el.classList.contains("crew-creature")) {
       const shape = el.querySelector(".fl-shape, svg");
       if (shape) {
         const cs = getComputedStyle(shape);
@@ -519,7 +519,8 @@ const initCursor = () => {
     setState("is-charging", false);
     setState("is-absorbing", true);
     showEmote("✦", "pop-absorb", 1100, true);
-    showSay(target.classList.contains("floater") ? "stole it!" : "mine now!", 1200, true);
+    const isCreature = target.classList.contains("floater") || target.classList.contains("crew-creature");
+    showSay(isCreature ? "stole it!" : "mine now!", 1200, true);
     // burst sparkles in the target's color
     try {
       const rx = (target.getBoundingClientRect().left + target.offsetWidth / 2);
@@ -528,8 +529,8 @@ const initCursor = () => {
         setTimeout(() => emitSparklesAt(rx, ry, 2, color), i * 40);
       }
     } catch (e) {}
-    // floaters: mark as drained, revert after 2.2s
-    if (target.classList.contains("floater")) {
+    // floaters + crew creatures: mark as drained, revert after 2.2s
+    if (target.classList.contains("floater") || target.classList.contains("crew-creature")) {
       target.classList.add("is-drained");
       setTimeout(() => target.classList.remove("is-drained"), 2200);
     }
@@ -730,6 +731,8 @@ const FLOATER_SVG = `
       <ellipse class="fl-blush fl-blush-l" cx="28" cy="62" rx="4" ry="2" fill="#ff9bb0" opacity="0"/>
       <ellipse class="fl-blush fl-blush-r" cx="72" cy="62" rx="4" ry="2" fill="#ff9bb0" opacity="0"/>
       <ellipse class="fl-mouth" cx="50" cy="66" rx="4" ry="2.5" fill="#e4483b"/>
+      <!-- CRAZY: tongue (hidden by default; shown when data-mood="crazy") -->
+      <ellipse class="fl-tongue" cx="55" cy="74" rx="2.4" ry="3.2" fill="#ff6fa8" opacity="0"/>
       <text class="fl-zzz" x="72" y="22" font-size="14" fill="#1a1410" opacity="0" font-family="DM Mono, monospace">z</text>
       <!-- COOL: sunglasses overlay (hidden by default; shown when data-mood="cool") -->
       <g class="fl-shades">
@@ -762,7 +765,7 @@ const FL_PERSONALITIES = {
   melodramatic: { says: ["alas!", "oh no!", "ვაიმე!", "the pain", "*gasp*"], blinkMs: [2000, 4500], mood: "melodramatic" },
   // CUSTOM CREW MOODS
   cool:         { says: ["yeah", "mhm", "obviously", "sure", "♪", "..yep"],  blinkMs: [4500, 8000], mood: "cool" },
-  crazy:        { says: ["@@@", "!!?", "ჰაჰაჰა", "k r a a", "i see colors", "wee!"], blinkMs: [250, 800], mood: "crazy" },
+  crazy:        { says: ["hii!", "wee", "ჰაჰა", ":D", "blub", "yum", "love that"], blinkMs: [1200, 2400], mood: "crazy" },
 };
 const FL_POOL = Object.keys(FL_PERSONALITIES);
 
