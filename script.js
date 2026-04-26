@@ -37,11 +37,17 @@ const renderTags = (tags) =>
 
 const renderSlides = (post) => {
   if (post.images && post.images.length > 0) {
-    return post.images.map((src, i) =>
-      `<div class="gallery-slide">
-        <img src="${src}" alt="${post.title} — ${i + 1}" loading="lazy" draggable="false"/>
-      </div>`
-    ).join("");
+    // SEO-rich alt text: title — medium — by artist (image i)
+    return post.images.map((src, i) => {
+      const parts = [post.title || "Artwork"];
+      if (post.medium) parts.push(post.medium);
+      parts.push("by Tamar Chachava");
+      if (post.images.length > 1) parts.push(`image ${i + 1} of ${post.images.length}`);
+      const alt = parts.join(" — ");
+      return `<div class="gallery-slide">
+        <img src="${src}" alt="${alt}" loading="lazy" draggable="false"/>
+      </div>`;
+    }).join("");
   }
   return `<div class="gallery-slide">${makePlaceholder(post.placeholder || "doodles")}</div>`;
 };
@@ -145,9 +151,9 @@ const initGallery = (pid, total) => {
 // The cursor creature shifts mood every 45–90s. Mood flavors its
 // thought pools, announce phrase, blink rhythm, and body tint.
 const CURSOR_PERSONALITIES = {
-  shy:          { announce: "shy..",        says: ["oi", "um", "ჰმ", "..", "o.o", "hi?"],              painting: ["ოოო..", "so pretty..", "um", "..♥"],                 tint: "#d8b3c9", blinkMs: 3000 },
+  shy:          { announce: "shy..",        says: ["oi", "um", "ჰმმ", "..", "o.o", "hi?"],              painting: ["ოოო..", "so pretty..", "um", "..♥"],                 tint: "#d8b3c9", blinkMs: 3000 },
   sleepy:       { announce: "sleepy..",     says: ["zzz", "mm..", "yawn", "ოო.."],                     painting: ["mm..", "zzz..", "nice.."],                           tint: "#b7c7de", blinkMs: 1200 },
-  curious:      { announce: "curious!",     says: ["oh?", "რა?", "hmm", "?", "what?"],                 painting: ["what's this?", "ოო?", "ohh", "hmm.."],               tint: "#f0c56a", blinkMs: 4200 },
+  curious:      { announce: "curious!",     says: ["oh?", "რაო?", "hmm", "?", "what?"],                 painting: ["what's this?", "ოო?", "ohh", "hmm.."],               tint: "#f0c56a", blinkMs: 4200 },
   grumpy:       { announce: "bleh.",        says: ["pff", "-_-", "bleh", "ჰმ"],                        painting: ["pff", "meh", "fine."],                               tint: "#a89278", blinkMs: 3800 },
   happy:        { announce: "feeling good!", says: ["!", "yay", "ჰოი", "~", ":D"],                     painting: ["cute!", "ოო!", "pretty!", "love"],                   tint: "#f5a3b8", blinkMs: 5200 },
   dreamy:       { announce: "daydreaming~", says: ["★", "♥", "~", "◌", "..♪"],                         painting: ["★", "♥", "..♪", "floaty"],                           tint: "#b58bd8", blinkMs: 5800 },
@@ -157,7 +163,7 @@ const CURSOR_PERSONALITIES = {
   mischievous:  { announce: "hehe..",       says: ["heh", "hehe", ">:)", "shh", "ოჰო"],                painting: ["hehe..", "ooh", "mine?", "shh.."],                   tint: "#b06fd8", blinkMs: 2600 },
   philosopher:  { announce: "hmm..",        says: ["hmm..", "...", "true", "so it is"],                 painting: ["so it is..", "the colors..", "hmm..", "ahh."],       tint: "#8aa1b8", blinkMs: 6800 },
   cozy:         { announce: "warm~",        says: ["mm~", "warm", "soft", "nice."],                    painting: ["soft..", "cozy", "warm~", "mm~"],                    tint: "#e8a06c", blinkMs: 4800 },
-  melodramatic: { announce: "alas!",        says: ["alas!", "oh no!", "ვაიმე!", "*gasp*"],             painting: ["ვაიმე!", "the beauty!", "*gasp*", "alas.."],         tint: "#e4483b", blinkMs: 3200 },
+  melodramatic: { announce: "alas!",        says: ["alas!", "oh no!", "ჩემიკაი!", "*gasp*"],             painting: ["ვაიმე!", "the beauty!", "*gasp*", "alas.."],         tint: "#e4483b", blinkMs: 3200 },
 };
 const CURSOR_MOODS = Object.keys(CURSOR_PERSONALITIES);
 
@@ -731,9 +737,9 @@ const FLOATER_SVG = `
 `;
 
 const FL_PERSONALITIES = {
-  shy:          { says: ["ოი..", "um", "hi?", "ჰმ", "..", "o.o"],        blinkMs: [1800, 4200], mood: "shy" },
+  shy:          { says: ["მაცა..", "um", "hi?", "ჰმ", "..", "o.o"],        blinkMs: [1800, 4200], mood: "shy" },
   sleepy:       { says: ["zzz", "mm..", "yawn", "sleep?", "ოო"],          blinkMs: [700, 1700],  mood: "sleepy" },
-  curious:      { says: ["oh?", "რა?", "hmm", "what?", "?"],               blinkMs: [3000, 5500], mood: "curious" },
+  curious:      { says: ["oh?", "რაიო?", "hmm", "what?", "?"],               blinkMs: [3000, 5500], mood: "curious" },
   grumpy:       { says: ["ჰმ", "pff", "no", "-_-", "bleh"],                 blinkMs: [2500, 5000], mood: "grumpy" },
   happy:        { says: ["!", "yay", "ჰოი", "~", ":D", "ოო!"],              blinkMs: [3500, 6500], mood: "happy" },
   dreamy:       { says: ["★", "♥", "~", "◌", "..♪"],                         blinkMs: [3000, 6000], mood: "dreamy" },
