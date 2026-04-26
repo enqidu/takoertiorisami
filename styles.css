@@ -2650,6 +2650,82 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   animation: cc-emote-pop .48s cubic-bezier(.3,1.8,.4,1);
 }
 
+/* ─── CREW MOODS — cool & crazy custom personalities ─────────────── */
+
+/* SHADES — hidden by default, shown only on cool */
+.fl-shades { opacity: 0; transition: opacity .3s; pointer-events: none; }
+
+/* — COOL: sunglasses on, eyes hidden behind, smug smirk — */
+[data-mood="cool"] .fl-shades { opacity: 1; }
+[data-mood="cool"] .fl-eye-white,
+[data-mood="cool"] .fl-pupil,
+[data-mood="cool"] .fl-gleam { opacity: 0; }
+[data-mood="cool"] .fl-mouth {
+  rx: 5;
+  ry: 1.4;
+  fill: #1a1410;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(-12deg) translateX(-2px);
+}
+
+/* — CRAZY: dilated twitching pupils, wide-open mouth, body shake — */
+[data-mood="crazy"] .fl-pupil-l {
+  r: 4.5;
+  fill: #1a1410;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: crazy-pupil-l .18s linear infinite !important;
+  transition: none !important;
+}
+[data-mood="crazy"] .fl-pupil-r {
+  r: 4.5;
+  fill: #1a1410;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: crazy-pupil-r .16s linear infinite !important;
+  transition: none !important;
+}
+[data-mood="crazy"] .fl-eye-white { rx: 8.5; ry: 9.5; }
+[data-mood="crazy"] .fl-gleam { opacity: 0; }
+[data-mood="crazy"] .fl-mouth {
+  rx: 5;
+  ry: 5;
+  fill: #1a1410;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: crazy-mouth .26s ease-in-out infinite alternate !important;
+}
+[data-mood="crazy"] .fl-body {
+  animation: crazy-shake .22s linear infinite !important;
+  transform-origin: 50% 65%;
+}
+
+@keyframes crazy-pupil-l {
+  0%   { transform: translate( 1.2px,  1px); }
+  25%  { transform: translate(-1.2px,  1.2px); }
+  50%  { transform: translate(-1px,  -1.2px); }
+  75%  { transform: translate( 1px,  -1px); }
+  100% { transform: translate( 1.2px,  1px); }
+}
+@keyframes crazy-pupil-r {
+  0%   { transform: translate(-1px,  1px); }
+  25%  { transform: translate( 1.2px,  1.2px); }
+  50%  { transform: translate( 1.2px, -1px); }
+  75%  { transform: translate(-1.2px, -1.2px); }
+  100% { transform: translate(-1px,  1px); }
+}
+@keyframes crazy-mouth {
+  from { transform: scale(1, 1) rotate(-8deg); }
+  to   { transform: scale(1.2, 0.7) rotate(10deg); }
+}
+@keyframes crazy-shake {
+  0%, 100% { transform: rotate(-3deg) translate(0, 0); }
+  25%      { transform: rotate( 5deg) translate(1px, -1px); }
+  50%      { transform: rotate(-6deg) translate(-1px, 1px); }
+  75%      { transform: rotate( 4deg) translate(1px, 0); }
+}
+
 /* ─── PERF: skip rendering off-screen work cards ──────────────────────
    `content-visibility: auto` lets the browser cull paint/layout for
    anything outside the viewport. Massive win on a long scroll page

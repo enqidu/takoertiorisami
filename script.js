@@ -713,10 +713,8 @@ const initCursor = () => {
 const FLOATER_SVG = `
   <svg viewBox="0 0 100 100" class="fl-svg">
     <g class="fl-body">
-      <g filter="url(#fuzz)">
-        <path class="fl-shape" d="M20 62 Q10 38 28 24 Q50 8 72 24 Q90 38 80 62 Q78 84 50 86 Q22 84 20 62 Z" fill="currentColor"/>
-        <path class="fl-spikes" d="M28 20 L24 10 L32 18 M40 14 L40 4 L44 14 M60 14 L60 4 L56 14 M72 20 L76 10 L68 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-      </g>
+      <path class="fl-shape" d="M20 62 Q10 38 28 24 Q50 8 72 24 Q90 38 80 62 Q78 84 50 86 Q22 84 20 62 Z" fill="currentColor"/>
+      <path class="fl-spikes" d="M28 20 L24 10 L32 18 M40 14 L40 4 L44 14 M60 14 L60 4 L56 14 M72 20 L76 10 L68 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
     </g>
     <g class="fl-face">
       <g class="fl-eye fl-eye-l">
@@ -733,6 +731,16 @@ const FLOATER_SVG = `
       <ellipse class="fl-blush fl-blush-r" cx="72" cy="62" rx="4" ry="2" fill="#ff9bb0" opacity="0"/>
       <ellipse class="fl-mouth" cx="50" cy="66" rx="4" ry="2.5" fill="#e4483b"/>
       <text class="fl-zzz" x="72" y="22" font-size="14" fill="#1a1410" opacity="0" font-family="DM Mono, monospace">z</text>
+      <!-- COOL: sunglasses overlay (hidden by default; shown when data-mood="cool") -->
+      <g class="fl-shades">
+        <rect x="28" y="44" width="20" height="12" rx="3" fill="#1a1410"/>
+        <rect x="52" y="44" width="20" height="12" rx="3" fill="#1a1410"/>
+        <rect x="46" y="48" width="8"  height="2" fill="#1a1410"/>
+        <rect x="22" y="48" width="6"  height="2" fill="#1a1410"/>
+        <rect x="72" y="48" width="6"  height="2" fill="#1a1410"/>
+        <line x1="32" y1="46" x2="36" y2="51" stroke="#fffaed" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="56" y1="46" x2="60" y2="51" stroke="#fffaed" stroke-width="1.4" stroke-linecap="round"/>
+      </g>
     </g>
   </svg>
 `;
@@ -752,6 +760,9 @@ const FL_PERSONALITIES = {
   philosopher:  { says: ["hmm..", "...", "true", "so it is", "რაც არის"], blinkMs: [4000, 7500], mood: "philosopher" },
   cozy:         { says: ["mm~", "warm", "soft", "nice.", "♨"],              blinkMs: [3200, 5800], mood: "cozy" },
   melodramatic: { says: ["alas!", "oh no!", "ვაიმე!", "the pain", "*gasp*"], blinkMs: [2000, 4500], mood: "melodramatic" },
+  // CUSTOM CREW MOODS
+  cool:         { says: ["yeah", "mhm", "obviously", "sure", "♪", "..yep"],  blinkMs: [4500, 8000], mood: "cool" },
+  crazy:        { says: ["@@@", "!!?", "ჰაჰაჰა", "k r a a", "i see colors", "wee!"], blinkMs: [250, 800], mood: "crazy" },
 };
 const FL_POOL = Object.keys(FL_PERSONALITIES);
 
