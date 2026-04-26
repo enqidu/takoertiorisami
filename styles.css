@@ -2751,11 +2751,11 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   100%     { transform: translateY(-14px) scale(1.6); opacity: 0; }
 }
 
-/* — PUK (formerly tuk): BACK VIEW. No face. Pants pulled down, bare butt. — */
+/* — PUK (formerly tuk): BACK VIEW. No face, no pants — just back + butt. — */
 [data-mood="puk"] .fl-face  { display: none !important; }
 [data-mood="puk"] .fl-butt  { opacity: 1; }
-[data-mood="puk"] .fl-pants { opacity: 1; }
-/* slight forward lean to suggest he's bending over the toilet, butters-style */
+[data-mood="puk"] .fl-pants { display: none !important; }
+/* slight squash to suggest the back side */
 [data-mood="puk"] .fl-body {
   transform: translateY(-1px) scale(1, .97);
   transform-origin: 50% 100%;
