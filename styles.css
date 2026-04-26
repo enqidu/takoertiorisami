@@ -564,10 +564,15 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
 }
 .hero-line-outline { font-size: clamp(22px, 8.5vw, 148px); }
 
-/* Georgian word — solid ink */
+/* Georgian word — solid ink (filter removed — fake-fuzz via text-shadow,
+   no GPU turbulence cost) */
 .hero-line-solid {
   color: var(--ink);
-  filter: url(#watercolor);
+  text-shadow:
+    1px 0 0 currentColor,
+   -1px 0 0 currentColor,
+    0 1px 0 currentColor,
+    0 -1px 0 currentColor;
   transform: rotate(-1.5deg);
   transform-origin: left bottom;
   animation: breathe 5s ease-in-out infinite;
@@ -1101,7 +1106,11 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
 }
 .footer-line-solid {
   color: var(--cream);
-  filter: url(#watercolor);
+  text-shadow:
+    1px 0 0 currentColor,
+   -1px 0 0 currentColor,
+    0 1px 0 currentColor,
+    0 -1px 0 currentColor;
   transform: rotate(-1deg);
 }
 .footer-line-outline {
@@ -1630,7 +1639,6 @@ body {
   pointer-events: none;
   z-index: -1;
   opacity: .55;
-  filter: url(#watercolor);
   mix-blend-mode: multiply;
 }
 .cb-1 {
@@ -1718,7 +1726,6 @@ body {
     var(--sky) 66.66% 83.33%,
     var(--grape) 83.33% 100%);
   border-radius: 999px;
-  filter: url(#watercolor);
   animation: rainbow-slide 4s ease-in-out infinite alternate;
 }
 @keyframes rainbow-slide {
@@ -1737,7 +1744,6 @@ body {
     var(--yolk)   14px 28px,
     var(--spring) 28px 42px,
     var(--sky)    42px 56px);
-  filter: url(#watercolor);
   border-radius: 999px;
   opacity: .9;
   animation: rainbow-slide 3s ease-in-out infinite alternate;
@@ -1852,7 +1858,6 @@ body {
   background: var(--yolk);
   border-radius: 50%;
   z-index: -1;
-  filter: url(#watercolor);
   animation: bob 5s ease-in-out infinite;
 }
 .about-portrait-col::after {
@@ -1863,7 +1868,6 @@ body {
   background: var(--spring);
   border-radius: 50%;
   z-index: -1;
-  filter: url(#watercolor);
   animation: bob 7s ease-in-out infinite 1s;
 }
 
@@ -2654,6 +2658,20 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
 .work-section {
   content-visibility: auto;
   contain-intrinsic-size: 1px 800px;
+}
+
+/* ─── PERF: auto-lite mode — defensive override ───────────────────────
+   `html.lite` is added by script.js when the device looks low-power
+   (touch, reduced-motion, low CPU/memory, narrow viewport). Acts as a
+   belt-and-braces: any leftover filter / mix-blend / backdrop-filter
+   gets neutralized on lite devices automatically. */
+html.lite [filter],
+html.lite [style*="filter:"]   { filter: none !important; }
+html.lite *,
+html.lite *::before,
+html.lite *::after {
+  mix-blend-mode: normal !important;
+  backdrop-filter: none !important;
 }
 
 /* ─── BEHANCE "see more" link inside a work — small chip under tags ── */
