@@ -2782,14 +2782,22 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   transform-origin: 50% 60%;
 }
 
-/* — TRUK: a cheerful little guy. Yellow hair, soft arched brows,
-     simple curved smile, gentle blush. — */
+/* — TRUK: maximum cuteness — big sparkly eyes, soft brows, wide
+     curved smile, full rosy blush, yellow hair. — */
 [data-mood="truk"] .fl-spikes { stroke: #ffd333; }
-[data-mood="truk"] .fl-brows  { opacity: 1; }
+[data-mood="truk"] .fl-eye-white { rx: 8.6 !important; ry: 9.6 !important; }
+[data-mood="truk"] .fl-pupil  { r: 3.6 !important; }
+[data-mood="truk"] .fl-gleam  { r: 1.9 !important; }
+[data-mood="truk"] .fl-brows  { opacity: .9; }
 [data-mood="truk"] .fl-mouth  { display: none; }
 [data-mood="truk"] .fl-smile  { opacity: 1; }
 [data-mood="truk"] .fl-blush-l,
-[data-mood="truk"] .fl-blush-r { opacity: .5 !important; }
+[data-mood="truk"] .fl-blush-r {
+  opacity: .9 !important;
+  transform: scale(1.35);
+  transform-box: fill-box;
+  transform-origin: center;
+}
 
 /* — TINY: hard scale-down for nikala — drop both layout box AND visual — */
 .crew-creature.is-tiny {
