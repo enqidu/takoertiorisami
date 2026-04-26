@@ -2580,3 +2580,9 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   0%   { transform: scale(1);  opacity: .9; }
   100% { transform: scale(7); opacity: 0; }
 }
+
+/* ─── HIDE WASHI-TAPE CORNERS ON WORK GALLERIES ─────────────
+   The decorative pink/blue/yellow tape strips at the top of each
+   work card were too large and covered the works. Hidden here. */
+.work-gallery::before,
+.work-gallery::after { display: none !important; }
