@@ -16,6 +16,13 @@
 
 window.POSTS = [
   {
+    title: "Underground Poster Series — Arcane",
+    date: "April 2026",
+    description: `posters set in the world of arcane (netflix / league of legends) — each one made to be pasted on the walls of the undercity. character details and typography drawn pen-tool by hand.`,
+    tags: ["graphic design", "poster", "illustration", "fan art"],
+    images: ["images/arcane-1.webp", "images/arcane-2.webp", "images/arcane-3.webp", "images/arcane-4.webp"],
+  },
+  {
     title: "The Shoes Off Campaign",
     date: "March 2026",
     description: `posters for a small household problem — shoe trails after every hangout. solved with quirky slippers from temu, offered to guests on arrival. inspired by asian graphic design.`,
