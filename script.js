@@ -782,7 +782,6 @@ const FL_PERSONALITIES = {
   crazy:        { says: ["YESSSS", "i love this!!", "OH MY GOD", "wee wee!", "oof!", "i'm SO good"], blinkMs: [600, 1400], mood: "crazy" },
   girlish:      { says: ["adam driver..", "ugh", "i'm a writer", "i could write that", "is it me?", "♥"], blinkMs: [3000, 5500], mood: "girlish" },
   oversleep:    { says: ["zzzzz", "five more", "..nh", "(asleep)", "Z", "mmm"],     blinkMs: [400, 1100],  mood: "oversleep" },
-  puk:          { says: ["hi!", "oh hey", "shucks", "haha", "ah", "neat"],          blinkMs: [3200, 6000], mood: "puk" },
 };
 const FL_POOL = Object.keys(FL_PERSONALITIES);
 

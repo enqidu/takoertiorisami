@@ -2757,13 +2757,6 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   100%     { transform: translateY(-14px) scale(1.6); opacity: 0; }
 }
 
-/* — PUK: default creature face + yellow hair + amazed brows + cute smile. — */
-[data-mood="puk"] .fl-spikes { stroke: #ffd333; }   /* yellow hair on top */
-[data-mood="puk"] .fl-brows  { opacity: 1; }
-[data-mood="puk"] .fl-mouth  { display: none; }
-[data-mood="puk"] .fl-smile  { opacity: 1; }
-[data-mood="puk"] .fl-blush-l,
-[data-mood="puk"] .fl-blush-r { opacity: .55 !important; }
 
 /* face: shrink + shift to the right side (3/4 turned away) */
 [data-mood="puk"] .fl-face   { transform: translate(12px, -2px); }
