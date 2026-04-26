@@ -713,16 +713,16 @@ const initCursor = () => {
 // get surprised when you approach, say tiny things, get shy, etc.
 const FLOATER_SVG = `
   <svg viewBox="-4 -4 108 108" class="fl-svg">
-    <g class="fl-body">
-      <!-- regular body shape — used by everyone except puk -->
-      <path class="fl-shape" d="M20 62 Q10 38 28 24 Q50 8 72 24 Q90 38 80 62 Q78 84 50 86 Q22 84 20 62 Z" fill="currentColor"/>
-      <!-- combined body+butt path — single silhouette for puk's mooning view (hidden by default) -->
-      <path class="fl-shape-puk" d="M20 62 Q10 38 28 24 Q50 8 72 24 Q90 38 80 62 Q78 84 50 86 Q35 88 24 90 Q12 96 4 88 Q-2 76 6 70 Q14 64 20 62 Z" fill="currentColor"/>
-      <path class="fl-spikes" d="M28 20 L24 10 L32 18 M40 14 L40 4 L44 14 M60 14 L60 4 L56 14 M72 20 L76 10 L68 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <!-- PUK butt — two distinct cheeks, drawn BEFORE the body so the
+         body covers their inner halves. Outer arcs of each cheek stay
+         visible, defining two clear bulges on the lower-left. -->
+    <g class="fl-butt">
+      <circle cx="10" cy="72" r="6.5" fill="currentColor" stroke="#1a1410" stroke-width="1.5"/>
+      <circle cx="14" cy="88" r="10"  fill="currentColor" stroke="#1a1410" stroke-width="1.5"/>
     </g>
-    <!-- PUK crack line — defines the two cheeks within the combined silhouette -->
-    <g class="fl-butt-crack">
-      <path d="M22 78 Q 12 86 6 92" stroke="#1a1410" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <g class="fl-body">
+      <path class="fl-shape" d="M20 62 Q10 38 28 24 Q50 8 72 24 Q90 38 80 62 Q78 84 50 86 Q22 84 20 62 Z" fill="currentColor"/>
+      <path class="fl-spikes" d="M28 20 L24 10 L32 18 M40 14 L40 4 L44 14 M60 14 L60 4 L56 14 M72 20 L76 10 L68 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
     </g>
     <g class="fl-face">
       <g class="fl-eye fl-eye-l">

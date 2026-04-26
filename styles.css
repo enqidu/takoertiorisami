@@ -2672,9 +2672,8 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   transform: rotate(-12deg) translateX(-2px);
 }
 
-/* — bow + butt + crack + tongue overlays — hidden by default — */
-.fl-bow, .fl-tongue { opacity: 0; transition: opacity .3s; }
-.fl-shape-puk, .fl-butt-crack { display: none; }
+/* — bow + butt + tongue overlays — hidden by default — */
+.fl-bow, .fl-butt, .fl-tongue { opacity: 0; transition: opacity .3s; }
 
 /* — CRAZY-HAPPY (vazha): cross-eyes, tongue, big smile, BOUNCY — */
 [data-mood="crazy"] .fl-tongue { opacity: 1; }
@@ -2759,12 +2758,15 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
 }
 
 /* — PUK: 3/4 mooning view, moon-emoji style.
-     Body + butt are ONE combined path (.fl-shape-puk) so they render
-     together as a single silhouette. The crack line defines the
-     two cheeks within. — */
-[data-mood="puk"] .fl-shape     { display: none !important; }
-[data-mood="puk"] .fl-shape-puk { display: block !important; }
-[data-mood="puk"] .fl-butt-crack{ display: block !important; }
+     Two distinct cheeks (back small, front bigger) bulging out the
+     lower-left. Body gets a matching ink outline so the cheek arcs
+     and body silhouette read as one continuous outline. — */
+[data-mood="puk"] .fl-butt { opacity: 1; }
+[data-mood="puk"] .fl-shape {
+  stroke: #1a1410;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
 [data-mood="puk"] .fl-bow,
 [data-mood="puk"] .fl-shades,
 [data-mood="puk"] .fl-tongue,
