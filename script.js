@@ -713,13 +713,6 @@ const initCursor = () => {
 // get surprised when you approach, say tiny things, get shy, etc.
 const FLOATER_SVG = `
   <svg viewBox="-4 -4 108 108" class="fl-svg">
-    <!-- PUK butt — two distinct cheeks, drawn BEFORE the body so the
-         body covers their inner halves. Outer arcs of each cheek stay
-         visible, defining two clear bulges on the lower-left. -->
-    <g class="fl-butt">
-      <circle cx="10" cy="72" r="6.5" fill="currentColor" stroke="#1a1410" stroke-width="1.5"/>
-      <circle cx="14" cy="88" r="10"  fill="currentColor" stroke="#1a1410" stroke-width="1.5"/>
-    </g>
     <g class="fl-body">
       <path class="fl-shape" d="M20 62 Q10 38 28 24 Q50 8 72 24 Q90 38 80 62 Q78 84 50 86 Q22 84 20 62 Z" fill="currentColor"/>
       <path class="fl-spikes" d="M28 20 L24 10 L32 18 M40 14 L40 4 L44 14 M60 14 L60 4 L56 14 M72 20 L76 10 L68 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
@@ -738,6 +731,11 @@ const FLOATER_SVG = `
       <ellipse class="fl-blush fl-blush-l" cx="28" cy="62" rx="4" ry="2" fill="#ff9bb0" opacity="0"/>
       <ellipse class="fl-blush fl-blush-r" cx="72" cy="62" rx="4" ry="2" fill="#ff9bb0" opacity="0"/>
       <ellipse class="fl-mouth" cx="50" cy="66" rx="4" ry="2.5" fill="#e4483b"/>
+      <!-- PUK: worried/concerned eyebrows (hidden by default) -->
+      <g class="fl-brows">
+        <line x1="30" y1="42" x2="42" y2="38" stroke="#1a1410" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="58" y1="38" x2="70" y2="42" stroke="#1a1410" stroke-width="1.8" stroke-linecap="round"/>
+      </g>
       <!-- CRAZY: tongue (hidden by default; shown when data-mood="crazy") -->
       <ellipse class="fl-tongue" cx="55" cy="74" rx="2.4" ry="3.2" fill="#ff6fa8" opacity="0"/>
       <text class="fl-zzz" x="72" y="22" font-size="14" fill="#1a1410" opacity="0" font-family="DM Mono, monospace">z</text>

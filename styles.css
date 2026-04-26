@@ -2672,8 +2672,8 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   transform: rotate(-12deg) translateX(-2px);
 }
 
-/* — bow + butt + tongue overlays — hidden by default — */
-.fl-bow, .fl-butt, .fl-tongue { opacity: 0; transition: opacity .3s; }
+/* — bow + butt + brows + tongue overlays — hidden by default — */
+.fl-bow, .fl-butt, .fl-brows, .fl-tongue { opacity: 0; transition: opacity .3s; }
 
 /* — CRAZY-HAPPY (vazha): cross-eyes, tongue, big smile, BOUNCY — */
 [data-mood="crazy"] .fl-tongue { opacity: 1; }
@@ -2757,20 +2757,19 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   100%     { transform: translateY(-14px) scale(1.6); opacity: 0; }
 }
 
-/* — PUK: 3/4 mooning view, moon-emoji style.
-     Two distinct cheeks (back small, front bigger) bulging out the
-     lower-left. Body gets a matching ink outline so the cheek arcs
-     and body silhouette read as one continuous outline. — */
-[data-mood="puk"] .fl-butt { opacity: 1; }
-[data-mood="puk"] .fl-shape {
-  stroke: #1a1410;
-  stroke-width: 1.5;
-  stroke-linejoin: round;
+/* — PUK: normal front-facing creature with a slightly worried look.
+     Raised inner eyebrows, small concerned smile, tiny pupils. — */
+[data-mood="puk"] .fl-brows { opacity: 1; }
+[data-mood="puk"] .fl-mouth {
+  fill: #1a1410;
+  rx: 3;
+  ry: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: translateY(1px);
 }
-[data-mood="puk"] .fl-bow,
-[data-mood="puk"] .fl-shades,
-[data-mood="puk"] .fl-tongue,
-[data-mood="puk"] .fl-zzz   { display: none !important; }
+[data-mood="puk"] .fl-blush-l,
+[data-mood="puk"] .fl-blush-r { opacity: .35 !important; }
 
 /* face: shrink + shift to the right side (3/4 turned away) */
 [data-mood="puk"] .fl-face   { transform: translate(12px, -2px); }
