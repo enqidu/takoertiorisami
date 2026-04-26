@@ -1693,6 +1693,9 @@ body {
 .f-3 { top: 24%; left:  50%; width: 68px;  --r: -18deg; animation: bob 4s ease-in-out infinite 1s; }
 .f-4 { top: 78%; right: 18%; width: 80px;  --r: 20deg;  animation: bob 7s ease-in-out infinite 1.5s; }
 .f-5 { top: 40%; right: 30%; width: 72px;  --r: -4deg;  animation: bob 5.5s ease-in-out infinite .2s; }
+.f-6 { top: 16%; left:  18%; width: 88px;  --r:  8deg;  animation: bob 5.2s ease-in-out infinite .8s; }
+.f-7 { top: 86%; left:  46%; width: 60px;  --r: -10deg; animation: bob 6.4s ease-in-out infinite 1.2s; }
+.f-8 { top: 30%; right:  9%; width: 56px;  --r:  14deg; animation: bob 7.5s ease-in-out infinite 2s; }
 @keyframes bob {
   0%,100% { transform: translate(var(--ox),var(--oy)) rotate(var(--r, -5deg)) scale(var(--s, 1)); }
   50%     { transform: translate(calc(var(--ox) + 4px), calc(var(--oy) - 16px)) rotate(calc(var(--r, -5deg) + 10deg)) scale(var(--s, 1)); }
@@ -2669,9 +2672,10 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   transform: rotate(-12deg) translateX(-2px);
 }
 
-/* — CRAZY (vazha): happy & dumb — derpy cross-eyes, big open smile,
-     tongue out, blush on, slow happy bob. Not violent — silly. — */
-.fl-tongue { opacity: 0; transition: opacity .3s; }
+/* — bow + butt + tongue overlays — hidden by default — */
+.fl-bow, .fl-butt, .fl-tongue { opacity: 0; transition: opacity .3s; }
+
+/* — CRAZY-HAPPY (vazha): cross-eyes, tongue, big smile, BOUNCY — */
 [data-mood="crazy"] .fl-tongue { opacity: 1; }
 
 [data-mood="crazy"] .fl-pupil-l {
@@ -2709,15 +2713,66 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
 [data-mood="crazy"] .fl-blush-l,
 [data-mood="crazy"] .fl-blush-r { opacity: .8 !important; }
 
-/* slow happy bob — not a violent shake */
+/* CRAZY-HAPPY: bouncy energetic happy bob */
 [data-mood="crazy"] .fl-body {
-  animation: vazha-bob 1.6s ease-in-out infinite alternate !important;
+  animation: vazha-bounce 0.85s ease-in-out infinite alternate !important;
   transform-origin: 50% 100%;
 }
-@keyframes vazha-bob {
-  from { transform: rotate(-5deg) translateY(0); }
-  to   { transform: rotate( 6deg) translateY(-3px); }
+@keyframes vazha-bounce {
+  from { transform: rotate(-8deg) translateY(0)  scale(1, 1); }
+  to   { transform: rotate(10deg) translateY(-5px) scale(.95, 1.06); }
 }
+
+/* — GIRLISH (puri): pink bow, lipstick mouth, blush always on — */
+[data-mood="girlish"] .fl-bow { opacity: 1; }
+[data-mood="girlish"] .fl-blush-l,
+[data-mood="girlish"] .fl-blush-r { opacity: .65 !important; }
+[data-mood="girlish"] .fl-mouth {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(1.15, .85);
+  fill: #d63a2c;
+}
+[data-mood="girlish"] .fl-pupil-l,
+[data-mood="girlish"] .fl-pupil-r {
+  transform: translateY(1px);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* — OVERSLEEP (ძილი): eyes shut tight, tiny mouth, zzz always rising — */
+[data-mood="oversleep"] .fl-eye-white { ry: 0.6; }
+[data-mood="oversleep"] .fl-pupil,
+[data-mood="oversleep"] .fl-gleam { opacity: 0; }
+[data-mood="oversleep"] .fl-mouth {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(.55, .65) translateY(2px);
+}
+[data-mood="oversleep"] .fl-zzz {
+  opacity: .85 !important;
+  animation: zzz-rise 2.4s ease-in-out infinite !important;
+}
+@keyframes zzz-rise {
+  0%, 100% { transform: translateY(0)  scale(1);   opacity: .85; }
+  60%      { transform: translateY(-8px) scale(1.4); opacity: .4; }
+  100%     { transform: translateY(-14px) scale(1.6); opacity: 0; }
+}
+
+/* — PUK (formerly tuk): grumpy + small butt below body — */
+[data-mood="puk"] .fl-butt { opacity: 1; }
+[data-mood="puk"] .fl-mouth {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: translateY(2px) scale(.7, .55);
+  fill: #1a1410;
+}
+[data-mood="puk"] .fl-pupil-l,
+[data-mood="puk"] .fl-pupil-r { transform: translateY(-2px); }
+
+/* — TINY: scale-down modifier for nikala (and any tiny creature) — */
+.crew-creature.is-tiny { transform: scale(.62); transform-origin: 50% 100%; }
+.floater.is-tiny       { transform: scale(.7); }
 
 /* ─── PERF: skip rendering off-screen work cards ──────────────────────
    `content-visibility: auto` lets the browser cull paint/layout for

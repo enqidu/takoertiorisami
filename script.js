@@ -712,8 +712,13 @@ const initCursor = () => {
 // pupils track cursor · creatures blink, wink, yawn, sleep, peek,
 // get surprised when you approach, say tiny things, get shy, etc.
 const FLOATER_SVG = `
-  <svg viewBox="0 0 100 100" class="fl-svg">
+  <svg viewBox="-4 -4 108 108" class="fl-svg">
     <g class="fl-body">
+      <!-- PUK: small butt cheeks below body (hidden by default) -->
+      <g class="fl-butt">
+        <ellipse cx="40" cy="89" rx="6" ry="4" fill="currentColor" stroke="#1a1410" stroke-width="1.4"/>
+        <ellipse cx="60" cy="89" rx="6" ry="4" fill="currentColor" stroke="#1a1410" stroke-width="1.4"/>
+      </g>
       <path class="fl-shape" d="M20 62 Q10 38 28 24 Q50 8 72 24 Q90 38 80 62 Q78 84 50 86 Q22 84 20 62 Z" fill="currentColor"/>
       <path class="fl-spikes" d="M28 20 L24 10 L32 18 M40 14 L40 4 L44 14 M60 14 L60 4 L56 14 M72 20 L76 10 L68 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
     </g>
@@ -744,6 +749,12 @@ const FLOATER_SVG = `
         <line x1="32" y1="46" x2="36" y2="51" stroke="#fffaed" stroke-width="1.4" stroke-linecap="round"/>
         <line x1="56" y1="46" x2="60" y2="51" stroke="#fffaed" stroke-width="1.4" stroke-linecap="round"/>
       </g>
+      <!-- GIRLISH: pink bow on side of head (hidden by default) -->
+      <g class="fl-bow">
+        <ellipse cx="86" cy="22" rx="5" ry="3" fill="#ff6fa8" stroke="#1a1410" stroke-width="1.3" transform="rotate(-25 86 22)"/>
+        <ellipse cx="86" cy="32" rx="5" ry="3" fill="#ff6fa8" stroke="#1a1410" stroke-width="1.3" transform="rotate(25 86 32)"/>
+        <circle  cx="86" cy="27" r="2.2" fill="#ff6fa8" stroke="#1a1410" stroke-width="1.3"/>
+      </g>
     </g>
   </svg>
 `;
@@ -764,8 +775,11 @@ const FL_PERSONALITIES = {
   cozy:         { says: ["mm~", "warm", "soft", "nice.", "♨"],              blinkMs: [3200, 5800], mood: "cozy" },
   melodramatic: { says: ["alas!", "oh no!", "ვაიმე!", "the pain", "*gasp*"], blinkMs: [2000, 4500], mood: "melodramatic" },
   // CUSTOM CREW MOODS
-  cool:         { says: ["yeah", "mhm", "obviously", "sure", "♪", "..yep"],  blinkMs: [4500, 8000], mood: "cool" },
-  crazy:        { says: ["hii!", "wee", "ჰაჰა", ":D", "blub", "yum", "love that"], blinkMs: [1200, 2400], mood: "crazy" },
+  cool:         { says: ["yeah", "mhm", "obviously", "sure", "♪", "..yep"],          blinkMs: [4500, 8000], mood: "cool" },
+  crazy:        { says: ["YESSSS", "i love this!!", "OH MY GOD", "wee wee!", "oof!", "i'm SO good"], blinkMs: [600, 1400], mood: "crazy" },
+  girlish:      { says: ["adam driver..", "ugh", "i'm a writer", "i could write that", "is it me?", "♥"], blinkMs: [3000, 5500], mood: "girlish" },
+  oversleep:    { says: ["zzzzz", "five more", "..nh", "(asleep)", "Z", "mmm"],     blinkMs: [400, 1100],  mood: "oversleep" },
+  puk:          { says: ["pff", "no", "ჰმ", "fine.", "leave it", "go away"],         blinkMs: [2400, 4800], mood: "puk" },
 };
 const FL_POOL = Object.keys(FL_PERSONALITIES);
 
