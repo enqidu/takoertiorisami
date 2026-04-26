@@ -2678,49 +2678,41 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
 /* — CRAZY-HAPPY (vazha): cross-eyes, tongue, big smile, BOUNCY — */
 [data-mood="crazy"] .fl-tongue { opacity: 1; }
 
-[data-mood="crazy"] .fl-pupil-l {
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: translate(-2.2px, 1.8px) !important; /* looking down-left */
-  transition: none !important;
-}
+/* CRAZY-HAPPY (vazha): big excited dilated forward eyes, huge open grin,
+   tongue out, blush on, bouncy. Pure joy, not derpy. */
+[data-mood="crazy"] .fl-pupil-l,
 [data-mood="crazy"] .fl-pupil-r {
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: translate(2.4px, -2.2px) !important;  /* looking up-right (cross-eyed) */
+  /* dilated, looking forward — excited not cross-eyed */
+  r: 4.2 !important;
+  transform: translateY(.5px) !important;
   transition: none !important;
-}
-[data-mood="crazy"] .fl-gleam-l {
-  transform: translate(-2.2px, 1.8px);
   transform-box: fill-box;
   transform-origin: center;
 }
-[data-mood="crazy"] .fl-gleam-r {
-  transform: translate(2.4px, -2.2px);
-  transform-box: fill-box;
-  transform-origin: center;
-}
+[data-mood="crazy"] .fl-eye-white { rx: 8.5; ry: 9.5; }
+[data-mood="crazy"] .fl-gleam-l,
+[data-mood="crazy"] .fl-gleam-r { r: 1.5; }
 
-/* big dumb open-mouth smile — scale the mouth ellipse way up + push down */
+/* huge happy open-mouth grin */
 [data-mood="crazy"] .fl-mouth {
   fill: #1a1410;
   transform-box: fill-box;
   transform-origin: center;
-  transform: translateY(3px) scale(2.3, 1.9);
+  transform: translateY(3px) scale(2.7, 1.6);
 }
 
-/* always-on blush (a bit too happy) */
+/* always-on blush — pure delight */
 [data-mood="crazy"] .fl-blush-l,
-[data-mood="crazy"] .fl-blush-r { opacity: .8 !important; }
+[data-mood="crazy"] .fl-blush-r { opacity: .85 !important; }
 
-/* CRAZY-HAPPY: bouncy energetic happy bob */
+/* faster, more energetic bounce */
 [data-mood="crazy"] .fl-body {
-  animation: vazha-bounce 0.85s ease-in-out infinite alternate !important;
+  animation: vazha-bounce 0.7s ease-in-out infinite alternate !important;
   transform-origin: 50% 100%;
 }
 @keyframes vazha-bounce {
-  from { transform: rotate(-8deg) translateY(0)  scale(1, 1); }
-  to   { transform: rotate(10deg) translateY(-5px) scale(.95, 1.06); }
+  from { transform: rotate(-9deg)  translateY(0)   scale(1,   .98); }
+  to   { transform: rotate(11deg)  translateY(-7px) scale(.93, 1.10); }
 }
 
 /* — GIRLISH (puri): pink bow, lipstick mouth, blush always on — */
@@ -2770,9 +2762,16 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
 [data-mood="puk"] .fl-pupil-l,
 [data-mood="puk"] .fl-pupil-r { transform: translateY(-2px); }
 
-/* — TINY: scale-down modifier for nikala (and any tiny creature) — */
-.crew-creature.is-tiny { transform: scale(.62); transform-origin: 50% 100%; }
-.floater.is-tiny       { transform: scale(.7); }
+/* — TINY: hard scale-down for nikala — drop both layout box AND visual — */
+.crew-creature.is-tiny {
+  width: 38px !important;
+  height: 38px !important;
+}
+.floater.is-tiny {
+  /* shrink the box itself so click target matches what you see */
+  width: 28px !important;
+  height: 28px !important;
+}
 
 /* ─── PERF: skip rendering off-screen work cards ──────────────────────
    `content-visibility: auto` lets the browser cull paint/layout for
