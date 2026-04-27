@@ -1434,8 +1434,12 @@ function initGridOverlay() {
   posts.forEach((post, index) => {
     if (!post.images || !post.images.length) return;
     const title = (post.title || "untitled").replace(/"/g, "&quot;");
+    // per-tile organic jitter — small random rotation + a hint of x nudge
+    const rot = ((Math.random() - 0.5) * 5).toFixed(2);     // ±2.5 deg
+    const nudge = ((Math.random() - 0.5) * 12).toFixed(1);  // ±6 px
     tiles.push(
-      `<a href="#post-${index}" class="grid-tile" data-target="post-${index}">
+      `<a href="#post-${index}" class="grid-tile" data-target="post-${index}"
+          style="--rot:${rot}deg; margin-left:${nudge}px">
          <img src="${post.images[0]}" alt="${title}" loading="lazy" decoding="async" draggable="false"/>
          <span class="grid-tile-title">${title}</span>
        </a>`
