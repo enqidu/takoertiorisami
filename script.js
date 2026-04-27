@@ -1464,7 +1464,7 @@ function initGridOverlay() {
     if (e.key === "Escape" && overlay.classList.contains("is-open")) close();
   });
 
-  inner.addEventListener("click", (e) => {
+  inner.addEventListener("click", async (e) => {
     const tile = e.target.closest(".grid-tile");
     if (!tile) return;
     e.preventDefault();
@@ -1473,25 +1473,36 @@ function initGridOverlay() {
     if (!target) { close(); return; }
 
     const NAV_OFFSET = 90;
+    const computeTop = () =>
+      Math.max(0, target.getBoundingClientRect().top + window.scrollY - NAV_OFFSET);
 
-    // STEP 1 — force layout on every work-section in the document. With
-    // content-visibility:auto, sections off-screen render at the
-    // placeholder size (contain-intrinsic-size: 800px) until measured.
-    // Reading offsetTop on each one realizes its actual height. Without
-    // this, the first scroll lands at a stale Y (the "second-try works"
-    // bug) because layout hadn't caught up.
+    // STEP 1 — wait for webfonts to load. Fallback fonts have different
+    // metrics, so text-heavy sections shift height once Garamond/Syne
+    // arrive. Without this wait, the first click after a cold load hits
+    // a stale Y.
+    try { if (document.fonts?.ready) await document.fonts.ready; } catch {}
+
+    // STEP 2 — force layout on every work-section to evict the
+    // content-visibility:auto placeholders (which default to 800px until
+    // measured). Reading offsetTop synchronously realizes real heights.
     document.querySelectorAll(".work-section").forEach(s => { void s.offsetTop; });
 
-    // STEP 2 — compute the accurate target position now that all sections
-    // have real heights.
-    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - NAV_OFFSET);
+    // STEP 3 — jump-scroll while the overlay still covers the page so
+    // the user never sees the leap.
+    window.scrollTo({ top: computeTop(), behavior: "instant" });
 
-    // STEP 3 — jump-scroll while overlay is up so the page is at the
-    // right place when we close.
-    window.scrollTo({ top, behavior: "instant" });
-
-    // STEP 4 — close overlay; page is already at the target, no race.
+    // STEP 4 — close overlay; page already at the right spot.
     close();
+
+    // STEP 5 — defensive correction. Lazy images decoding mid-flight can
+    // shift heights by tens of pixels. Re-measure after a beat and
+    // smooth-correct if we drifted.
+    setTimeout(() => {
+      const t = computeTop();
+      if (Math.abs(t - window.scrollY) > 4) {
+        window.scrollTo({ top: t, behavior: "smooth" });
+      }
+    }, 220);
   });
 }
 
