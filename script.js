@@ -1422,43 +1422,14 @@ const makeTween = (key, override) => {
   return `<div class="work-tween" aria-hidden="true">${parts.join("")}</div>`;
 };
 
-// ─── MOUNT ──────────────────────────────────────────────────────────
-const worksEl = document.getElementById("works");
-if (worksEl) {
-  let html = ""; let workNum = 0;
-  posts.forEach((post, index) => {
-    if (post.type !== "idea") workNum++;
-    html += renderPost(post, index, workNum);
-    // drop a fuzzy break after each post except the last.
-    // Customize per-post via `tween:` on the post object (see posts.js).
-    if (index < posts.length - 1) {
-      html += makeTween(index + 1, post.tween);
-    }
-  });
-  worksEl.innerHTML = html;
-
-  // init galleries after mount
-  posts.forEach((post, index) => {
-    if (post.type === "idea") return;
-    const total = (post.images && post.images.length) || 1;
-    initGallery(`post-${index}`, total);
-  });
-
-  initImageColors();
-  initLightboxTriggers();
-  initTilt();
-  initGridOverlay();
-}
-
 // ─── GRID OVERLAY — see all works at once, click any to scroll there ──
-const initGridOverlay = () => {
+function initGridOverlay() {
   const toggle  = document.getElementById("gridToggle");
   const overlay = document.getElementById("gridOverlay");
   const closeEl = document.getElementById("gridClose");
   const inner   = document.getElementById("gridOverlayInner");
   if (!toggle || !overlay || !inner) return;
 
-  // build tiles from the posts data — only entries with images
   const tiles = [];
   posts.forEach((post, index) => {
     if (!post.images || !post.images.length) return;
@@ -1489,7 +1460,6 @@ const initGridOverlay = () => {
     if (e.key === "Escape" && overlay.classList.contains("is-open")) close();
   });
 
-  // click a tile → close overlay + scroll to that work in the feed
   inner.addEventListener("click", (e) => {
     const tile = e.target.closest(".grid-tile");
     if (!tile) return;
@@ -1501,7 +1471,36 @@ const initGridOverlay = () => {
       if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 60);
   });
-};
+}
+
+// ─── MOUNT ──────────────────────────────────────────────────────────
+const worksEl = document.getElementById("works");
+if (worksEl) {
+  let html = ""; let workNum = 0;
+  posts.forEach((post, index) => {
+    if (post.type !== "idea") workNum++;
+    html += renderPost(post, index, workNum);
+    // drop a fuzzy break after each post except the last.
+    // Customize per-post via `tween:` on the post object (see posts.js).
+    if (index < posts.length - 1) {
+      html += makeTween(index + 1, post.tween);
+    }
+  });
+  worksEl.innerHTML = html;
+
+  // init galleries after mount
+  posts.forEach((post, index) => {
+    if (post.type === "idea") return;
+    const total = (post.images && post.images.length) || 1;
+    initGallery(`post-${index}`, total);
+  });
+
+  initImageColors();
+  initLightboxTriggers();
+  initTilt();
+  initGridOverlay();
+}
+
 
 // ─── FREAKY MODE — fast spam-clicks anywhere → cursor loses its mind
 //   Threshold: 6 clicks within 700ms. Holds the freak for ~2.4s after
