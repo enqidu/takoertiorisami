@@ -84,6 +84,20 @@ window.POSTS = [
     behance: "https://www.behance.net/gallery/235691509/Brand-Identity-for-Mrs-Peanut-Butter",
   },
   {
+    title: "Kuki",
+    date: "April 2025",
+    description: `geometric portrait — diamond face, sparkle eyes, olive stripes. digital.`,
+    tags: ["illustration", "portrait", "digital"],
+    images: ["images/kuki.png"],
+  },
+  {
+    title: "Samegrelo",
+    date: "April 2025",
+    description: `a tall figure walking a small angry creature on a leash. red graffiti behind, barbed wire weather.`,
+    tags: ["illustration", "characters", "digital"],
+    images: ["images/samegrelo.jpg"],
+  },
+  {
     title: "",
     date: "March 2025",
     type: "idea",
