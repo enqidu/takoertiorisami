@@ -1472,27 +1472,26 @@ function initGridOverlay() {
     const target = document.getElementById(id);
     if (!target) { close(); return; }
 
-    // STEP 1: jump-scroll first while overlay is still up (overlay covers
-    // the page so the user never sees the jump). Two rAF passes let the
-    // browser realize content-visibility sections, so getBoundingClientRect
-    // gives a real number — not a contain-intrinsic-size placeholder.
-    target.scrollIntoView({ block: "start", behavior: "instant" });
-    // Force layout pass on every section between top and target so any
-    // content-visibility:auto placeholders settle to real heights.
-    target.getBoundingClientRect();
+    const NAV_OFFSET = 90;
 
-    // STEP 2: now close the overlay — reveals the page already scrolled
-    // to the right place.
-    requestAnimationFrame(() => {
-      close();
-      // STEP 3: a final correction in case the realised heights pushed the
-      // target a bit further down/up than where the instant scroll landed.
-      requestAnimationFrame(() => {
-        const NAV_OFFSET = 90;
-        const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - NAV_OFFSET);
-        window.scrollTo({ top, behavior: "smooth" });
-      });
-    });
+    // STEP 1 — force layout on every work-section in the document. With
+    // content-visibility:auto, sections off-screen render at the
+    // placeholder size (contain-intrinsic-size: 800px) until measured.
+    // Reading offsetTop on each one realizes its actual height. Without
+    // this, the first scroll lands at a stale Y (the "second-try works"
+    // bug) because layout hadn't caught up.
+    document.querySelectorAll(".work-section").forEach(s => { void s.offsetTop; });
+
+    // STEP 2 — compute the accurate target position now that all sections
+    // have real heights.
+    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - NAV_OFFSET);
+
+    // STEP 3 — jump-scroll while overlay is up so the page is at the
+    // right place when we close.
+    window.scrollTo({ top, behavior: "instant" });
+
+    // STEP 4 — close overlay; page is already at the target, no race.
+    close();
   });
 }
 
