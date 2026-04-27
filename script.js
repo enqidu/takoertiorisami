@@ -1468,17 +1468,29 @@ function initGridOverlay() {
     const tile = e.target.closest(".grid-tile");
     if (!tile) return;
     e.preventDefault();
-    close();
     const id = tile.dataset.target;
-    // wait for the overlay to close + body overflow to restore, then scroll
-    // explicitly with a nav-clear offset (scrollIntoView can race here).
+    const target = document.getElementById(id);
+    if (!target) { close(); return; }
+
+    // STEP 1: jump-scroll first while overlay is still up (overlay covers
+    // the page so the user never sees the jump). Two rAF passes let the
+    // browser realize content-visibility sections, so getBoundingClientRect
+    // gives a real number — not a contain-intrinsic-size placeholder.
+    target.scrollIntoView({ block: "start", behavior: "instant" });
+    // Force layout pass on every section between top and target so any
+    // content-visibility:auto placeholders settle to real heights.
+    target.getBoundingClientRect();
+
+    // STEP 2: now close the overlay — reveals the page already scrolled
+    // to the right place.
     requestAnimationFrame(() => {
+      close();
+      // STEP 3: a final correction in case the realised heights pushed the
+      // target a bit further down/up than where the instant scroll landed.
       requestAnimationFrame(() => {
-        const target = document.getElementById(id);
-        if (!target) return;
         const NAV_OFFSET = 90;
-        const top = target.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
-        window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+        const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - NAV_OFFSET);
+        window.scrollTo({ top, behavior: "smooth" });
       });
     });
   });
