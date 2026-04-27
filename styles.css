@@ -1687,9 +1687,11 @@ body {
   --ox: 0px; --oy: 0px;
   /* no transform-transition — it fights the bob animation */
   /* PERF: promote to own compositor layer so paints don't ripple to
-     siblings; contain paint/layout to isolate the cost. */
+     siblings. `contain: layout only` (NOT paint) — `paint` would clip
+     the .fl-bubble that sits above the floater. */
   will-change: transform;
-  contain: layout paint;
+  contain: layout;
+  overflow: visible;
 }
 .floater svg { width: 100%; height: 100%; overflow: visible; }
 .f-1 { top: 8%;  right: 6%;  width: 110px; --r: -8deg;  animation: bob 5s ease-in-out infinite; }
