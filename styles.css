@@ -2568,6 +2568,16 @@ html.lite .cursor-trail,
 html.lite .cc-sparkles,
 html.lite .cc-emote { display: none !important; }
 
+/* Force OS cursor off on every element in lite — buttons + links default
+   to `cursor: pointer` which leaks the OS arrow over the cursor-creature
+   when clicking. The cursor-creature still draws on top via z-index. */
+html.lite,
+html.lite *,
+html.lite *::before,
+html.lite *::after {
+  cursor: none !important;
+}
+
 /* pause vazha's bouncy keyframe and any single-element infinite anims */
 html.lite [data-mood="crazy"] .fl-svg { animation: none !important; transform: none !important; }
 html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity: 0 !important; }
