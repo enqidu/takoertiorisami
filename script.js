@@ -15,9 +15,26 @@ const IS_TOUCH  = !matchMedia("(hover: hover) and (pointer: fine)").matches;
 const REDUCE_FX = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const LOW_POWER = (navigator.hardwareConcurrency || 8) < 4
                 || (navigator.deviceMemory || 8) < 4;
-const LITE_MODE = IS_TOUCH || REDUCE_FX || LOW_POWER
+// User can force lite mode via ?lite, or via a saved toggle.
+const FORCED_LITE = /[?&]lite\b/.test(location.search) || localStorage.getItem("xl_lite") === "1";
+const LITE_MODE = FORCED_LITE || IS_TOUCH || REDUCE_FX || LOW_POWER
                 || (window.innerWidth <= 720);
 if (LITE_MODE) document.documentElement.classList.add("lite");
+
+// Expose a toggle for users on old laptops where auto-detection misses.
+// `xl.lite(true|false)` from the console; persists in localStorage.
+window.xl = window.xl || {};
+window.xl.lite = (on) => {
+  if (on === undefined) return document.documentElement.classList.contains("lite");
+  if (on) {
+    localStorage.setItem("xl_lite", "1");
+    document.documentElement.classList.add("lite");
+  } else {
+    localStorage.removeItem("xl_lite");
+    document.documentElement.classList.remove("lite");
+  }
+  return on;
+};
 
 
 // ─── PLACEHOLDER FALLBACKS (fuzzy creatures, in case images missing) ────
@@ -1421,6 +1438,17 @@ const makeTween = (key, override) => {
   }
   return `<div class="work-tween" aria-hidden="true">${parts.join("")}</div>`;
 };
+
+// ─── LITE MODE TOGGLE — flips heavy effects off, persists in localStorage
+function initLiteToggle() {
+  const btn = document.getElementById("liteToggle");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    const isOn = document.documentElement.classList.contains("lite");
+    window.xl.lite(!isOn);
+  });
+}
+initLiteToggle();
 
 // ─── GRID OVERLAY — see all works at once, click any to scroll there ──
 function initGridOverlay() {

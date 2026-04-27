@@ -2524,6 +2524,54 @@ html.lite .cursor-creature svg g {
 /* static sparkles cost less than animated ones */
 html.lite .cc-sparkle { animation-duration: .35s !important; }
 
+/* ──────────────────────────────────────────────────────────────
+   LITE MODE — aggressive: pause all decorative continuous animations.
+   Old laptops don't choke on what they're not animating. Keeps
+   on-demand transitions (hover, click) so the site still feels alive.
+   ────────────────────────────────────────────────────────────── */
+
+/* freeze every always-running creature bob, marquee, drift, breathe,
+   heart, hue-rotate, etc. */
+html.lite .floater,
+html.lite .crew-creature,
+html.lite .floater .fl-body,
+html.lite .crew-creature .fl-svg,
+html.lite .marquee-track,
+html.lite .hero-marquee .marquee-track,
+html.lite .footer-marquee .marquee-track,
+html.lite .hero-deco,
+html.lite .scribble,
+html.lite .color-block,
+html.lite .hero-line-solid,
+html.lite .hero-line-outline,
+html.lite .footer-line-solid,
+html.lite .footer-line-outline,
+html.lite .nav-link.active::after,
+html.lite .floater::before,
+html.lite .floater::after,
+html.lite .work-section,
+html.lite .tag,
+html.lite .tag::before {
+  animation-play-state: paused !important;
+}
+
+/* hide the giant radial-gradient watercolor blobs — biggest paint cost
+   on the body. The paper-noise SVG behind them stays. */
+html.lite body::after { display: none !important; }
+
+/* drop the click-splat DOM elements (inert at rest, but still allocate
+   on every mousedown) */
+html.lite .click-splat { display: none !important; }
+
+/* simpler cursor on lite — keep the creature, drop the trail + sparkles */
+html.lite .cursor-trail,
+html.lite .cc-sparkles,
+html.lite .cc-emote { display: none !important; }
+
+/* pause vazha's bouncy keyframe and any single-element infinite anims */
+html.lite [data-mood="crazy"] .fl-svg { animation: none !important; transform: none !important; }
+html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity: 0 !important; }
+
 /* ═════════ COLOR ABSORPTION — target feedback ═════════
    Palette chips & floaters briefly get "drained" when the cursor
    steals their color. --drain goes 0→1 during the hold. */
@@ -2782,6 +2830,43 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
 [data-mood="puk"] .fl-svg {
   transform: scale(1.02, 0.97);
   transform-origin: 50% 60%;
+}
+
+/* ─── LITE MODE TOGGLE — for slower devices ─── */
+.lite-toggle {
+  position: fixed;
+  right: 18px; bottom: 80px;
+  z-index: 95;
+  width: 40px; height: 40px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 3px 3px 0 var(--ink);
+  display: grid; place-items: center;
+  font-size: 16px;
+  cursor: none;
+  transition: transform .15s, box-shadow .15s, background .15s;
+}
+.lite-toggle:hover {
+  transform: translate(-1px, -1px) rotate(8deg);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--yolk);
+}
+html.lite .lite-toggle { background: var(--mint); }
+html.lite .lite-toggle .lite-toggle-icon::after {
+  content: " on";
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .04em;
+  color: var(--ink-mute);
+  position: absolute;
+  top: -16px; right: -2px;
+  text-transform: uppercase;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  padding: 2px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
 /* ─── GRID-VIEW OVERLAY — see-all-at-once view of every work ─── */
