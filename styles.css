@@ -2784,6 +2784,124 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
   transform-origin: 50% 60%;
 }
 
+/* ─── GRID-VIEW OVERLAY — see-all-at-once view of every work ─── */
+.grid-toggle {
+  position: fixed;
+  right: 18px; bottom: 18px;
+  z-index: 95;
+  width: 52px; height: 52px;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 4px 4px 0 var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: none;
+  transition: transform .15s, box-shadow .15s, background .15s;
+}
+.grid-toggle:hover {
+  transform: translate(-2px, -2px) rotate(-4deg);
+  box-shadow: 6px 6px 0 var(--ink);
+  background: var(--bubble);
+}
+.grid-toggle svg {
+  width: 22px; height: 22px;
+  fill: var(--ink);
+}
+
+.grid-overlay {
+  position: fixed; inset: 0;
+  background: var(--cream);
+  z-index: 200;
+  display: none;
+  overflow-y: auto;
+  padding: 80px 4vw 6vw;
+}
+.grid-overlay.is-open { display: block; }
+
+.grid-overlay-head {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 201;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px;
+  background: linear-gradient(to bottom, var(--cream) 60%, transparent);
+}
+.grid-overlay-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.grid-close {
+  width: 44px; height: 44px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink);
+  cursor: none;
+  transition: transform .15s, box-shadow .15s, background .15s;
+}
+.grid-close:hover {
+  transform: rotate(90deg);
+  background: var(--tomato);
+  color: var(--paper);
+}
+
+.grid-overlay-inner {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 18px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+@media (max-width: 720px) {
+  .grid-overlay-inner { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+}
+
+.grid-tile {
+  position: relative;
+  display: block;
+  aspect-ratio: 1 / 1;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: 3px 3px 0 var(--ink);
+  overflow: hidden;
+  cursor: none;
+  transition: transform .18s, box-shadow .18s;
+}
+.grid-tile:hover {
+  transform: translate(-2px, -3px) rotate(-1deg);
+  box-shadow: 5px 6px 0 var(--ink);
+}
+.grid-tile img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.grid-tile-title {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .04em;
+  color: var(--ink);
+  background: rgba(255, 250, 237, .92);
+  border-top: 1.5px solid var(--ink);
+  text-transform: lowercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* — TRUK: huge innocent eyes, tiny inward-set pupils, no brows,
      thin gentle smile line, yellow hair, soft blush. — */
 [data-mood="truk"] .fl-spikes    { stroke: #ffd333; }

@@ -253,11 +253,11 @@
   }
   </script>
 
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=20260461" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=20260462" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260461" />
+  <link rel="stylesheet" href="styles.css?v=20260462" />
 </head>
 <body>
 
@@ -434,6 +434,26 @@
   <!-- WORKS (populated by script.js) -->
   <main class="works" id="works"></main>
 
+  <!-- floating "view as grid" toggle -->
+  <button class="grid-toggle" id="gridToggle" aria-label="View all works as grid">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="3" width="8" height="8" rx="1.5"/>
+      <rect x="13" y="3" width="8" height="8" rx="1.5"/>
+      <rect x="3" y="13" width="8" height="8" rx="1.5"/>
+      <rect x="13" y="13" width="8" height="8" rx="1.5"/>
+    </svg>
+    <span class="sr-only">grid view</span>
+  </button>
+
+  <!-- grid overlay (all works at once) -->
+  <div class="grid-overlay" id="gridOverlay" aria-hidden="true">
+    <div class="grid-overlay-head">
+      <span class="grid-overlay-title">all works · click any to scroll there</span>
+      <button class="grid-close" id="gridClose" aria-label="Close grid">×</button>
+    </div>
+    <div class="grid-overlay-inner" id="gridOverlayInner"></div>
+  </div>
+
   <!-- FOOTER -->
   <footer class="site-footer">
     <div class="footer-inner">
@@ -456,7 +476,7 @@
     </div>
   </footer>
 
-  <script src="js/posts.js?v=20260461"></script>
-  <script src="script.js?v=20260461"></script>
+  <script src="js/posts.js?v=20260462"></script>
+  <script src="script.js?v=20260462"></script>
 </body>
 </html>
