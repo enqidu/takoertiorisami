@@ -2976,7 +2976,10 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
 .work-section {
   content-visibility: auto;
   contain-intrinsic-size: 1px 800px;
+  /* nav is fixed at top — leave room when scrolling to anchor */
+  scroll-margin-top: 90px;
 }
+html { scroll-padding-top: 90px; }
 
 /* ─── PERF: auto-lite mode — defensive override ───────────────────────
    `html.lite` is added by script.js when the device looks low-power

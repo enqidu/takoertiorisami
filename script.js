@@ -1470,10 +1470,17 @@ function initGridOverlay() {
     e.preventDefault();
     close();
     const id = tile.dataset.target;
-    setTimeout(() => {
-      const target = document.getElementById(id);
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 60);
+    // wait for the overlay to close + body overflow to restore, then scroll
+    // explicitly with a nav-clear offset (scrollIntoView can race here).
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const target = document.getElementById(id);
+        if (!target) return;
+        const NAV_OFFSET = 90;
+        const top = target.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+        window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      });
+    });
   });
 }
 
