@@ -1004,30 +1004,41 @@ const initFloaters = () => {
         if (near) {
           // wake up if sleeping
           f.classList.remove("fl-sleep", "fl-sleepy");
-          // happy/loving personalities bloom
+          // mood-flavored body language
           if (p.mood === "happy" || p.mood === "dreamy") {
             f.classList.add("fl-happy");
           } else if (p.mood === "shy") {
             f.classList.add("fl-shy");
-            if (Math.random() < 0.5) showBubble(f, p.says[Math.floor(Math.random() * p.says.length)], 1000);
           } else if (p.mood === "grumpy") {
             f.classList.add("fl-grumpy");
-            if (Math.random() < 0.4) showBubble(f, p.says[Math.floor(Math.random() * p.says.length)], 900);
           } else {
-            // curious/sleepy get surprised
             f.classList.add("fl-surprised");
             setTimeout(() => f.classList.remove("fl-surprised"), 700);
-            if (Math.random() < 0.4) showBubble(f, "!", 700);
           }
+          // EVERY creature says something on approach: name or a says-line.
+          // Named creatures announce their name 50% of the time, otherwise
+          // a random personality line. Anonymous creatures always use says.
+          const name = f.getAttribute("data-name");
+          let text;
+          if (name && Math.random() < 0.5) {
+            text = name;
+          } else if (p.says && p.says.length) {
+            text = p.says[Math.floor(Math.random() * p.says.length)];
+          } else {
+            text = name || "!";
+          }
+          showBubble(f, text, 1400);
         } else {
           f.classList.remove("fl-happy", "fl-shy", "fl-grumpy", "fl-surprised");
         }
       }
       if (veryNear && !f._gleamTs) {
         f._gleamTs = now;
-        if (Math.random() < 0.3) {
+        if (Math.random() < 0.5) {
           const p = f._personality;
-          showBubble(f, p.says[Math.floor(Math.random() * p.says.length)], 1100);
+          if (p.says && p.says.length) {
+            showBubble(f, p.says[Math.floor(Math.random() * p.says.length)], 1100);
+          }
         }
       }
       if (!veryNear && f._gleamTs && now - f._gleamTs > 400) f._gleamTs = 0;
