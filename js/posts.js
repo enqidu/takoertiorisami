@@ -20,7 +20,7 @@ window.POSTS = [
     date: "April 2026",
     description: `posters set in the world of arcane (netflix / league of legends) — each one made to be pasted on the walls of the undercity. character details and typography drawn pen-tool by hand.`,
     tags: ["graphic design", "poster", "illustration", "fan art"],
-    images: ["images/arcane-1.webp", "images/arcane-2.webp", "images/arcane-3b.webp", "images/arcane-4.webp"],
+    images: ["images/arcane-1.webp", "images/arcane-2.webp", "images/arcane-3b.jpg", "images/arcane-4.jpg"],
     behance: "https://www.behance.net/gallery/248275345/Underground-Poster-Series-Arcane",
   },
   {

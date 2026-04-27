@@ -45,7 +45,7 @@ const renderSlides = (post) => {
       if (post.images.length > 1) parts.push(`image ${i + 1} of ${post.images.length}`);
       const alt = parts.join(" — ");
       return `<div class="gallery-slide">
-        <img src="${src}" alt="${alt}" loading="lazy" draggable="false"/>
+        <img src="${src}" alt="${alt}" loading="lazy" decoding="async" draggable="false"/>
       </div>`;
     }).join("");
   }
@@ -1436,7 +1436,7 @@ function initGridOverlay() {
     const title = (post.title || "untitled").replace(/"/g, "&quot;");
     tiles.push(
       `<a href="#post-${index}" class="grid-tile" data-target="post-${index}">
-         <img src="${post.images[0]}" alt="${title}" loading="lazy" draggable="false"/>
+         <img src="${post.images[0]}" alt="${title}" loading="lazy" decoding="async" draggable="false"/>
          <span class="grid-tile-title">${title}</span>
        </a>`
     );
