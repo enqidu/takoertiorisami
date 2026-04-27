@@ -11,18 +11,26 @@ const posts = window.POSTS || [];
 // ─── PERFORMANCE: lite mode on mobile / low-power ─────────────
 // Disables heavy SVG filters (#fuzz, #watercolor) and mix-blend-mode
 // so the GPU isn't composting on every frame. Toggled via html.lite.
-const IS_TOUCH  = !matchMedia("(hover: hover) and (pointer: fine)").matches;
 const REDUCE_FX = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const LOW_POWER = (navigator.hardwareConcurrency || 8) < 4
-                || (navigator.deviceMemory || 8) < 4;
-// User can force lite mode via ?lite, or via a saved toggle.
-const FORCED_LITE = /[?&]lite\b/.test(location.search) || localStorage.getItem("xl_lite") === "1";
-const LITE_MODE = FORCED_LITE || IS_TOUCH || REDUCE_FX || LOW_POWER
-                || (window.innerWidth <= 720);
+
+// LITE MODE is now ON BY DEFAULT for every visitor — keeps the site
+// snappy on weaker devices without making them work for it. Users on
+// powerful hardware can flip it off via the ⚡ toggle (bottom-right);
+// preference is remembered in localStorage.
+//   - localStorage "xl_lite" === "0"  → user turned lite OFF (full FX)
+//   - localStorage "xl_lite" === "1"  → user turned lite ON  (explicit)
+//   - localStorage missing             → default ON
+//   - prefers-reduced-motion ALWAYS wins (forces lite ON)
+//   - URL ?full forces lite OFF for one-off sharing of the rich version
+const _userPref   = localStorage.getItem("xl_lite");
+const _urlForceFull = /[?&]full\b/.test(location.search);
+let LITE_MODE = (_userPref === "0" || _urlForceFull) ? false : true;
+if (REDUCE_FX) LITE_MODE = true;
 if (LITE_MODE) document.documentElement.classList.add("lite");
 
-// Expose a toggle for users on old laptops where auto-detection misses.
-// `xl.lite(true|false)` from the console; persists in localStorage.
+// Expose a toggle for the UI button + the console.
+// `xl.lite()`           → returns current state
+// `xl.lite(true|false)` → sets it, persists
 window.xl = window.xl || {};
 window.xl.lite = (on) => {
   if (on === undefined) return document.documentElement.classList.contains("lite");
@@ -30,7 +38,7 @@ window.xl.lite = (on) => {
     localStorage.setItem("xl_lite", "1");
     document.documentElement.classList.add("lite");
   } else {
-    localStorage.removeItem("xl_lite");
+    localStorage.setItem("xl_lite", "0");
     document.documentElement.classList.remove("lite");
   }
   return on;
