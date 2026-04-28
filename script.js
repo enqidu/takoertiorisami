@@ -133,10 +133,7 @@ const renderPost = (post, index, workNum) => {
         </g>
         <text x="50" y="48" text-anchor="middle" font-family="Syne, sans-serif" font-size="11" font-weight="800" fill="var(--ink)">v1.0</text>
         <text x="50" y="60" text-anchor="middle" font-family="DM Mono, monospace" font-size="6.5" letter-spacing="1.5" fill="var(--ink)">3 UNITS</text>
-      </svg>
-      <span class="bio-tape" aria-hidden="true">unit 01 · scout</span>
-      <span class="bio-tape bio-tape-2" aria-hidden="true">unit 02 · pilot</span>
-      <span class="bio-tape bio-tape-3" aria-hidden="true">unit 03 · medic</span>` : "";
+      </svg>` : "";
 
   const readoutExtras = post.theme === "biorobots" ? `
       <pre class="bio-readout" aria-hidden="true"><span class="bio-line">&gt; bio_boot.sh ............. ok</span><span class="bio-line">&gt; unit_01 ................. scout · pink</span><span class="bio-line">&gt; unit_02 ................. pilot · blue</span><span class="bio-line">&gt; unit_03 ................. medic · green</span><span class="bio-line">&gt; kawaii_index ............ 99.7%</span><span class="bio-line">&gt; last_seen ............... apr.21.2026</span><span class="bio-line bio-line-prompt">&gt; <span class="bio-cursor">█</span></span></pre>` : "";

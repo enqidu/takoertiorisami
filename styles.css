@@ -4462,59 +4462,6 @@ html.lite *::after {
   to   { transform: rotate(360deg); }
 }
 
-/* hand-drawn washi-tape labels for each unit */
-.bio-tape {
-  position: absolute;
-  z-index: 3;
-  pointer-events: none;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--ink);
-  background: var(--paper);
-  border: 2px solid var(--ink);
-  padding: 4px 10px;
-  border-radius: 4px;
-  box-shadow: 2px 2px 0 var(--ink);
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity .5s ease, transform .35s cubic-bezier(.3, 1.6, .4, 1);
-}
-.is-biorobots.visible .bio-tape   { opacity: 1; transition-delay: 5.4s; }
-.is-biorobots.visible .bio-tape-2 { transition-delay: 5.7s; }
-.is-biorobots.visible .bio-tape-3 { transition-delay: 6.0s; }
-
-.is-biorobots .bio-tape {
-  top: 22%; left: -28px;
-  transform: rotate(-7deg);
-  background: var(--bubble);
-}
-.is-biorobots .bio-tape::after {
-  /* arrow pointing right, into the image */
-  content: "→";
-  margin-left: 6px;
-  font-family: var(--display);
-  font-weight: 800;
-}
-.is-biorobots .bio-tape-2 {
-  top: 6%; right: 26%; left: auto;
-  transform: rotate(4deg);
-  background: var(--spring);
-}
-.is-biorobots .bio-tape-2::after { content: " ↓"; }
-.is-biorobots .bio-tape-3 {
-  top: 56%; right: -22px; left: auto;
-  transform: rotate(8deg);
-  background: var(--sky);
-}
-.is-biorobots .bio-tape-3::after { content: ""; }
-.is-biorobots .bio-tape-3::before {
-  content: "← ";
-  font-family: var(--display);
-  font-weight: 800;
-}
-
 /* hover sparkles */
 .bio-spark {
   position: absolute;
@@ -4566,7 +4513,4 @@ html.lite .bio-spark, html.lite .bio-burst { display: none; }
 @media (max-width: 720px) {
   .bio-readout { font-size: 11px; padding: 12px 14px; }
   .bio-sticker { width: 92px; height: 92px; top: -22px; right: -10px; }
-  .bio-tape    { font-size: 9px; padding: 3px 8px; }
-  .is-biorobots .bio-tape   { left: -10px; }
-  .is-biorobots .bio-tape-3 { right: -8px; }
 }
