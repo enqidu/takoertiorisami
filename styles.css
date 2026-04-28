@@ -3008,35 +3008,54 @@ html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity:
   to   { opacity: 0; }
 }
 
-/* victory text — SAGOL BRAAAT, bigger, more dramatic */
+/* victory text — single continuous animation that always lands visible */
 .vazha-game-win {
   position: fixed;
   top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
   z-index: 305;
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(56px, 13vw, 180px);
+  font-size: clamp(48px, 12vw, 160px);
   line-height: .9;
   letter-spacing: -.03em;
   color: var(--tomato);
   text-shadow:
     5px 5px 0 var(--ink),
-    -2px -2px 0 var(--yolk);
+    -3px -3px 0 var(--yolk);
   white-space: nowrap;
   pointer-events: none;
-  animation: vg-win 1.6s cubic-bezier(.3, 1.8, .4, 1) both,
-             vg-win-wiggle 0.5s ease-in-out 1.6s infinite alternate;
+  transform-origin: center;
+  /* one continuous keyframe — entry + idle wobble in a single animation,
+     ends at scale 1 with rotation. forwards keeps the final state. */
+  animation: vg-win-show 3.4s cubic-bezier(.3, 1.6, .4, 1) forwards;
 }
-@keyframes vg-win {
-  0%   { transform: translate(-50%, -50%) scale(0)    rotate(-25deg); }
-  50%  { transform: translate(-50%, -50%) scale(1.25) rotate(8deg); }
-  75%  { transform: translate(-50%, -50%) scale(.92)  rotate(-3deg); }
-  100% { transform: translate(-50%, -50%) scale(1)    rotate(-2deg); }
+@keyframes vg-win-show {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0)    rotate(-25deg); }
+  18%  { opacity: 1; transform: translate(-50%, -50%) scale(1.3)  rotate(10deg); }
+  30%  { opacity: 1; transform: translate(-50%, -50%) scale(.92)  rotate(-4deg); }
+  44%  { opacity: 1; transform: translate(-50%, -50%) scale(1.06) rotate(3deg); }
+  60%  { opacity: 1; transform: translate(-50%, -50%) scale(.98)  rotate(-2deg); }
+  76%  { opacity: 1; transform: translate(-50%, -50%) scale(1.04) rotate(2deg); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1.02) rotate(0); }
 }
-@keyframes vg-win-wiggle {
-  from { transform: translate(-50%, -50%) rotate(-3deg) scale(1); }
-  to   { transform: translate(-50%, -50%) rotate(3deg)  scale(1.04); }
+
+/* expanding catch ring — radiates from vazha on each catch */
+.vazha-game-ring {
+  position: fixed;
+  width: 100px; height: 100px;
+  margin: -50px 0 0 -50px;
+  border: 4px solid var(--tomato);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 302;
+  animation: vg-ring .7s ease-out forwards;
+}
+.vazha-game-ring.is-pink { border-color: var(--bubble); }
+.vazha-game-ring.is-yolk { border-color: var(--yolk); }
+.vazha-game-ring.is-spring { border-color: var(--spring); }
+@keyframes vg-ring {
+  0%   { transform: scale(.5); opacity: 1; border-width: 5px; }
+  100% { transform: scale(5);  opacity: 0; border-width: 1px; }
 }
 
 /* ─── ORKA'S GAME — Simon-says with rhythm ─── */

@@ -1570,11 +1570,15 @@ function initVazhaGame() {
       if (dist < HALF + 24 && now - lastCatchT > 700) {
         lastCatchT = now;
         count++;
-        speedMul += 0.18;          // each catch makes him faster
-        speedCap = Math.min(28, speedCap + 1.5);
+        speedMul += 0.22;          // each catch makes him faster
+        speedCap = Math.min(30, speedCap + 1.8);
         const cEl = document.getElementById("vazhaCount");
         if (cEl) cEl.textContent = count;
         spawnHearts(x, y);
+        // expanding rings — three at once in different colors
+        spawnRing(x, y, "");
+        spawnRing(x, y, "is-pink");
+        spawnRing(x, y, "is-yolk");
         // give vazha a kick away so the cursor doesn't auto-trigger again
         const ang = Math.atan2(dy, dx);
         vx = Math.cos(ang) * speedCap * 0.9;
@@ -1589,20 +1593,30 @@ function initVazhaGame() {
     raf = requestAnimationFrame(tick);
 
     function spawnHearts(cx, cy) {
-      const glyphs = ["♥", "✦", "★", "!", "♡"];
-      for (let i = 0; i < 14; i++) {
+      const glyphs = ["♥", "✦", "★", "!", "♡", "✿"];
+      for (let i = 0; i < 22; i++) {
         const h = document.createElement("span");
         h.className = "vazha-game-heart";
         h.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
         h.style.left = cx + "px";
         h.style.top = cy + "px";
-        h.style.setProperty("--dx", (Math.random() * 240 - 120).toFixed(0) + "px");
-        h.style.setProperty("--dy", (-90 - Math.random() * 200).toFixed(0) + "px");
+        h.style.setProperty("--dx", (Math.random() * 320 - 160).toFixed(0) + "px");
+        h.style.setProperty("--dy", (-90 - Math.random() * 240).toFixed(0) + "px");
         h.style.setProperty("--r", (Math.random() * 720 - 360).toFixed(0) + "deg");
         h.style.setProperty("--d", (Math.random() * 0.18).toFixed(2) + "s");
         overlay.appendChild(h);
         setTimeout(() => h.remove(), 1600);
       }
+    }
+    function spawnRing(cx, cy, modifier) {
+      const r = document.createElement("span");
+      r.className = "vazha-game-ring" + (modifier ? " " + modifier : "");
+      r.style.left = cx + "px";
+      r.style.top  = cy + "px";
+      // staggered start so rings cascade
+      r.style.animationDelay = (modifier === "is-pink" ? "60ms" : modifier === "is-yolk" ? "120ms" : "0ms");
+      overlay.appendChild(r);
+      setTimeout(() => r.remove(), 900);
     }
 
     function win() {
