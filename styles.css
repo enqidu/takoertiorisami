@@ -3981,7 +3981,7 @@ html.lite .lite-toggle .lite-toggle-icon::after {
   transform-origin: center;
 }
 
-/* — TINY: hard scale-down for nikala — drop both layout box AND visual — */
+/* — TINY: hard scale-down for nikoli — drop both layout box AND visual — */
 .crew-creature.is-tiny {
   width: 38px !important;
   height: 38px !important;
