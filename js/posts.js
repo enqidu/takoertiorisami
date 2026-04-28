@@ -16,6 +16,13 @@
 
 window.POSTS = [
   {
+    title: "Biorobots",
+    date: "April 21 2026",
+    description: ``,
+    tags: ["creatures", "biorobots"],
+    images: ["images/biorobots.jpg"],
+  },
+  {
     title: "Underground Poster Series — Arcane",
     date: "April 2026",
     description: `posters set in the world of arcane (netflix / league of legends) — each one made to be pasted on the walls of the undercity. character details and typography drawn pen-tool by hand.`,
