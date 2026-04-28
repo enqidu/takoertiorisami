@@ -2088,46 +2088,46 @@ function initPuriGame() {
   }, true);
 
   const QUESTIONS = [
-    { q: "What college did Hannah Horvath attend?",
-      a: ["Bard", "Oberlin", "Sarah Lawrence", "Wesleyan"], correct: 1 },
-    { q: "What is Hannah's son named?",
-      a: ["Otis", "Grover", "Felix", "Augie"], correct: 1 },
-    { q: "What's the name of Adam's older sister?",
-      a: ["Cora", "Christine", "Caroline", "Catherine"], correct: 2 },
-    { q: "Who plays Caroline?",
-      a: ["Lena Dunham", "Gaby Hoffmann", "Aubrey Plaza", "Jenny Slate"], correct: 1 },
-    { q: "What is Marnie's job in season one?",
-      a: ["Editorial assistant", "Gallery assistant", "PR intern", "Personal assistant"], correct: 1 },
-    { q: "Shoshanna is Jessa's …",
-      a: ["Half-sister", "Cousin", "College roommate", "Step-sister"], correct: 1 },
-    { q: "What play does Adam star in on Broadway?",
-      a: ["Long Day's Journey Into Night", "Major Barbara", "The Iceman Cometh", "A Streetcar Named Desire"], correct: 1 },
-    { q: "What was Lena Dunham's first feature film (pre-Girls)?",
-      a: ["Creative Nonfiction", "Catherine Called Birdy", "Tiny Furniture", "Sharp Stick"], correct: 2 },
-    { q: "How many seasons did the show run?",
-      a: ["4", "5", "6", "7"], correct: 2 },
-    { q: "Who is Grover's biological father?",
-      a: ["Adam", "Ray", "Paul-Louis", "Fran"], correct: 2 },
-    { q: "Title of the bottle episode where Hannah spends a weekend with a wealthy doctor (Patrick Wilson)?",
-      a: ["“American Bitch”", "“One Man's Trash”", "“She Did”", "“Welcome to Bushwick”"], correct: 1 },
-    { q: "Who plays Mimi-Rose Howard?",
-      a: ["Aubrey Plaza", "Jenny Slate", "Gillian Jacobs", "Lake Bell"], correct: 2 },
-    { q: "Title of the season 6 episode where Hannah confronts a famous male author?",
-      a: ["“American Bitch”", "“Hostage Situation”", "“Painful Evacuation”", "“Goodbye Tour”"], correct: 0 },
-    { q: "Who does Marnie eventually marry?",
-      a: ["Charlie", "Ray", "Booth Jonathan", "Desi"], correct: 3 },
-    { q: "What's Ray's last name?",
-      a: ["Ploshansky", "Schalansky", "Mendelsohn", "Shapiro"], correct: 0 },
-    { q: "Who is Shoshanna engaged to in the final season?",
-      a: ["Scott", "Ray", "Byron", "Brent"], correct: 2 },
-    { q: "What's Hannah's father Tad's profession?",
-      a: ["Architect", "Lawyer", "Professor", "Doctor"], correct: 2 },
-    { q: "Where does Hannah move at the very end of the series for a teaching job?",
-      a: ["Small upstate-NY college", "Iowa Writers' Workshop", "A college in Ohio", "Boarding school in Vermont"], correct: 0 },
-    { q: "When Hannah first meets Adam in the pilot, what's his day job?",
-      a: ["Bartender", "Carpenter", "Personal trainer", "Art-handler"], correct: 1 },
-    { q: "What's the name of the artist (Jorma Taccone) Marnie has a fling with in season one?",
-      a: ["Booth Jonathan", "Booth Bennett", "Booth Cohen", "Booth Lerner"], correct: 0 },
+    { q: "What is Charlie's last name?",
+      a: ["Russo", "Marchesi", "Dattolo", "Romano"], correct: 2 },
+    { q: "Who plays Charlie in seasons 1–2 (and his S5 return)?",
+      a: ["Adam Driver", "Christopher Abbott", "Ebon Moss-Bachrach", "Adam Brody"], correct: 1 },
+    { q: "Who plays Tally Schifrin, Hannah's Oberlin rival?",
+      a: ["Aubrey Plaza", "Jenny Slate", "Gillian Jacobs", "Lake Bell"], correct: 1 },
+    { q: "What is Hannah's mother's first name?",
+      a: ["Susan", "Carol", "Loreen", "Lorelai"], correct: 2 },
+    { q: "Who plays Tad Horvath, Hannah's father?",
+      a: ["John Cameron Mitchell", "Bob Balaban", "Peter Scolari", "Tracy Letts"], correct: 2 },
+    { q: "Who plays Evie, Marnie's mother?",
+      a: ["Patricia Clarkson", "Rita Wilson", "Allison Janney", "Cherry Jones"], correct: 1 },
+    { q: "What's the name of Jessa's first husband (the rapid S1 marriage)?",
+      a: ["Thomas-John", "Tom-Henry", "John-Paul", "Hugh-John"], correct: 0 },
+    { q: "Who plays Thomas-John?",
+      a: ["Chris Pratt", "Chris Messina", "Chris O'Dowd", "Chris Lowell"], correct: 2 },
+    { q: "What is the full title of the iconic S1 Bushwick warehouse-party episode?",
+      a: ["“Welcome to Bushwick a.k.a. The Crackcident”", "“Bushwick Nights”", "“The Loft”", "“Hannigan's Wake”"], correct: 0 },
+    { q: "Which Robyn song soundtracks the S1E3 dance scene with Hannah and Marnie?",
+      a: ["“Call Your Girlfriend”", "“With Every Heartbeat”", "“Dancing on My Own”", "“Hang With Me”"], correct: 2 },
+    { q: "Who plays the older male author in the S6 bottle episode “American Bitch”?",
+      a: ["Patrick Wilson", "Andrew Rannells", "Matthew Rhys", "Bobby Cannavale"], correct: 2 },
+    { q: "What's the title of the S2 episode where Hannah's OCD resurfaces?",
+      a: ["“It's Back”", "“Boys”", "“Video Games”", "“On All Fours”"], correct: 0 },
+    { q: "Who plays Natalia, Adam's girlfriend in season 2?",
+      a: ["Allison Williams", "Shiri Appleby", "Aubrey Plaza", "Lake Bell"], correct: 1 },
+    { q: "Who plays Jessa's estranged father in season 2?",
+      a: ["Bill Camp", "Tracy Letts", "Ben Mendelsohn", "Hank Azaria"], correct: 2 },
+    { q: "What's the name of Hannah's first major editor (the one with the tragic accident)?",
+      a: ["David Pressler-Goings", "David Eshelman", "David Schaffer", "David Lerner"], correct: 0 },
+    { q: "Who plays David, Hannah's editor?",
+      a: ["Andrew Rannells", "John Cameron Mitchell", "Jorma Taccone", "Bobby Cannavale"], correct: 1 },
+    { q: "Title of the S5 bottle episode where Marnie and Charlie wander Manhattan all night?",
+      a: ["“The Panic in Central Park”", "“Old Loves”", "“Brooklyn Night”", "“Hostage Situation”"], correct: 0 },
+    { q: "Who plays Laird, Caroline's boyfriend / Hannah's neighbor?",
+      a: ["Tim Heidecker", "Jon Glaser", "Andrew Rannells", "Bobby Moynihan"], correct: 1 },
+    { q: "What Brooklyn neighborhood does Hannah live in for most of the series?",
+      a: ["Williamsburg", "Greenpoint", "Bushwick", "Bed-Stuy"], correct: 1 },
+    { q: "What is the title of the series finale?",
+      a: ["“Latching”", "“Goodbye Tour”", "“Old Loves”", "“All You Need Is Love”"], correct: 0 },
   ];
 
   function startPuriGame() {
@@ -2228,10 +2228,10 @@ function initPuriGame() {
 
     function finish() {
       let title, msg;
-      if (score >= 17)      { title = "voice-of-a-generation tier"; msg = "you finished S6 sober"; }
-      else if (score >= 13) { title = "respectable hannah-head";    msg = "marnie energy. organized notes."; }
-      else if (score >= 8)  { title = "casual viewer";              msg = "you watched it once on a flight"; }
-      else                  { title = "did you actually watch this?"; msg = "go rewatch the pilot."; }
+      if (score >= 16)      { title = "show-archivist tier";        msg = "Lena would let you pitch the reboot."; }
+      else if (score >= 12) { title = "respectable hannah-head";    msg = "you watched it twice and read the recaps."; }
+      else if (score >= 7)  { title = "casual viewer";              msg = "you remember the dance scene and not much else."; }
+      else                  { title = "did you actually watch this?"; msg = "go rewatch the pilot. honestly."; }
 
       const winEl = document.createElement("div");
       winEl.className = "pg-win";
