@@ -1661,10 +1661,10 @@ function initVazhaGame() {
 }
 initVazhaGame();
 
-// ─── ORKA'S GAME — Simon-says with rhythm. 5 rapid clicks on orka →
-//     4 colored pads light up in a sequence, user replays. Each round
-//     adds one beat AND the tempo speeds up. 5 rounds → "AH YEAH".
-function initOrkaGame() {
+// ─── ORRKA'S GAME — vinyl scratch. 5 rapid clicks on orrka →
+//     drag cursor around the record in circles. 5 full rotations = win.
+//     orrka peeks from the side, EQ bars dance, her saying floats up.
+function initOrrkaGame() {
   let clicks = 0;
   let resetT = null;
   let isPlaying = false;
@@ -1678,130 +1678,210 @@ function initOrkaGame() {
     resetT = setTimeout(() => { clicks = 0; }, 1500);
     if (clicks >= 5) {
       clicks = 0;
-      startOrkaGame();
+      startOrrkaGame();
     }
   }, true);
 
-  function startOrkaGame() {
+  function startOrrkaGame() {
     isPlaying = true;
     const overlay = document.createElement("div");
-    overlay.className = "orka-game";
+    overlay.className = "vs-game";
     overlay.innerHTML = `
-      <div class="og-counter">round <span id="orkaRound">1</span> / 5</div>
-      <button class="og-close" id="orkaGameClose" aria-label="Quit">×</button>
-      <div class="og-status" id="orkaStatus">listen…</div>
-      <div class="og-board" id="orkaBoard">
-        <button class="og-pad og-pad-0" data-pad="0" aria-label="pad 1"></button>
-        <button class="og-pad og-pad-1" data-pad="1" aria-label="pad 2"></button>
-        <button class="og-pad og-pad-2" data-pad="2" aria-label="pad 3"></button>
-        <button class="og-pad og-pad-3" data-pad="3" aria-label="pad 4"></button>
-        <div class="og-orka" data-mood="cool" style="color: var(--sky)"></div>
-        <div class="og-pulse" id="orkaPulse"></div>
+      <div class="vs-counter"><span id="vsCount">0</span> / 5 spins</div>
+      <button class="vs-close" id="vsGameClose" aria-label="Quit">×</button>
+      <div class="vs-status" id="vsStatus">spin the record…</div>
+      <div class="vs-stage">
+        <div class="vs-eq" aria-hidden="true">
+          ${Array.from({length: 14}, (_, i) => `<span class="vs-bar" style="--i:${i}"></span>`).join("")}
+        </div>
+        <div class="vs-eq vs-eq-right" aria-hidden="true">
+          ${Array.from({length: 14}, (_, i) => `<span class="vs-bar" style="--i:${i}"></span>`).join("")}
+        </div>
+        <div class="vs-deck" id="vsDeck">
+          <div class="vs-record" id="vsRecord">
+            <div class="vs-groove vs-groove-1"></div>
+            <div class="vs-groove vs-groove-2"></div>
+            <div class="vs-groove vs-groove-3"></div>
+            <div class="vs-groove vs-groove-4"></div>
+            <div class="vs-label">
+              <div class="vs-label-text">orrka</div>
+              <div class="vs-label-sub">side a</div>
+            </div>
+            <div class="vs-spindle"></div>
+          </div>
+          <div class="vs-arm"><span class="vs-arm-tip"></span></div>
+        </div>
+        <div class="vs-orrka" data-mood="cool" style="color: var(--sky)"></div>
+        <div class="vs-bubbles" id="vsBubbles"></div>
       </div>
+      <div class="vs-hint" id="vsHint">drag in circles ↻</div>
     `;
     document.body.appendChild(overlay);
     document.body.style.overflow = "hidden";
 
-    const orka = overlay.querySelector(".og-orka");
-    orka.innerHTML = FLOATER_SVG;
+    const orrka   = overlay.querySelector(".vs-orrka");
+    orrka.innerHTML = FLOATER_SVG;
 
-    const pads     = Array.from(overlay.querySelectorAll(".og-pad"));
-    const status   = overlay.querySelector("#orkaStatus");
-    const roundEl  = overlay.querySelector("#orkaRound");
-    const pulseEl  = overlay.querySelector("#orkaPulse");
+    const record  = overlay.querySelector("#vsRecord");
+    const status  = overlay.querySelector("#vsStatus");
+    const countEl = overlay.querySelector("#vsCount");
+    const bubbles = overlay.querySelector("#vsBubbles");
+    const hint    = overlay.querySelector("#vsHint");
 
-    let round    = 1;
-    let pattern  = [Math.floor(Math.random() * 4)];
-    let userInput = [];
-    let inputAllowed = false;
+    const SAYING = "მე ვარ ყველაზე ჩლუნგი გოგო ამ დაწესებულებაში";
+    const MID_LINES = [
+      "yeah… that's the spot",
+      "scratch it ↻",
+      "smoother",
+      "mmhm",
+      SAYING,
+      "again",
+      "louder",
+      SAYING,
+    ];
 
-    const flashPad = (idx, dur = 280) => {
-      const pad = pads[idx];
-      pad.classList.add("is-lit");
-      setTimeout(() => pad.classList.remove("is-lit"), dur);
+    let dragging   = false;
+    let lastAngle  = null;
+    let totalDeg   = 0;
+    let recordRot  = 0;
+    let spins      = 0;
+    let won        = false;
+    let bubbleI    = 0;
+    let lastBubbleAt = 0;
+    let lastEqAt   = 0;
+
+    const getCenter = () => {
+      const r = record.getBoundingClientRect();
+      return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
     };
 
-    const beat = () => {
-      pulseEl.classList.remove("is-on");
-      // restart animation
-      void pulseEl.offsetWidth;
-      pulseEl.classList.add("is-on");
+    const onDown = (e) => {
+      if (won) return;
+      const t = e.touches ? e.touches[0] : e;
+      const { cx, cy } = getCenter();
+      lastAngle = Math.atan2(t.clientY - cy, t.clientX - cx) * 180 / Math.PI;
+      dragging = true;
+      record.classList.add("is-spinning");
+      hint.classList.add("is-fade");
     };
 
-    const showPattern = () => {
-      inputAllowed = false;
-      status.textContent = "listen…";
-      // tempo speeds up each round (320 → 200ms between beats)
-      const beatMs = Math.max(220, 380 - round * 32);
-      let i = 0;
-      const stepper = () => {
-        if (i >= pattern.length) {
-          inputAllowed = true;
-          userInput = [];
-          status.textContent = "your turn";
-          return;
-        }
-        beat();
-        flashPad(pattern[i], beatMs * 0.7);
-        i++;
-        setTimeout(stepper, beatMs);
-      };
-      setTimeout(stepper, 500);
+    const onMove = (e) => {
+      if (!dragging || won) return;
+      const t = e.touches ? e.touches[0] : e;
+      const { cx, cy } = getCenter();
+      const a = Math.atan2(t.clientY - cy, t.clientX - cx) * 180 / Math.PI;
+      let delta = a - lastAngle;
+      // normalize to [-180, 180]
+      if (delta > 180)  delta -= 360;
+      if (delta < -180) delta += 360;
+      lastAngle = a;
+
+      // only count clockwise motion (positive delta in screen space)
+      if (Math.abs(delta) < 60) {
+        totalDeg += delta;
+        recordRot += delta;
+        record.style.transform = `rotate(${recordRot}deg)`;
+      }
+
+      // EQ pulse when actively scratching
+      const now = performance.now();
+      if (now - lastEqAt > 80 && Math.abs(delta) > 1) {
+        overlay.classList.add("vs-pulse");
+        lastEqAt = now;
+        setTimeout(() => overlay.classList.remove("vs-pulse"), 90);
+      }
+
+      // every full clockwise rotation
+      const newSpins = Math.floor(Math.abs(totalDeg) / 360);
+      if (newSpins > spins && totalDeg > 0) {
+        spins = newSpins;
+        countEl.textContent = spins;
+        spawnRing();
+        if (spins === 1) status.textContent = "yes. like that.";
+        else if (spins === 2) status.textContent = "groovy.";
+        else if (spins === 3) status.textContent = "she's feeling it.";
+        else if (spins === 4) status.textContent = "one more!!";
+        if (spins >= 5) { win(); return; }
+      }
+
+      // periodic floating saying
+      if (now - lastBubbleAt > 1100 && Math.abs(delta) > 2) {
+        spawnBubble(MID_LINES[bubbleI % MID_LINES.length]);
+        bubbleI++;
+        lastBubbleAt = now;
+      }
     };
 
-    pads.forEach((pad) => {
-      pad.addEventListener("click", () => {
-        if (!inputAllowed) return;
-        const idx = parseInt(pad.dataset.pad, 10);
-        flashPad(idx, 200);
-        userInput.push(idx);
-        const expected = pattern[userInput.length - 1];
-        if (idx !== expected) {
-          inputAllowed = false;
-          status.textContent = "no.. listen again";
-          overlay.classList.add("og-wrong");
-          setTimeout(() => overlay.classList.remove("og-wrong"), 500);
-          // forgiving — replay current round, don't end the game
-          setTimeout(() => {
-            userInput = [];
-            showPattern();
-          }, 1100);
-          return;
-        }
-        if (userInput.length === pattern.length) {
-          inputAllowed = false;
-          if (round >= 5) { win(); return; }
-          status.textContent = "nice";
-          round++;
-          roundEl.textContent = round;
-          pattern.push(Math.floor(Math.random() * 4));
-          setTimeout(showPattern, 800);
-        }
-      });
-    });
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      lastAngle = null;
+      record.classList.remove("is-spinning");
+    };
+
+    const spawnRing = () => {
+      const r = document.createElement("span");
+      r.className = "vs-ring";
+      const palette = ["var(--bubble)", "var(--yolk)", "var(--spring)", "var(--sky)", "var(--grape)"];
+      r.style.borderColor = palette[spins % palette.length];
+      overlay.querySelector(".vs-stage").appendChild(r);
+      setTimeout(() => r.remove(), 1200);
+    };
+
+    const spawnBubble = (text) => {
+      const b = document.createElement("div");
+      b.className = "vs-bubble";
+      // bias slightly to the side so they float over open space
+      const side = Math.random() > 0.5 ? 1 : -1;
+      b.style.setProperty("--bx", (side * (40 + Math.random() * 120)).toFixed(0) + "px");
+      b.style.setProperty("--rot", ((Math.random() * 8 - 4)).toFixed(1) + "deg");
+      b.textContent = text;
+      bubbles.appendChild(b);
+      setTimeout(() => b.remove(), 2400);
+    };
+
+    const stage = overlay.querySelector(".vs-stage");
+    stage.addEventListener("mousedown", onDown);
+    stage.addEventListener("touchstart", onDown, { passive: true });
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchend", onUp);
 
     function win() {
+      won = true;
+      dragging = false;
+      record.classList.add("is-winning");
       const winEl = document.createElement("div");
-      winEl.className = "og-win";
+      winEl.className = "vs-win";
       winEl.textContent = "AH YEAH";
       overlay.appendChild(winEl);
-      // confetti
+
+      const sayingEl = document.createElement("div");
+      sayingEl.className = "vs-saying";
+      sayingEl.textContent = SAYING;
+      overlay.appendChild(sayingEl);
+
       const colors = ["var(--bubble)", "var(--yolk)", "var(--spring)", "var(--sky)", "var(--grape)", "var(--tomato)", "var(--pumpkin)"];
-      for (let i = 0; i < 70; i++) {
+      for (let i = 0; i < 90; i++) {
         const c = document.createElement("span");
         c.className = "vazha-game-confetti";
         c.style.left = (Math.random() * window.innerWidth) + "px";
         c.style.background = colors[Math.floor(Math.random() * colors.length)];
         c.style.setProperty("--dx", (Math.random() * 600 - 300).toFixed(0) + "px");
-        c.style.setProperty("--d", (Math.random() * 0.9).toFixed(2) + "s");
+        c.style.setProperty("--d", (Math.random() * 1.0).toFixed(2) + "s");
         c.style.setProperty("--rot", (Math.random() * 1080).toFixed(0) + "deg");
         overlay.appendChild(c);
-        setTimeout(() => c.remove(), 3500);
+        setTimeout(() => c.remove(), 3800);
       }
-      setTimeout(end, 3000);
+      setTimeout(end, 3400);
     }
 
     function end() {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onUp);
       document.removeEventListener("keydown", onKey);
       overlay.classList.add("is-closing");
       setTimeout(() => {
@@ -1813,13 +1893,10 @@ function initOrkaGame() {
 
     const onKey = (e) => { if (e.key === "Escape") end(); };
     document.addEventListener("keydown", onKey);
-    overlay.querySelector("#orkaGameClose").addEventListener("click", end);
-
-    // first round
-    setTimeout(showPattern, 700);
+    overlay.querySelector("#vsGameClose").addEventListener("click", end);
   }
 }
-initOrkaGame();
+initOrrkaGame();
 
 // ─── LITE MODE TOGGLE — flips heavy effects off, persists in localStorage
 function initLiteToggle() {
