@@ -78,19 +78,23 @@ const POST_SAYINGS = {
 };
 
 // Generic remarks mixed in so the creature doesn't repeat the same line.
+// (Mix of poet + humorist; she varies tone per hover.)
 const GENERIC_SAYINGS = [
-  "this painting is a great work of art",
-  "i like her vision",
-  "ოოო lovely",
-  "what a sweet thing",
-  "i'd buy it",
-  "she's onto something",
-  "could stare at this forever",
-  "the brushwork… damn",
-  "another one for the wall",
-  "she got the colors right",
-  "wait this is good",
-  "ოო. yes.",
+  "ooo. lovely.",
+  "respectfully — i am kicking my feet",
+  "louvre, take notes",
+  "a small kingdom in one frame",
+  "she opened her brain like a fridge for this",
+  "softness where you don't expect it",
+  "approved by the academy of small joys",
+  "objection: nothing",
+  "the sort of thing a quiet evening was made for",
+  "this would slap as a tattoo",
+  "ten thousand hours of looking went into this",
+  "i need a print, a glass of water, and a moment",
+  "the colors are gossiping",
+  "i could write a thesis. i won't. but i could.",
+  "the kind of painting that sits down with you",
 ];
 const escapeAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
@@ -239,13 +243,13 @@ const initGallery = (pid, total) => {
 // The cursor creature shifts mood every 45–90s. Mood flavors its
 // thought pools, announce phrase, blink rhythm, and body tint.
 const CURSOR_PERSONALITIES = {
-  shy:          { announce: "shy..",        says: ["oi", "um", "ჰმმ", "..", "o.o", "hi?"],              painting: ["ოოო..", "so pretty..", "um", "..♥"],                 tint: "#d8b3c9", blinkMs: 3000 },
+  shy:          { announce: "shy..",        says: ["oi", "um", "ჰმმ", "..", "o.o", "hi?"],              painting: ["ooo..", "so pretty..", "um", "..♥"],                 tint: "#d8b3c9", blinkMs: 3000 },
   sleepy:       { announce: "sleepy..",     says: ["zzz", "mm..", "yawn", "ოო.."],                     painting: ["mm..", "zzz..", "nice.."],                           tint: "#b7c7de", blinkMs: 1200 },
-  curious:      { announce: "curious!",     says: ["oh?", "რაო?", "hmm", "?", "what?"],                 painting: ["what's this?", "ოო?", "ohh", "hmm.."],               tint: "#f0c56a", blinkMs: 4200 },
+  curious:      { announce: "curious!",     says: ["oh?", "რაო?", "hmm", "?", "what?"],                 painting: ["what's this?", "oo?", "ohh", "hmm.."],               tint: "#f0c56a", blinkMs: 4200 },
   grumpy:       { announce: "bleh.",        says: ["pff", "-_-", "bleh", "ჰმ"],                        painting: ["pff", "meh", "fine."],                               tint: "#a89278", blinkMs: 3800 },
-  happy:        { announce: "feeling good!", says: ["!", "yay", "ჰოი", "~", ":D"],                     painting: ["cute!", "ოო!", "pretty!", "love"],                   tint: "#f5a3b8", blinkMs: 5200 },
+  happy:        { announce: "feeling good!", says: ["!", "yay", "ჰოი", "~", ":D"],                     painting: ["cute!", "oo!", "pretty!", "love"],                   tint: "#f5a3b8", blinkMs: 5200 },
   dreamy:       { announce: "daydreaming~", says: ["★", "♥", "~", "◌", "..♪"],                         painting: ["★", "♥", "..♪", "floaty"],                           tint: "#b58bd8", blinkMs: 5800 },
-  excited:      { announce: "WOO!",         says: ["!!", "yes!!", "woo", "omg"],                       painting: ["!!!", "ოოო!!", "amazing!", "yes!"],                  tint: "#ff7a2a", blinkMs: 3000 },
+  excited:      { announce: "WOO!",         says: ["!!", "yes!!", "woo", "omg"],                       painting: ["!!!", "ooo!!", "amazing!", "yes!"],                  tint: "#ff7a2a", blinkMs: 3000 },
   anxious:      { announce: "o-oh..",       says: ["ai..", "um um", "ოი..", "o-oh"],                   painting: ["ai..", "um.. nice?", "ოი.."],                        tint: "#c9d0a8", blinkMs: 900 },
   proud:        { announce: "ahem.",        says: ["hmph", "indeed", "ჰო..", "naturally"],             painting: ["mm, fine work", "indeed", "quite good"],             tint: "#e4b84a", blinkMs: 6500 },
   mischievous:  { announce: "hehe..",       says: ["heh", "hehe", ">:)", "shh", "ოჰო"],                painting: ["hehe..", "ooh", "mine?", "shh.."],                   tint: "#b06fd8", blinkMs: 2600 },
@@ -398,15 +402,12 @@ const initCursor = () => {
       setState("is-curious", true);
       const says = img.dataset.cursorSays;
 
-      // Mix post-specific with generics so the creature varies herself.
-      // ~45% post-specific, rest random generic. If we just commented on
-      // this same image, force a new line so we don't repeat.
+      // Post-specific dominates (~75%); generics sprinkle in for variety.
       let phrase;
-      const generic = GENERIC_SAYINGS[Math.floor(Math.random() * GENERIC_SAYINGS.length)];
-      if (says && Math.random() < 0.45 && lastSaidImg !== img) {
+      if (says && Math.random() < 0.75) {
         phrase = says;
       } else {
-        phrase = generic;
+        phrase = GENERIC_SAYINGS[Math.floor(Math.random() * GENERIC_SAYINGS.length)];
       }
       lastSaidImg = img;
       showEmote(phrase, "pop-says", 2400, true);
@@ -680,7 +681,7 @@ const initCursor = () => {
     say.classList.add("is-show");
     sayHideTimer = setTimeout(() => say.classList.remove("is-show"), ms);
   };
-  const thoughtsPaintingBase = ["ოოო", "ვაიმე", "მშვენიერია", "hmm", "cute", "pretty", "fuzz!", "colors~", "nice", "ძალიან მაგარია"];
+  const thoughtsPaintingBase = ["ooo", "ვაიმე", "მშვენიერია", "hmm", "cute", "pretty", "fuzz!", "colors~", "nice", "ძალიან მაგარია"];
   const thoughtsIdleBase     = ["mm", "...", "hi?", "oi", "ქ?", "zz"];
   const thoughtsClick        = ["!", "ok!", "ჰო", "yay", "✦"];
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -695,21 +696,8 @@ const initCursor = () => {
   const thoughtsPainting = () => moodPools().painting;
   const thoughtsIdle     = () => moodPools().idle;
 
-  // When lingering on a painting 2s, drop a random thought
-  let thoughtTimer = null;
-  const onImgEnterThought = () => {
-    clearTimeout(thoughtTimer);
-    thoughtTimer = setTimeout(() => {
-      if (curiousFor) showSay(pick(thoughtsPainting()), 1800);
-    }, 1800);
-  };
-  const cancelThought = () => { if (thoughtTimer) { clearTimeout(thoughtTimer); thoughtTimer = null; } };
-  document.addEventListener("mouseover", (e) => {
-    if (e.target.closest(imgSelector)) onImgEnterThought();
-  });
-  document.addEventListener("mouseout", (e) => {
-    if (e.target.closest(imgSelector)) cancelThought();
-  });
+  // (Painting-hover thought removed — the post-specific emote bubble
+  // already covers it. Two bubbles at once was confusing.)
 
   // ── IDLE micro-behaviors: random cute twitches ─────────
   // plays yawn/shiver/sneeze/look-around during quiet moments
