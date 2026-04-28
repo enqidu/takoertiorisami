@@ -402,9 +402,9 @@ const initCursor = () => {
       setState("is-curious", true);
       const says = img.dataset.cursorSays;
 
-      // Post-specific dominates (~75%); generics sprinkle in for variety.
+      // ~40% post-specific, rest generic.
       let phrase;
-      if (says && Math.random() < 0.75) {
+      if (says && Math.random() < 0.40) {
         phrase = says;
       } else {
         phrase = GENERIC_SAYINGS[Math.floor(Math.random() * GENERIC_SAYINGS.length)];
