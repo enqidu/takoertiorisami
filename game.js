@@ -18,7 +18,9 @@
   const goMsg    = document.getElementById("goMsg");
 
   const posts = (window.POSTS || []).filter(p => p.images && p.images.length > 0);
-  const PAIRS = Math.max(2, Math.min(12, posts.length));
+  // Fixed 4×4 board: 8 pairs = 16 cards. Each game picks 8 random
+  // images from the available posts.
+  const PAIRS = Math.min(8, posts.length);
 
   let moves = 0, found = 0, startedAt = 0, timerId = null;
   let flipped = [];        // currently face-up cards awaiting resolution
