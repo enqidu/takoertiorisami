@@ -76,6 +76,22 @@ const POST_SAYINGS = {
   "გრიდი))": "i could play tic-tac-toe here",
   "Underground Poster Series — Arcane": "wow i hope this girl sells her works for millions",
 };
+
+// Generic remarks mixed in so the creature doesn't repeat the same line.
+const GENERIC_SAYINGS = [
+  "this painting is a great work of art",
+  "i like her vision",
+  "ოოო lovely",
+  "what a sweet thing",
+  "i'd buy it",
+  "she's onto something",
+  "could stare at this forever",
+  "the brushwork… damn",
+  "another one for the wall",
+  "she got the colors right",
+  "wait this is good",
+  "ოო. yes.",
+];
 const escapeAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
 const renderSlides = (post) => {
@@ -374,18 +390,26 @@ const initCursor = () => {
   // ── CURIOUS: hovering over a painting image ────────────
   const imgSelector = ".gallery-slide img, .portrait-frame img, .match-card img";
   let curiousFor = null;
+  let lastSaidImg = null; // remember which image we last commented on
   document.addEventListener("mouseover", (e) => {
     const img = e.target.closest(imgSelector);
     if (img && !anyBig()) {
       curiousFor = img;
       setState("is-curious", true);
       const says = img.dataset.cursorSays;
-      if (says) {
-        // post-specific blurt — force past the throttle so it always fires
-        showEmote(says, "pop-says", 2400, true);
+
+      // Mix post-specific with generics so the creature varies herself.
+      // ~45% post-specific, rest random generic. If we just commented on
+      // this same image, force a new line so we don't repeat.
+      let phrase;
+      const generic = GENERIC_SAYINGS[Math.floor(Math.random() * GENERIC_SAYINGS.length)];
+      if (says && Math.random() < 0.45 && lastSaidImg !== img) {
+        phrase = says;
       } else {
-        showEmote("?", "pop-curious", 900);
+        phrase = generic;
       }
+      lastSaidImg = img;
+      showEmote(phrase, "pop-says", 2400, true);
     }
   });
   document.addEventListener("mouseout", (e) => {
@@ -393,6 +417,11 @@ const initCursor = () => {
     if (img && curiousFor === img) {
       curiousFor = null;
       setState("is-curious", false);
+      // hide bubble too — don't let it linger after the cursor leaves
+      if (emote) {
+        clearTimeout(emoteHideTimer);
+        emote.classList.remove("is-show");
+      }
     }
   });
 
