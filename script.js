@@ -121,10 +121,25 @@ const renderPost = (post, index, workNum) => {
       <div class="bio-aurora" aria-hidden="true"></div>
       <div class="bio-particles" aria-hidden="true">
         ${Array.from({ length: 9 }).map((_, i) => `<span class="bio-dot" style="--i:${i}"></span>`).join("")}
-      </div>` : "";
+      </div>
+      <svg class="bio-sticker" viewBox="0 0 100 100" aria-hidden="true">
+        <defs><path id="bio-stk-path" d="M 50,50 m -34,0 a 34,34 0 1,1 68,0 a 34,34 0 1,1 -68,0"/></defs>
+        <g class="bio-sticker-rotor">
+          <circle cx="50" cy="50" r="44" fill="var(--yolk)" stroke="var(--ink)" stroke-width="3"/>
+          <circle cx="50" cy="50" r="29" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="3 2.5"/>
+          <text font-family="DM Mono, monospace" font-size="8.5" font-weight="700" letter-spacing="2.2" fill="var(--ink)">
+            <textPath href="#bio-stk-path">✦ FRESH ASSEMBLY ✦ APR.21.26 ✦ KAWAII ✦</textPath>
+          </text>
+        </g>
+        <text x="50" y="48" text-anchor="middle" font-family="Syne, sans-serif" font-size="11" font-weight="800" fill="var(--ink)">v1.0</text>
+        <text x="50" y="60" text-anchor="middle" font-family="DM Mono, monospace" font-size="6.5" letter-spacing="1.5" fill="var(--ink)">3 UNITS</text>
+      </svg>
+      <span class="bio-tape" aria-hidden="true">unit 01 · scout</span>
+      <span class="bio-tape bio-tape-2" aria-hidden="true">unit 02 · pilot</span>
+      <span class="bio-tape bio-tape-3" aria-hidden="true">unit 03 · medic</span>` : "";
 
   const readoutExtras = post.theme === "biorobots" ? `
-      <pre class="bio-readout" aria-hidden="true"><span class="bio-line">&gt; bio_boot.sh ............. ok</span><span class="bio-line">&gt; 3 units online</span><span class="bio-line">&gt; last_seen ............... apr.21.2026</span><span class="bio-line">&gt; kawaii_index ............ 99.7%</span><span class="bio-line bio-line-prompt">&gt; <span class="bio-cursor">█</span></span></pre>` : "";
+      <pre class="bio-readout" aria-hidden="true"><span class="bio-line">&gt; bio_boot.sh ............. ok</span><span class="bio-line">&gt; unit_01 ................. scout · pink</span><span class="bio-line">&gt; unit_02 ................. pilot · blue</span><span class="bio-line">&gt; unit_03 ................. medic · green</span><span class="bio-line">&gt; kawaii_index ............ 99.7%</span><span class="bio-line">&gt; last_seen ............... apr.21.2026</span><span class="bio-line bio-line-prompt">&gt; <span class="bio-cursor">█</span></span></pre>` : "";
 
   return `<section class="work-section reveal${themeClass}" id="${pid}">
     <header class="work-head">
@@ -2606,6 +2621,54 @@ if (worksEl) {
   initLightboxTriggers();
   initTilt();
   initGridOverlay();
+  initBiorobotsTheme();
+}
+
+// ─── BIOROBOTS THEME — sparkle trail on hover + click-burst easter egg
+function initBiorobotsTheme() {
+  document.querySelectorAll(".work-section.is-biorobots .work-gallery").forEach((gallery) => {
+    const palette = ["var(--bubble)", "var(--spring)", "var(--sky)", "var(--yolk)", "var(--grape)", "var(--tomato)", "var(--mint)"];
+    const glyphs  = ["♥", "✦", "★", "♡", "✿", "♪", "✧"];
+
+    let lastSpark = 0;
+    gallery.addEventListener("mousemove", (e) => {
+      const now = performance.now();
+      if (now - lastSpark < 180) return;
+      lastSpark = now;
+      const r = gallery.getBoundingClientRect();
+      const s = document.createElement("span");
+      s.className = "bio-spark";
+      s.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+      s.style.left = (e.clientX - r.left) + "px";
+      s.style.top  = (e.clientY - r.top) + "px";
+      s.style.color = palette[Math.floor(Math.random() * palette.length)];
+      s.style.setProperty("--dx", (Math.random() * 60 - 30).toFixed(0) + "px");
+      s.style.setProperty("--dy", (-30 - Math.random() * 60).toFixed(0) + "px");
+      s.style.setProperty("--rot", (Math.random() * 360 - 180).toFixed(0) + "deg");
+      gallery.appendChild(s);
+      setTimeout(() => s.remove(), 1100);
+    });
+
+    gallery.addEventListener("click", (e) => {
+      const r = gallery.getBoundingClientRect();
+      const cx = e.clientX - r.left;
+      const cy = e.clientY - r.top;
+      for (let i = 0; i < 14; i++) {
+        const ang = (i / 14) * Math.PI * 2 + Math.random() * 0.4;
+        const dist = 60 + Math.random() * 80;
+        const b = document.createElement("span");
+        b.className = "bio-burst";
+        b.style.left = cx + "px";
+        b.style.top  = cy + "px";
+        b.style.background = palette[i % palette.length];
+        b.style.setProperty("--bx", (Math.cos(ang) * dist).toFixed(0) + "px");
+        b.style.setProperty("--by", (Math.sin(ang) * dist).toFixed(0) + "px");
+        b.style.setProperty("--bs", (8 + Math.random() * 8).toFixed(0) + "px");
+        gallery.appendChild(b);
+        setTimeout(() => b.remove(), 900);
+      }
+    });
+  });
 }
 
 

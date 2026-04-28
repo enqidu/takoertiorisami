@@ -4443,16 +4443,130 @@ html.lite *::after {
   50%, 100% { opacity: 0; }
 }
 
+/* rotating "fresh assembly" sticker — top-right corner of gallery */
+.bio-sticker {
+  position: absolute;
+  top: -34px; right: -22px;
+  width: 118px; height: 118px;
+  z-index: 4;
+  pointer-events: none;
+  filter: drop-shadow(3px 4px 0 var(--ink));
+}
+.bio-sticker-rotor {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: bio-sticker-spin 16s linear infinite;
+}
+@keyframes bio-sticker-spin {
+  from { transform: rotate(0); }
+  to   { transform: rotate(360deg); }
+}
+
+/* hand-drawn washi-tape labels for each unit */
+.bio-tape {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  padding: 4px 10px;
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 var(--ink);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .5s ease, transform .35s cubic-bezier(.3, 1.6, .4, 1);
+}
+.is-biorobots.visible .bio-tape   { opacity: 1; transition-delay: 5.4s; }
+.is-biorobots.visible .bio-tape-2 { transition-delay: 5.7s; }
+.is-biorobots.visible .bio-tape-3 { transition-delay: 6.0s; }
+
+.is-biorobots .bio-tape {
+  top: 22%; left: -28px;
+  transform: rotate(-7deg);
+  background: var(--bubble);
+}
+.is-biorobots .bio-tape::after {
+  /* arrow pointing right, into the image */
+  content: "→";
+  margin-left: 6px;
+  font-family: var(--display);
+  font-weight: 800;
+}
+.is-biorobots .bio-tape-2 {
+  top: 6%; right: 26%; left: auto;
+  transform: rotate(4deg);
+  background: var(--spring);
+}
+.is-biorobots .bio-tape-2::after { content: " ↓"; }
+.is-biorobots .bio-tape-3 {
+  top: 56%; right: -22px; left: auto;
+  transform: rotate(8deg);
+  background: var(--sky);
+}
+.is-biorobots .bio-tape-3::after { content: ""; }
+.is-biorobots .bio-tape-3::before {
+  content: "← ";
+  font-family: var(--display);
+  font-weight: 800;
+}
+
+/* hover sparkles */
+.bio-spark {
+  position: absolute;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 18px;
+  pointer-events: none;
+  z-index: 5;
+  text-shadow: 1px 1px 0 var(--ink);
+  animation: bio-spark 1.1s ease-out forwards;
+  transform: translate(-50%, -50%);
+}
+@keyframes bio-spark {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.4) rotate(0); }
+  20%  { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(calc(var(--rot, 0deg) / 4)); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px))) scale(.4) rotate(var(--rot, 0deg)); }
+}
+
+/* click burst — radial bubble shower */
+.bio-burst {
+  position: absolute;
+  width: var(--bs, 12px); height: var(--bs, 12px);
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  pointer-events: none;
+  z-index: 6;
+  transform: translate(-50%, -50%);
+  animation: bio-burst .9s cubic-bezier(.2, 1.4, .4, 1) forwards;
+}
+@keyframes bio-burst {
+  0%   { transform: translate(-50%, -50%) scale(.2); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--bx, 0px)), calc(-50% + var(--by, 0px))) scale(1) rotate(180deg); opacity: 0; }
+}
+
 /* lite mode — kill the heavy animations, just static states */
 html.lite .bio-aurora,
 html.lite .bio-dot,
 html.lite .is-biorobots .gallery-frame,
-html.lite .bio-cursor { animation: none !important; }
+html.lite .bio-cursor,
+html.lite .bio-sticker-rotor { animation: none !important; }
 html.lite .is-biorobots .gallery-frame { transform: none; }
 html.lite .bio-line   { width: 100% !important; animation: none !important; opacity: 1 !important; }
 html.lite .bio-aurora { opacity: .4; }
 html.lite .bio-dot    { display: none; }
+html.lite .bio-spark, html.lite .bio-burst { display: none; }
 
 @media (max-width: 720px) {
   .bio-readout { font-size: 11px; padding: 12px 14px; }
+  .bio-sticker { width: 92px; height: 92px; top: -22px; right: -10px; }
+  .bio-tape    { font-size: 9px; padding: 3px 8px; }
+  .is-biorobots .bio-tape   { left: -10px; }
+  .is-biorobots .bio-tape-3 { right: -8px; }
 }
