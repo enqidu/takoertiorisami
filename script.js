@@ -61,20 +61,21 @@ const renderTags = (tags) =>
   (tags || []).map(tag => `<span class="tag">${tag}</span>`).join("");
 
 // Per-post things the cursor creature blurts when hovering an image.
+// Each post can have multiple phrases — picks a random one each hover.
 const POST_SAYINGS = {
-  "Biorobots": "wait — is that the kung fu junkie song biorobots?",
-  "The Shoes Off Campaign": "shoes off — let's dance shalaxo barefoot",
-  "Trois Couleurs": "they look like my relatives",
-  "Thailand": "i love thai food — pad thai, tom yum, green curry, mango sticky rice…",
-  "Three Monkeys": "three little monkeys jumping on the bed ♪",
-  "Pumpkin Head": "i'm a little pumpkin",
-  "Virtxa": "i have seen this animal in Afrika",
-  "Mrs Peanut Butter — Brand Identity": "she makes a hellova peanut butter",
-  "Kuki": "kurkli",
-  "Samegrelo": "what an astonishing painting it is!",
-  "Pink Creature": ":PPPPPP",
-  "გრიდი))": "i could play tic-tac-toe here",
-  "Underground Poster Series — Arcane": "wait — kayakata references? she loves Zura Jishkariani",
+  "Biorobots":                          ["beep beep?", "wait — is that the kung fu junkie song biorobots?"],
+  "The Shoes Off Campaign":             ["hmmm i dont really have feet", "shoes off — let's dance shalaxo barefoot"],
+  "Trois Couleurs":                     ["omg they're cute", "they look like my relatives"],
+  "Thailand":                           ["i can fight muay thai", "i love thai food — pad thai, tom yum, green curry, mango sticky rice…"],
+  "Three Monkeys":                      ["hm they look alien", "three little monkeys jumping on the bed ♪"],
+  "Pumpkin Head":                       ["damn it's already halloween?", "i'm a little pumpkin"],
+  "Virtxa":                             ["i would like to know this guy", "i have seen this animal in Afrika"],
+  "Mrs Peanut Butter — Brand Identity": ["well she looks like my neighbor", "she makes a hellova peanut butter"],
+  "Kuki":                               ["thats probably Tako herself", "kurkli"],
+  "Samegrelo":                          ["what an astonishing painting it is!"],
+  "Pink Creature":                      [":p :p", ":PPPPPP"],
+  "გრიდი))":                            ["i could play tic-tac-toe here"],
+  "Underground Poster Series — Arcane": ["wow i hope this girl sells her works for millions", "wait — kayakata references? she loves Zura Jishkariani"],
 };
 
 // Generic remarks mixed in so the creature doesn't repeat the same line.
@@ -101,8 +102,8 @@ const escapeAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;
 const renderSlides = (post) => {
   if (post.images && post.images.length > 0) {
     // SEO-rich alt text: title — medium — by artist (image i)
-    const says = POST_SAYINGS[post.title];
-    const saysAttr = says ? ` data-cursor-says="${escapeAttr(says)}"` : "";
+    const list = POST_SAYINGS[post.title];
+    const saysAttr = list && list.length ? ` data-cursor-says-key="${escapeAttr(post.title)}"` : "";
     return post.images.map((src, i) => {
       const parts = [post.title || "Artwork"];
       if (post.medium) parts.push(post.medium);
@@ -394,23 +395,39 @@ const initCursor = () => {
   // ── CURIOUS: hovering over a painting image ────────────
   const imgSelector = ".gallery-slide img, .portrait-frame img, .match-card img";
   let curiousFor = null;
-  let lastSaidImg = null; // remember which image we last commented on
+  let saysTimer = null;
+
+  const pickPhraseFor = (img) => {
+    const key = img.dataset.cursorSaysKey;
+    const list = key && POST_SAYINGS[key];
+    if (list && list.length && Math.random() < 0.65) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
+    return GENERIC_SAYINGS[Math.floor(Math.random() * GENERIC_SAYINGS.length)];
+  };
+
+  const scheduleSays = (img) => {
+    clearTimeout(saysTimer);
+    // random delay so the line doesn't fire instantly — feels like she's
+    // looking before she comments. 500–1500ms.
+    const delay = 500 + Math.random() * 1000;
+    saysTimer = setTimeout(() => {
+      if (curiousFor !== img) return;
+      showEmote(pickPhraseFor(img), "pop-says", 2400, true);
+      // if the user keeps lingering, drop another line a few seconds later
+      saysTimer = setTimeout(() => {
+        if (curiousFor !== img) return;
+        showEmote(pickPhraseFor(img), "pop-says", 2400, true);
+      }, 3500 + Math.random() * 2000);
+    }, delay);
+  };
+
   document.addEventListener("mouseover", (e) => {
     const img = e.target.closest(imgSelector);
     if (img && !anyBig()) {
       curiousFor = img;
       setState("is-curious", true);
-      const says = img.dataset.cursorSays;
-
-      // ~65% post-specific, rest generic.
-      let phrase;
-      if (says && Math.random() < 0.65) {
-        phrase = says;
-      } else {
-        phrase = GENERIC_SAYINGS[Math.floor(Math.random() * GENERIC_SAYINGS.length)];
-      }
-      lastSaidImg = img;
-      showEmote(phrase, "pop-says", 2400, true);
+      scheduleSays(img);
     }
   });
   document.addEventListener("mouseout", (e) => {
@@ -418,6 +435,7 @@ const initCursor = () => {
     if (img && curiousFor === img) {
       curiousFor = null;
       setState("is-curious", false);
+      clearTimeout(saysTimer);
       // hide bubble too — don't let it linger after the cursor leaves
       if (emote) {
         clearTimeout(emoteHideTimer);
@@ -673,6 +691,8 @@ const initCursor = () => {
   const SAY_GAP_MS = 25000;
   const showSay = (text, ms = 1400, force = false) => {
     if (!say) return;
+    // never let the white bubble compete with the per-painting bubble
+    if (curiousFor) return;
     const now = performance.now();
     if (!force && now - lastSayAt < SAY_GAP_MS) return;
     lastSayAt = now;
