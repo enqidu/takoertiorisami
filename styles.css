@@ -2531,7 +2531,11 @@ html.lite .cc-sparkle { animation-duration: .35s !important; }
    ────────────────────────────────────────────────────────────── */
 
 /* freeze every always-running creature bob, marquee, drift, breathe,
-   heart, hue-rotate, etc. */
+   heart, hue-rotate, etc.
+   IMPORTANT: only target elements whose animation is infinite/decorative.
+   DO NOT include .hero-line-solid/outline or footer-line-solid/outline —
+   those use a one-shot `bounce-in` entry animation (opacity 0→1). Pausing
+   it freezes the text at opacity 0 and the title disappears. */
 html.lite .floater,
 html.lite .crew-creature,
 html.lite .floater .fl-body,
@@ -2542,14 +2546,9 @@ html.lite .footer-marquee .marquee-track,
 html.lite .hero-deco,
 html.lite .scribble,
 html.lite .color-block,
-html.lite .hero-line-solid,
-html.lite .hero-line-outline,
-html.lite .footer-line-solid,
-html.lite .footer-line-outline,
 html.lite .nav-link.active::after,
 html.lite .floater::before,
 html.lite .floater::after,
-html.lite .work-section,
 html.lite .tag,
 html.lite .tag::before {
   animation-play-state: paused !important;
