@@ -1893,7 +1893,6 @@ function initOrrkaGame() {
       if (!muted && !audioCtx) initAudio();
     });
 
-    const SAYING = "მე ვარ ყველაზე ჩლუნგი გოგო ამ დაწესებულებაში";
     const WIN_LINE = "სასტავს მანქანა ვგონივარ მაგრამ ტორმუზი არა მაქვს";
     const MID_POOL = [
       "სორო ამოვთხარე",
@@ -1901,12 +1900,10 @@ function initOrrkaGame() {
       "დიდი ხე გავახარე",
       "scratch it ↻",
       "სამოთხიდან გავვარდი",
-      SAYING,
       "გოგოები თამაშობენ პაბჯის",
       "smoother",
       "24 აღარ მყოფნის · 25 შავი დევი",
       "mmhm",
-      SAYING,
       "louder",
     ];
     // shuffle so the order varies per game
@@ -2131,11 +2128,6 @@ function initOrrkaGame() {
       winEl.className = "vs-win";
       winEl.textContent = WIN_LINE;
       overlay.appendChild(winEl);
-
-      const sayingEl = document.createElement("div");
-      sayingEl.className = "vs-saying";
-      sayingEl.textContent = SAYING;
-      overlay.appendChild(sayingEl);
 
       const colors = ["var(--bubble)", "var(--yolk)", "var(--spring)", "var(--sky)", "var(--grape)", "var(--tomato)", "var(--pumpkin)"];
       for (let i = 0; i < 90; i++) {
@@ -2479,14 +2471,17 @@ function initPuriGame() {
 }
 initPuriGame();
 
-// ─── NIKOLI'S GAME — competitive hide & seek. 5 rapid clicks on nikoli →
-//     scenes of cluttered emoji, find which one tiny nikoli hides behind.
-//     timer + 3 lives + streak multiplier + persistent best score.
+// ─── NIKOLI'S GAME — patient hide & seek. 5 rapid clicks on nikoli →
+//     a quiet watercolor scene. Stay still until the patience meter
+//     fills, and nikoli peeks out from behind one of the painted
+//     hiding spots. Click him during the peek = catch. Click while
+//     he's hidden = you scared him. 5 catches before 5 scares = win.
+//     Time-tracked, persistent best.
 function initNikoliGame() {
   let clicks = 0;
   let resetT = null;
   let isPlaying = false;
-  let best = parseInt(localStorage.getItem("tako_nikoli_best") || "0", 10);
+  let bestT = parseFloat(localStorage.getItem("tako_nikoli_best") || "0");
 
   document.addEventListener("click", (e) => {
     if (isPlaying) return;
@@ -2501,218 +2496,243 @@ function initNikoliGame() {
     }
   }, true);
 
-  const OBJECT_POOL = [
-    "🧸","📚","🪴","💡","🎒","☕","⚽","🎲","🥁","🚂",
-    "📦","🛋️","🪀","🎨","🧶","🍪","🚗","🦄","🎩","🎁",
-    "🎂","🪟","🪑","📺","📓","🪥","🧁","🥛","🪆","🍞"
+  // Hand-painted hiding spots — re-uses your watercolor SVG filter and
+  // palette. Each spot has a side that nikoli can peek from.
+  const HIDING_SPOTS = [
+    { pos: { left: "8%",  top: "8%"     }, side: "right",
+      svg: `<svg viewBox="0 0 130 180" width="130" height="180" overflow="visible">
+        <g filter="url(#watercolor)">
+          <line x1="-4" y1="6" x2="134" y2="6" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+          <rect x="0"  y="10" width="55" height="168" rx="4" fill="var(--mint)" stroke="var(--ink)" stroke-width="3"/>
+          <rect x="63" y="10" width="55" height="168" rx="4" fill="var(--mint)" stroke="var(--ink)" stroke-width="3"/>
+          <circle cx="28" cy="170" r="6" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+          <circle cx="91" cy="170" r="6" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>
+        </g>
+      </svg>` },
+    { pos: { right: "10%", top: "12%"    }, side: "left",
+      svg: `<svg viewBox="0 0 110 160" width="110" height="160" overflow="visible">
+        <g filter="url(#watercolor)">
+          <ellipse cx="36" cy="56" rx="32" ry="42" fill="var(--spring)" stroke="var(--ink)" stroke-width="3"/>
+          <ellipse cx="74" cy="62" rx="28" ry="38" fill="var(--spring)" stroke="var(--ink)" stroke-width="3"/>
+          <ellipse cx="55" cy="32" rx="26" ry="36" fill="var(--mint)"   stroke="var(--ink)" stroke-width="3"/>
+          <path d="M 30 100 L 80 100 L 74 150 L 36 150 Z" fill="var(--clay-lt)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+        </g>
+      </svg>` },
+    { pos: { left: "12%", bottom: "8%"   }, side: "right",
+      svg: `<svg viewBox="0 0 120 150" width="120" height="150" overflow="visible">
+        <g filter="url(#watercolor)">
+          <rect x="22" y="6"  width="78" height="64" rx="8" fill="var(--bubble)" stroke="var(--ink)" stroke-width="3"/>
+          <rect x="14" y="68" width="92" height="22" rx="6" fill="var(--bubble)" stroke="var(--ink)" stroke-width="3"/>
+          <rect x="22" y="88" width="7"  height="58" rx="2" fill="var(--ink)"/>
+          <rect x="91" y="88" width="7"  height="58" rx="2" fill="var(--ink)"/>
+        </g>
+      </svg>` },
+    { pos: { right: "12%", bottom: "10%" }, side: "left",
+      svg: `<svg viewBox="0 0 140 140" width="140" height="140" overflow="visible">
+        <g filter="url(#watercolor)">
+          <rect x="10" y="78" width="120" height="52" rx="16" fill="var(--yolk)"   stroke="var(--ink)" stroke-width="3"/>
+          <rect x="22" y="38" width="96"  height="48" rx="16" fill="var(--bubble)" stroke="var(--ink)" stroke-width="3"/>
+          <rect x="32" y="4"  width="76"  height="44" rx="16" fill="var(--sky)"    stroke="var(--ink)" stroke-width="3"/>
+        </g>
+      </svg>` },
   ];
-  const ROUNDS = 10;
 
   function startNikoliGame() {
     isPlaying = true;
-    let round = 0;
-    let lives = 3;
-    let score = 0;
-    let streak = 0;
-    let roundActive = false;
-    let roundStartT = 0;
-    let timerId = null;
-    let roundDuration = 0;
-
     const overlay = document.createElement("div");
     overlay.className = "nk-game";
     overlay.innerHTML = `
       <button class="nk-close" id="nkClose" aria-label="Quit">×</button>
       <div class="nk-hud">
-        <div class="nk-hud-cell"><span class="nk-label">round</span><span class="nk-val"><span id="nkRound">1</span> / ${ROUNDS}</span></div>
-        <div class="nk-hud-cell"><span class="nk-label">lives</span><span class="nk-val" id="nkLives">♥ ♥ ♥</span></div>
-        <div class="nk-hud-cell"><span class="nk-label">score</span><span class="nk-val" id="nkScore">0</span></div>
-        <div class="nk-hud-cell"><span class="nk-label">best</span><span class="nk-val" id="nkBest">${best || "—"}</span></div>
+        <div class="nk-hud-cell"><span class="nk-label">caught</span><span class="nk-val" id="nkCatch">0 / 5</span></div>
+        <div class="nk-hud-cell"><span class="nk-label">scare</span><span class="nk-val" id="nkScare">○ ○ ○ ○ ○</span></div>
+        <div class="nk-hud-cell"><span class="nk-label">best</span><span class="nk-val">${bestT ? bestT.toFixed(1) + "s" : "—"}</span></div>
       </div>
-      <div class="nk-timer-rail"><div class="nk-timer-fill" id="nkTimer"></div></div>
-      <div class="nk-banner" id="nkBanner">find nikoli</div>
-      <div class="nk-stage" id="nkStage"></div>
-      <div class="nk-streak" id="nkStreak"></div>
+      <div class="nk-banner" id="nkBanner">be still.</div>
+      <div class="nk-patience"><div class="nk-patience-fill" id="nkPatience"></div></div>
+      <div class="nk-stage" id="nkStage">
+        ${HIDING_SPOTS.map((s, i) => {
+          const pos = Object.entries(s.pos).map(([k,v]) => `${k}: ${v}`).join("; ");
+          return `<div class="nk-spot" data-i="${i}" data-side="${s.side}" style="${pos}">${s.svg}</div>`;
+        }).join("")}
+        <span class="nk-creature" id="nkCreature" data-mood="shy" style="color: var(--yolk)"></span>
+      </div>
+      <div class="nk-tip" id="nkTip">stay still — patience fills, he peeks. click him quickly.</div>
     `;
     document.body.appendChild(overlay);
     document.body.style.overflow = "hidden";
 
     const stage    = overlay.querySelector("#nkStage");
     const banner   = overlay.querySelector("#nkBanner");
-    const livesEl  = overlay.querySelector("#nkLives");
-    const scoreEl  = overlay.querySelector("#nkScore");
-    const timerEl  = overlay.querySelector("#nkTimer");
-    const roundEl  = overlay.querySelector("#nkRound");
-    const streakEl = overlay.querySelector("#nkStreak");
+    const patience = overlay.querySelector("#nkPatience");
+    const catchEl  = overlay.querySelector("#nkCatch");
+    const scareEl  = overlay.querySelector("#nkScare");
+    const nikoli   = overlay.querySelector("#nkCreature");
+    const tipEl    = overlay.querySelector("#nkTip");
+    nikoli.innerHTML = FLOATER_SVG;
 
-    const renderLives = () => {
-      const filled = "♥ ".repeat(Math.max(0, lives)).trim();
-      const empty  = " ♡".repeat(Math.max(0, 3 - lives));
-      livesEl.textContent = (filled + empty).trim() || "·";
+    let catches = 0, scare = 0;
+    let stillness = 0;
+    let lastMoveT = 0;
+    let lastCursorX = -1, lastCursorY = -1;
+    let peeking = false;
+    let peekStartT = 0;
+    const PEEK_MS = 1500;
+    const STILL_TARGET_MS = 1300;
+    const startT = performance.now();
+    let raf = 0;
+    let ended = false;
+
+    const renderScare = () => {
+      const filled = "● ".repeat(scare).trim();
+      const empty  = " ○".repeat(5 - scare);
+      scareEl.textContent = (filled + empty).trim() || "○ ○ ○ ○ ○";
     };
 
-    const startRound = () => {
-      round++;
-      if (round > ROUNDS) return finish();
-      roundEl.textContent = round;
-      stage.innerHTML = "";
-      banner.textContent = "find nikoli";
-      banner.className = "nk-banner";
+    const onMove = (e) => {
+      const t = e.touches ? e.touches[0] : e;
+      const dist = lastCursorX < 0 ? 0 : Math.hypot(t.clientX - lastCursorX, t.clientY - lastCursorY);
+      lastCursorX = t.clientX;
+      lastCursorY = t.clientY;
+      if (dist > 4) lastMoveT = performance.now();
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("touchmove", onMove, { passive: true });
 
-      const nObj = Math.min(6 + Math.floor((round - 1) * 0.7), 12);
-      roundDuration = Math.max(4, 8 - (round - 1) * 0.4);
-      const peekScale = Math.max(0.4, 0.74 - (round - 1) * 0.034);
-
-      const W = stage.clientWidth || 600;
-      const H = stage.clientHeight || 400;
-      const pool = OBJECT_POOL.slice().sort(() => Math.random() - 0.5).slice(0, nObj);
-      const positions = [];
-      const minDist = Math.max(95, Math.min(W, H) * 0.22);
-      const margin = 55;
-      pool.forEach((emoji) => {
-        let attempts = 0, x = 0, y = 0;
-        while (attempts++ < 80) {
-          x = margin + Math.random() * (W - margin * 2);
-          y = margin + Math.random() * (H - margin * 2);
-          if (positions.every(p => Math.hypot(p.x - x, p.y - y) > minDist)) break;
-        }
-        positions.push({ x, y, emoji });
-      });
-
-      const hideIdx = Math.floor(Math.random() * positions.length);
-
-      positions.forEach((p, i) => {
-        const btn = document.createElement("button");
-        btn.className = "nk-obj";
-        btn.style.left = p.x + "px";
-        btn.style.top  = p.y + "px";
-        btn.style.setProperty("--rot",  (Math.random() * 16 - 8).toFixed(1) + "deg");
-        btn.style.setProperty("--size", (62 + Math.random() * 16).toFixed(0) + "px");
-
-        if (i === hideIdx) {
-          const side  = Math.random() > 0.5 ? -1 : 1;
-          const peekY = 22 + Math.random() * 6;
-          const peek = document.createElement("span");
-          peek.className = "nk-peek";
-          peek.style.setProperty("--side", side);
-          peek.style.setProperty("--peekY", peekY + "px");
-          peek.style.setProperty("--peekScale", peekScale);
-          const creature = document.createElement("span");
-          creature.className = "nk-creature";
-          creature.dataset.mood = "shy";
-          creature.style.color = "var(--yolk)";
-          creature.innerHTML = FLOATER_SVG;
-          peek.appendChild(creature);
-          btn.appendChild(peek);
-        }
-
-        const emoji = document.createElement("span");
-        emoji.className = "nk-emoji";
-        emoji.textContent = p.emoji;
-        btn.appendChild(emoji);
-
-        btn.addEventListener("click", () => onObjClick(i, hideIdx, btn));
-        stage.appendChild(btn);
-      });
-
-      // start timer
-      roundStartT = Date.now();
-      roundActive = true;
-      timerEl.style.transition = "none";
-      timerEl.style.width = "100%";
-      void timerEl.offsetWidth;
-      timerEl.style.transition = `width ${roundDuration}s linear`;
-      timerEl.style.width = "0%";
-
-      clearTimeout(timerId);
-      timerId = setTimeout(() => {
-        if (!roundActive) return;
-        roundActive = false;
-        const correctBtn = stage.querySelectorAll(".nk-obj")[hideIdx];
-        if (correctBtn) correctBtn.classList.add("is-reveal");
-        loseLife("time's up");
-      }, roundDuration * 1000);
+    const hideNikoli = () => {
+      peeking = false;
+      nikoli.classList.remove("is-peek", "is-caught");
+      stillness = 0;
+      patience.style.width = "0%";
     };
 
-    const onObjClick = (i, hideIdx, btn) => {
-      if (!roundActive) return;
-      if (i === hideIdx) {
-        roundActive = false;
-        clearTimeout(timerId);
-        const elapsed = (Date.now() - roundStartT) / 1000;
-        const remaining = Math.max(0, roundDuration - elapsed);
-        const speedMult = 1 + (remaining / roundDuration) * 2; // 1-3×
-        streak++;
-        const streakMult = streak >= 5 ? 2 : streak >= 3 ? 1.5 : streak >= 2 ? 1.2 : 1;
-        const points = Math.round(100 * speedMult * streakMult);
-        score += points;
-        scoreEl.textContent = score;
-        if (streak >= 2) {
-          streakEl.innerHTML = `streak ×${String(streakMult).replace(/\.0$/,"")} <small>+${points}</small>`;
-          streakEl.classList.remove("is-on");
-          void streakEl.offsetWidth;
-          streakEl.classList.add("is-on");
+    const startPeek = () => {
+      const idx = Math.floor(Math.random() * HIDING_SPOTS.length);
+      const spot = stage.querySelector(`.nk-spot[data-i="${idx}"]`);
+      if (!spot) return;
+      const sr = spot.getBoundingClientRect();
+      const stageR = stage.getBoundingClientRect();
+      const cx = sr.left - stageR.left + sr.width / 2;
+      const cy = sr.top  - stageR.top  + sr.height / 2;
+      const side = spot.dataset.side;
+      const dx = (side === "right" ? 1 : -1) * sr.width * 0.55;
+      const dy = -sr.height * 0.05;
+      nikoli.style.left = (cx + dx) + "px";
+      nikoli.style.top  = (cy + dy) + "px";
+      nikoli.classList.remove("is-caught");
+      nikoli.classList.add("is-peek");
+      peeking = true;
+      peekStartT = performance.now();
+      banner.textContent = "now! click him.";
+      banner.className = "nk-banner is-active";
+      tipEl.style.opacity = "0";
+    };
+
+    const onStageClick = (e) => {
+      if (ended) return;
+      if (peeking) {
+        const r = nikoli.getBoundingClientRect();
+        const onHim = e.clientX >= r.left && e.clientX <= r.right
+                   && e.clientY >= r.top  && e.clientY <= r.bottom;
+        if (onHim) {
+          catches++;
+          catchEl.textContent = catches + " / 5";
+          banner.textContent = "↳ caught.";
+          banner.className = "nk-banner is-yes";
+          peeking = false;
+          nikoli.classList.add("is-caught");
+          setTimeout(() => {
+            hideNikoli();
+            if (catches < 5 && scare < 5) {
+              banner.textContent = "be still.";
+              banner.className = "nk-banner";
+            }
+          }, 600);
+          if (catches >= 5) setTimeout(win, 750);
+          return;
         }
-        btn.classList.add("is-correct");
-        banner.textContent = `↳ found! +${points}`;
-        banner.classList.remove("is-no");
-        banner.classList.add("is-yes");
-        timerEl.style.transition = "none";
-        timerEl.style.width = "0%";
-        setTimeout(startRound, 1100);
+        banner.textContent = "↳ missed.";
+        banner.className = "nk-banner";
+        return;
+      }
+      // clicked while NOT peeking — startled
+      scare++;
+      renderScare();
+      hideNikoli();
+      banner.textContent = "↳ you scared him.";
+      banner.className = "nk-banner is-no";
+      if (scare >= 5) setTimeout(lose, 700);
+      else setTimeout(() => {
+        if (!ended) { banner.textContent = "be still."; banner.className = "nk-banner"; }
+      }, 1100);
+    };
+    stage.addEventListener("click", onStageClick);
+
+    const tick = () => {
+      if (ended) return;
+      const now = performance.now();
+      const sinceMove = now - lastMoveT;
+      if (sinceMove > 220) {
+        stillness = Math.min(STILL_TARGET_MS, stillness + 16);
       } else {
-        btn.classList.add("is-wrong");
-        setTimeout(() => btn.classList.remove("is-wrong"), 400);
-        loseLife();
+        stillness = Math.max(0, stillness - 28);
       }
-    };
+      patience.style.width = (stillness / STILL_TARGET_MS * 100) + "%";
 
-    const loseLife = (reason) => {
-      lives--;
-      streak = 0;
-      renderLives();
-      livesEl.classList.add("is-flash");
-      setTimeout(() => livesEl.classList.remove("is-flash"), 400);
-      if (reason) {
-        banner.textContent = `↳ ${reason}`;
-        banner.classList.remove("is-yes");
-        banner.classList.add("is-no");
-      }
-      if (lives <= 0) {
-        roundActive = false;
-        clearTimeout(timerId);
-        return setTimeout(finish, 900);
-      }
-      if (reason === "time's up") setTimeout(startRound, 1200);
-    };
+      if (!peeking && stillness >= STILL_TARGET_MS) startPeek();
 
-    function finish() {
-      const isBest = score > best;
-      if (isBest && score > 0) {
-        best = score;
-        localStorage.setItem("tako_nikoli_best", String(best));
+      if (peeking && now - peekStartT > PEEK_MS) {
+        hideNikoli();
+        banner.textContent = "too slow. be still again.";
+        banner.className = "nk-banner";
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    function win() {
+      const elapsed = (performance.now() - startT) / 1000;
+      const isBest = !bestT || elapsed < bestT;
+      if (isBest) {
+        bestT = elapsed;
+        localStorage.setItem("tako_nikoli_best", elapsed.toFixed(2));
       }
       let rank;
-      if (score >= 3000)      rank = "untouchable";
-      else if (score >= 2000) rank = "hide-and-seek master";
-      else if (score >= 1000) rank = "tracker";
-      else if (score >= 500)  rank = "ranger";
-      else                    rank = "scout";
-
+      if (elapsed < 25)      rank = "you breathe softly.";
+      else if (elapsed < 45) rank = "patient.";
+      else if (elapsed < 70) rank = "you got there.";
+      else                   rank = "he forgives you.";
       const card = document.createElement("div");
       card.className = "nk-final";
       card.innerHTML = `
-        <div class="nk-final-head">${isBest && score > 0 ? "new personal best!" : "round over"}</div>
-        <div class="nk-final-score">${score}</div>
+        <div class="nk-final-head">${isBest ? "new best ✦" : "all five caught."}</div>
+        <div class="nk-final-score">${elapsed.toFixed(1)}s</div>
         <div class="nk-final-rank">${rank}</div>
-        <div class="nk-final-meta">best · ${best || "—"} · made it to round ${Math.min(round, ROUNDS)}</div>
+        <div class="nk-final-meta">best · ${bestT ? bestT.toFixed(1) + "s" : "—"}</div>
       `;
       overlay.appendChild(card);
-      setTimeout(end, 5500);
+      setTimeout(end, 4800);
+    }
+
+    function lose() {
+      const card = document.createElement("div");
+      card.className = "nk-final is-lose";
+      card.innerHTML = `
+        <div class="nk-final-head">he's gone.</div>
+        <div class="nk-final-score">${catches} / 5</div>
+        <div class="nk-final-rank">be patient next time.</div>
+        <div class="nk-final-meta">caught · ${catches} · scared · ${scare}</div>
+      `;
+      overlay.appendChild(card);
+      setTimeout(end, 4500);
     }
 
     function end() {
-      clearTimeout(timerId);
+      ended = true;
+      cancelAnimationFrame(raf);
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("touchmove", onMove);
+      stage.removeEventListener("click", onStageClick);
       document.removeEventListener("keydown", onKey);
       overlay.classList.add("is-closing");
       setTimeout(() => {
@@ -2725,8 +2745,6 @@ function initNikoliGame() {
     const onKey = (e) => { if (e.key === "Escape") end(); };
     document.addEventListener("keydown", onKey);
     overlay.querySelector("#nkClose").addEventListener("click", end);
-
-    requestAnimationFrame(startRound);
   }
 }
 initNikoliGame();
