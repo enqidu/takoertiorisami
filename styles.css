@@ -2841,6 +2841,134 @@ html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity:
   transform-origin: 50% 60%;
 }
 
+/* ─── VAZHA'S GAME — catch the bouncing creature ─── */
+.vazha-game {
+  position: fixed; inset: 0;
+  background: rgba(255, 250, 237, .82);
+  z-index: 300;
+  animation: vg-fade-in .3s ease-out;
+  isolation: isolate;
+}
+.vazha-game.is-closing { animation: vg-fade-out .35s ease-in forwards; }
+@keyframes vg-fade-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vg-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+.vazha-game-counter {
+  position: fixed;
+  top: 22px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 301;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.vazha-game-counter .vg-label { color: var(--ink-mute); }
+
+.vazha-game-close {
+  position: fixed;
+  top: 22px; right: 22px;
+  z-index: 301;
+  width: 44px; height: 44px;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink);
+  cursor: none;
+  transition: transform .15s, background .15s, color .15s;
+}
+.vazha-game-close:hover {
+  transform: rotate(90deg);
+  background: var(--tomato);
+  color: var(--paper);
+}
+
+.vazha-game-vazha {
+  position: fixed;
+  top: 0; left: 0;
+  width: 84px; height: 84px;
+  pointer-events: none;
+  z-index: 302;
+  will-change: transform;
+}
+.vazha-game-vazha .fl-svg { width: 100%; height: 100%; overflow: visible; }
+
+/* hearts that pop on each catch */
+.vazha-game-heart {
+  position: fixed;
+  z-index: 303;
+  font-family: var(--mono);
+  font-size: 22px;
+  color: var(--tomato);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: vg-heart-rise 1.4s ease-out forwards;
+  animation-delay: var(--d, 0s);
+}
+.vazha-game-heart:nth-child(2n) { color: var(--bubble); }
+.vazha-game-heart:nth-child(3n) { color: var(--yolk); }
+.vazha-game-heart:nth-child(5n) { color: var(--spring); font-size: 26px; }
+@keyframes vg-heart-rise {
+  0%   { transform: translate(-50%, -50%) scale(0)   rotate(0); opacity: 0; }
+  20%  { transform: translate(-50%, -50%) scale(1.3) rotate(0); opacity: 1; }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--r)) scale(.4);
+    opacity: 0;
+  }
+}
+
+/* victory confetti */
+.vazha-game-confetti {
+  position: fixed;
+  top: -24px;
+  width: 11px; height: 16px;
+  pointer-events: none;
+  z-index: 304;
+  border: 1.2px solid var(--ink);
+  animation: vg-confetti-fall 3.2s ease-out forwards;
+  animation-delay: var(--d, 0s);
+}
+@keyframes vg-confetti-fall {
+  to {
+    transform: translate(var(--dx), 110vh) rotate(var(--rot, 720deg));
+    opacity: 0;
+  }
+}
+
+/* victory text */
+.vazha-game-win {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 305;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(48px, 11vw, 140px);
+  line-height: 1;
+  color: var(--tomato);
+  text-shadow: 4px 4px 0 var(--ink);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: vg-win 1.5s cubic-bezier(.3, 1.8, .4, 1) both;
+}
+@keyframes vg-win {
+  0%   { transform: translate(-50%, -50%) scale(0)   rotate(-15deg); }
+  60%  { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); }
+  100% { transform: translate(-50%, -50%) scale(1)   rotate(0); }
+}
+
 /* ─── LITE MODE TOGGLE — for slower devices ─── */
 .lite-toggle {
   position: fixed;

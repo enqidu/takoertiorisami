@@ -1447,6 +1447,161 @@ const makeTween = (key, override) => {
   return `<div class="work-tween" aria-hidden="true">${parts.join("")}</div>`;
 };
 
+// ─── VAZHA'S GAME — 5 rapid clicks on vazha → catch-the-bouncing-creature
+//     game starts. Vazha bounces around the viewport, fleeing the cursor.
+//     Catch him 5 times (cursor close enough) → confetti + victory text.
+function initVazhaGame() {
+  let clicks = 0;
+  let resetT = null;
+  let isPlaying = false;
+
+  document.addEventListener("click", (e) => {
+    if (isPlaying) return;
+    const target = e.target.closest('[data-mood="crazy"]');
+    if (!target) return;
+    clicks++;
+    clearTimeout(resetT);
+    resetT = setTimeout(() => { clicks = 0; }, 1500);
+    if (clicks >= 5) {
+      clicks = 0;
+      startVazhaGame();
+    }
+  });
+
+  function startVazhaGame() {
+    isPlaying = true;
+    const overlay = document.createElement("div");
+    overlay.className = "vazha-game";
+    overlay.innerHTML = `
+      <div class="vazha-game-counter"><span class="vg-label">catch vazha · </span><span id="vazhaCount">0</span> / 5</div>
+      <button class="vazha-game-close" id="vazhaGameClose" aria-label="Quit">×</button>
+      <div class="vazha-game-vazha" id="vazhaGameVazha" data-mood="crazy" style="color: var(--grape)"></div>
+    `;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = "hidden";
+
+    const vazha = overlay.querySelector("#vazhaGameVazha");
+    vazha.innerHTML = FLOATER_SVG;
+
+    const SIZE = 84;
+    const HALF = SIZE / 2;
+    let x = window.innerWidth * 0.5;
+    let y = window.innerHeight * 0.5;
+    let vx = (Math.random() < .5 ? 1 : -1) * (3 + Math.random() * 2);
+    let vy = (Math.random() < .5 ? 1 : -1) * (3 + Math.random() * 2);
+    let cursorX = -2000, cursorY = -2000;
+    let count = 0;
+    let lastCatchT = 0;
+    let raf = 0;
+
+    const onMove = (e) => { cursorX = e.clientX; cursorY = e.clientY; };
+    document.addEventListener("mousemove", onMove);
+
+    const tick = () => {
+      const dx = x - cursorX;
+      const dy = y - cursorY;
+      const dist = Math.hypot(dx, dy) || 0.001;
+
+      // flee from cursor when within 220px
+      if (dist < 220) {
+        const force = (220 - dist) / 70;
+        vx += (dx / dist) * force;
+        vy += (dy / dist) * force;
+      }
+      // damping + min speed (so vazha never stops)
+      vx *= 0.96;
+      vy *= 0.96;
+      const speed = Math.hypot(vx, vy) || 0.001;
+      if (speed < 3) { vx = (vx / speed) * 3; vy = (vy / speed) * 3; }
+      // cap speed
+      if (speed > 16) { vx = (vx / speed) * 16; vy = (vy / speed) * 16; }
+
+      x += vx; y += vy;
+      // bounce off walls
+      if (x < HALF)                      { x = HALF;                      vx = Math.abs(vx); }
+      if (x > window.innerWidth  - HALF) { x = window.innerWidth  - HALF; vx = -Math.abs(vx); }
+      if (y < HALF)                      { y = HALF;                      vy = Math.abs(vy); }
+      if (y > window.innerHeight - HALF) { y = window.innerHeight - HALF; vy = -Math.abs(vy); }
+
+      vazha.style.transform = `translate(${(x - HALF).toFixed(1)}px, ${(y - HALF).toFixed(1)}px) rotate(${(vx * 1.8).toFixed(1)}deg)`;
+
+      // catch detection — cursor within HALF + 24
+      const now = performance.now();
+      if (dist < HALF + 24 && now - lastCatchT > 700) {
+        lastCatchT = now;
+        count++;
+        const cEl = document.getElementById("vazhaCount");
+        if (cEl) cEl.textContent = count;
+        spawnHearts(x, y);
+        // give vazha a kick away so the cursor doesn't auto-trigger again
+        const ang = Math.atan2(dy, dx);
+        vx = Math.cos(ang) * 14;
+        vy = Math.sin(ang) * 14;
+        if (count >= 5) { win(); return; }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    function spawnHearts(cx, cy) {
+      const glyphs = ["♥", "✦", "★", "!", "♡"];
+      for (let i = 0; i < 14; i++) {
+        const h = document.createElement("span");
+        h.className = "vazha-game-heart";
+        h.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+        h.style.left = cx + "px";
+        h.style.top = cy + "px";
+        h.style.setProperty("--dx", (Math.random() * 240 - 120).toFixed(0) + "px");
+        h.style.setProperty("--dy", (-90 - Math.random() * 200).toFixed(0) + "px");
+        h.style.setProperty("--r", (Math.random() * 720 - 360).toFixed(0) + "deg");
+        h.style.setProperty("--d", (Math.random() * 0.18).toFixed(2) + "s");
+        overlay.appendChild(h);
+        setTimeout(() => h.remove(), 1600);
+      }
+    }
+
+    function win() {
+      cancelAnimationFrame(raf);
+      // confetti
+      const colors = ["var(--bubble)", "var(--yolk)", "var(--spring)", "var(--sky)", "var(--grape)", "var(--tomato)", "var(--pumpkin)"];
+      for (let i = 0; i < 80; i++) {
+        const c = document.createElement("span");
+        c.className = "vazha-game-confetti";
+        c.style.left = (Math.random() * window.innerWidth) + "px";
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.setProperty("--dx", (Math.random() * 600 - 300).toFixed(0) + "px");
+        c.style.setProperty("--d", (Math.random() * 0.9).toFixed(2) + "s");
+        c.style.setProperty("--rot", (Math.random() * 1080).toFixed(0) + "deg");
+        overlay.appendChild(c);
+        setTimeout(() => c.remove(), 3500);
+      }
+      // big victory text
+      const winEl = document.createElement("div");
+      winEl.className = "vazha-game-win";
+      winEl.textContent = "OH MY GOD!!";
+      overlay.appendChild(winEl);
+      setTimeout(end, 2800);
+    }
+
+    function end() {
+      cancelAnimationFrame(raf);
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("keydown", onKey);
+      overlay.classList.add("is-closing");
+      setTimeout(() => {
+        overlay.remove();
+        document.body.style.overflow = "";
+        isPlaying = false;
+      }, 380);
+    }
+
+    const onKey = (e) => { if (e.key === "Escape") end(); };
+    document.addEventListener("keydown", onKey);
+    overlay.querySelector("#vazhaGameClose").addEventListener("click", end);
+  }
+}
+initVazhaGame();
+
 // ─── LITE MODE TOGGLE — flips heavy effects off, persists in localStorage
 function initLiteToggle() {
   const btn = document.getElementById("liteToggle");
