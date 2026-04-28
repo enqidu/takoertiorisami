@@ -20,7 +20,7 @@ window.POSTS = [
     date: "April 21 2026",
     description: `three units, freshly assembled. all kawaii. powered by something soft.`,
     tags: ["creatures", "biorobots"],
-    images: ["images/biorobots.jpg"],
+    images: ["images/biorobots-v2.jpg"],
     theme: "biorobots",
   },
   {
