@@ -1879,16 +1879,22 @@ function initOrrkaGame() {
 
     const SAYING = "მე ვარ ყველაზე ჩლუნგი გოგო ამ დაწესებულებაში";
     const WIN_LINE = "სასტავს მანქანა ვგონივარ მაგრამ ტორმუზი არა მაქვს";
-    const MID_LINES = [
+    const MID_POOL = [
+      "სორო ამოვთხარე",
       "yeah… that's the spot",
+      "დიდი ხე გავახარე",
       "scratch it ↻",
+      "სამოთხიდან გავვარდი",
+      SAYING,
+      "გოგოები თამაშობენ პაბჯის",
       "smoother",
+      "24 აღარ მყოფნის · 25 შავი დევი",
       "mmhm",
       SAYING,
-      "again",
       "louder",
-      SAYING,
     ];
+    // shuffle so the order varies per game
+    const MID_LINES = MID_POOL.slice().sort(() => Math.random() - 0.5);
 
     let dragging   = false;
     let lastAngle  = null;

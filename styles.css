@@ -3381,7 +3381,9 @@ html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity:
   font-size: 15px;
   color: var(--ink);
   box-shadow: 3px 3px 0 var(--ink);
-  white-space: nowrap;
+  max-width: min(78vw, 380px);
+  text-align: center;
+  line-height: 1.25;
   animation: vs-bubble-float 2.4s cubic-bezier(.2, .9, .3, 1) forwards;
 }
 @keyframes vs-bubble-float {
