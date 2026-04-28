@@ -422,12 +422,14 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
 .cc-emote.pop-dizzy   { background: var(--grape); color: var(--paper); }
 .cc-emote.pop-absorb  { background: var(--pumpkin); }
 
-/* per-post saying bubble — auto-sizes to text, sits above the cursor */
+/* per-post saying bubble — auto-sizes to text, sits ABOVE the cursor.
+   bottom-anchored so multi-line text grows upward (never overlaps creature). */
 .cc-emote.pop-says {
-  top: -52px;
+  top: auto;
   right: auto;
   left: 50%;
-  width: auto;
+  bottom: calc(100% + 10px);
+  width: max-content;
   height: auto;
   min-width: 0;
   max-width: 220px;
@@ -449,6 +451,8 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
 .cc-emote.pop-says.is-show {
   transform: translateX(-50%) scale(1) rotate(-3deg);
 }
+/* enable in lite mode (the global lite rule hides .cc-emote — we whitelist this one) */
+html.lite .cc-emote.pop-says { display: flex !important; }
 
 /* dizzy ring of stars swirling above head */
 .cc-swirl {
