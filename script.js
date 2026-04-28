@@ -1473,35 +1473,40 @@ function initVazhaGame() {
 
   function startVazhaGame() {
     isPlaying = true;
+    const bestT = parseFloat(localStorage.getItem("tako_vazha_best") || "0");
     const overlay = document.createElement("div");
     overlay.className = "vazha-game";
     overlay.innerHTML = `
       <div class="vazha-game-counter"><span class="vg-label">catch vazha · </span><span id="vazhaCount">0</span> / 5</div>
+      <div class="vazha-game-timer"><span id="vazhaTime">0.0s</span><small>${bestT ? `best · ${bestT.toFixed(1)}s` : "no best yet"}</small></div>
       <button class="vazha-game-close" id="vazhaGameClose" aria-label="Quit">×</button>
       <div class="vazha-game-vazha" id="vazhaGameVazha" data-mood="crazy" style="color: var(--grape)"></div>
     `;
     document.body.appendChild(overlay);
     document.body.style.overflow = "hidden";
 
-    const vazha = overlay.querySelector("#vazhaGameVazha");
+    const vazha  = overlay.querySelector("#vazhaGameVazha");
+    const timeEl = overlay.querySelector("#vazhaTime");
     vazha.innerHTML = FLOATER_SVG;
 
     const SIZE = 84;
     const HALF = SIZE / 2;
     let x = window.innerWidth * 0.5;
     let y = window.innerHeight * 0.5;
-    let vx = (Math.random() < .5 ? 1 : -1) * (3 + Math.random() * 2);
-    let vy = (Math.random() < .5 ? 1 : -1) * (3 + Math.random() * 2);
+    // ~2× faster baseline — vazha shoots out of the gate
+    let vx = (Math.random() < .5 ? 1 : -1) * (6 + Math.random() * 4);
+    let vy = (Math.random() < .5 ? 1 : -1) * (6 + Math.random() * 4);
     let cursorX = -2000, cursorY = -2000;
     let count = 0;
     let lastCatchT = 0;
     let raf = 0;
     let frame = 0;
-    // speed scales with catches — escalating chaos
-    let speedMul = 1;
-    let speedCap = 16;
+    const startT = performance.now();
+    // speed scales with catches — escalating chaos, much steeper now
+    let speedMul = 1.4;
+    let speedCap = 24;
     let lastTauntT = 0;
-    const TAUNTS = ["wee!", "haha", "no!!", "ოო!", "i'm flying", "almost!", "ჰაჰა", "miss"];
+    const TAUNTS = ["wee!", "haha", "no!!", "ოო!", "i'm flying", "almost!", "ჰაჰა", "miss", "too slow", "ahh!"];
     const taunt = (cx, cy) => {
       const t = document.createElement("span");
       t.className = "vazha-game-taunt";
@@ -1529,16 +1534,21 @@ function initVazhaGame() {
       const dy = y - cursorY;
       const dist = Math.hypot(dx, dy) || 0.001;
 
-      // flee from cursor when within 220px (force scales with speedMul too)
-      if (dist < 220) {
-        const force = ((220 - dist) / 70) * speedMul;
+      // running timer (display every 6 frames ≈ 100ms)
+      if (frame % 6 === 0) {
+        timeEl.textContent = ((performance.now() - startT) / 1000).toFixed(1) + "s";
+      }
+
+      // flee from cursor — bigger detection range and stronger force
+      if (dist < 280) {
+        const force = ((280 - dist) / 45) * speedMul;
         vx += (dx / dist) * force;
         vy += (dy / dist) * force;
       }
-      // damping + min speed (so vazha never stops; min scales w/ catches)
-      vx *= 0.96;
-      vy *= 0.96;
-      const minSpeed = 3 * speedMul;
+      // less damping (he keeps momentum) + higher min speed
+      vx *= 0.975;
+      vy *= 0.975;
+      const minSpeed = 5 * speedMul;
       const speed = Math.hypot(vx, vy) || 0.001;
       if (speed < minSpeed) { vx = (vx / speed) * minSpeed; vy = (vy / speed) * minSpeed; }
       // cap speed
@@ -1566,12 +1576,12 @@ function initVazhaGame() {
         taunt(x, y);
       }
 
-      // catch detection — cursor within HALF + 24
-      if (dist < HALF + 24 && now - lastCatchT > 700) {
+      // catch detection — tighter window, faster cooldown
+      if (dist < HALF + 22 && now - lastCatchT > 480) {
         lastCatchT = now;
         count++;
-        speedMul += 0.22;          // each catch makes him faster
-        speedCap = Math.min(30, speedCap + 1.8);
+        speedMul += 0.42;          // each catch makes him much faster
+        speedCap = Math.min(42, speedCap + 3.2);
         const cEl = document.getElementById("vazhaCount");
         if (cEl) cEl.textContent = count;
         spawnHearts(x, y);
@@ -1579,10 +1589,10 @@ function initVazhaGame() {
         spawnRing(x, y, "");
         spawnRing(x, y, "is-pink");
         spawnRing(x, y, "is-yolk");
-        // give vazha a kick away so the cursor doesn't auto-trigger again
+        // give vazha a strong kick away so the cursor doesn't auto-trigger again
         const ang = Math.atan2(dy, dx);
-        vx = Math.cos(ang) * speedCap * 0.9;
-        vy = Math.sin(ang) * speedCap * 0.9;
+        vx = Math.cos(ang) * speedCap * 1.05;
+        vy = Math.sin(ang) * speedCap * 1.05;
         // brief screen-flash class (tomato-tinted)
         overlay.classList.add("is-flash");
         setTimeout(() => overlay.classList.remove("is-flash"), 220);
@@ -1621,6 +1631,12 @@ function initVazhaGame() {
 
     function win() {
       cancelAnimationFrame(raf);
+      const elapsed = (performance.now() - startT) / 1000;
+      const isBest = !bestT || elapsed < bestT;
+      if (isBest) localStorage.setItem("tako_vazha_best", elapsed.toFixed(2));
+      timeEl.innerHTML = `<span class="is-final">${elapsed.toFixed(1)}s</span><small>${
+        isBest ? "new personal best ✦" : `best · ${bestT.toFixed(1)}s`
+      }</small>`;
       // confetti
       const colors = ["var(--bubble)", "var(--yolk)", "var(--spring)", "var(--sky)", "var(--grape)", "var(--tomato)", "var(--pumpkin)"];
       for (let i = 0; i < 80; i++) {
@@ -1639,7 +1655,7 @@ function initVazhaGame() {
       winEl.className = "vazha-game-win";
       winEl.textContent = "SAGOL BRAAAT";
       overlay.appendChild(winEl);
-      setTimeout(end, 3200);
+      setTimeout(end, 3400);
     }
 
     function end() {
@@ -1907,6 +1923,74 @@ function initOrrkaGame() {
     let lastEqAt   = 0;
     let lastScratchAt = 0;
 
+    // ─── extras ────────────────────────────────────────────────
+    let backspinActive = false;
+    let backspinDeg    = 0;
+    let lastBackspinAt = 0;
+
+    const setPhase = (n) => {
+      ["phase-0","phase-1","phase-2","phase-3","phase-4","phase-5"]
+        .forEach(c => overlay.classList.remove(c));
+      overlay.classList.add("phase-" + Math.min(n, 5));
+    };
+    setPhase(0);
+
+    // dancing crowd at the bottom of the stage
+    const stageEl = overlay.querySelector(".vs-stage");
+    const crowdEl = document.createElement("div");
+    crowdEl.className = "vs-crowd";
+    crowdEl.innerHTML = ["🕺","💃","🪩","🎤","🪩","💃","🕺"]
+      .map((c, i) => `<span class="vs-dancer" style="--i:${i}">${c}</span>`).join("");
+    stageEl.appendChild(crowdEl);
+
+    const spawnSpinBurst = () => {
+      const palette = ["var(--bubble)","var(--yolk)","var(--spring)","var(--sky)","var(--grape)","var(--tomato)"];
+      const glyphs  = ["✦","✧","★","♪","♫","✿"];
+      for (let i = 0; i < 16; i++) {
+        const s = document.createElement("span");
+        s.className = "vs-sparkle";
+        s.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+        s.style.color = palette[i % palette.length];
+        s.style.setProperty("--dx",  (Math.random() * 360 - 180).toFixed(0) + "px");
+        s.style.setProperty("--dy",  (Math.random() * 360 - 180).toFixed(0) + "px");
+        s.style.setProperty("--rot", (Math.random() * 720).toFixed(0) + "deg");
+        s.style.setProperty("--d",   (Math.random() * 0.18).toFixed(2) + "s");
+        stageEl.appendChild(s);
+        setTimeout(() => s.remove(), 1500);
+      }
+    };
+
+    const spawnBackspinCue = () => {
+      const cue = document.createElement("div");
+      cue.className = "vs-backspin";
+      cue.innerHTML = `<span class="vs-bs-arrow">↺</span><span class="vs-bs-text">BACKSPIN</span>`;
+      overlay.appendChild(cue);
+      backspinActive = true;
+      backspinDeg = 0;
+      setTimeout(() => {
+        backspinActive = false;
+        if (backspinDeg < -180 && spins < 5) {
+          // success — half-spin bonus
+          cue.classList.add("is-success");
+          cue.querySelector(".vs-bs-text").textContent = "+½ SPIN";
+          totalDeg += 200;
+          const newSpins = Math.floor(Math.abs(totalDeg) / 360);
+          if (newSpins > spins && totalDeg > 0) {
+            spins = newSpins;
+            countEl.textContent = spins;
+            spawnRing();
+            spawnSpinBurst();
+            setPhase(spins);
+            playChime(spins);
+            if (spins >= 5) { setTimeout(win, 200); }
+          }
+        } else {
+          cue.classList.add("is-fizz");
+        }
+        setTimeout(() => cue.remove(), 700);
+      }, 1700);
+    };
+
     const getCenter = () => {
       const r = record.getBoundingClientRect();
       return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
@@ -1939,9 +2023,17 @@ function initOrrkaGame() {
         totalDeg += delta;
         recordRot += delta;
         record.style.transform = `rotate(${recordRot}deg)`;
+        if (backspinActive) backspinDeg += delta;
       }
 
       const now = performance.now();
+
+      // pulse the crowd / dancers in time with scratching
+      if (Math.abs(delta) > 0.8) {
+        crowdEl.classList.add("is-hot");
+        clearTimeout(crowdEl._t);
+        crowdEl._t = setTimeout(() => crowdEl.classList.remove("is-hot"), 200);
+      }
 
       // scratch sound — throttled to ~70ms, only when actually scratching
       if (now - lastScratchAt > 70 && Math.abs(delta) > 1.2) {
@@ -1962,12 +2054,21 @@ function initOrrkaGame() {
         spins = newSpins;
         countEl.textContent = spins;
         spawnRing();
+        spawnSpinBurst();
+        setPhase(spins);
         playChime(spins);
         if (spins === 1) status.textContent = "yes. like that.";
         else if (spins === 2) status.textContent = "groovy.";
         else if (spins === 3) status.textContent = "she's feeling it.";
         else if (spins === 4) status.textContent = "one more!!";
         if (spins >= 5) { win(); return; }
+      }
+
+      // backspin cue periodically (every ~5s, after first spin)
+      if (!backspinActive && spins >= 1 && spins < 5 &&
+          now - lastBackspinAt > 5000 && Math.abs(delta) > 1) {
+        lastBackspinAt = now;
+        spawnBackspinCue();
       }
 
       // periodic floating saying
@@ -2019,6 +2120,12 @@ function initOrrkaGame() {
       dragging = false;
       record.classList.add("is-winning");
       playWin();
+
+      // radial blast emanating from the record
+      const blast = document.createElement("div");
+      blast.className = "vs-blast";
+      stageEl.appendChild(blast);
+      setTimeout(() => blast.remove(), 1600);
 
       const winEl = document.createElement("div");
       winEl.className = "vs-win";
@@ -2088,6 +2195,50 @@ function initPuriGame() {
   }, true);
 
   const QUESTIONS = [
+    { q: "What college did Hannah Horvath attend?",
+      a: ["Bard", "Oberlin", "Sarah Lawrence", "Wesleyan"], correct: 1 },
+    { q: "What is Hannah's son named?",
+      a: ["Otis", "Grover", "Felix", "Augie"], correct: 1 },
+    { q: "What's the name of Adam's older sister?",
+      a: ["Cora", "Christine", "Caroline", "Catherine"], correct: 2 },
+    { q: "Who plays Caroline?",
+      a: ["Lena Dunham", "Gaby Hoffmann", "Aubrey Plaza", "Jenny Slate"], correct: 1 },
+    { q: "What is Marnie's job in season one?",
+      a: ["Editorial assistant", "Gallery assistant", "PR intern", "Personal assistant"], correct: 1 },
+    { q: "Shoshanna is Jessa's …",
+      a: ["Half-sister", "Cousin", "College roommate", "Step-sister"], correct: 1 },
+    { q: "What play does Adam star in on Broadway?",
+      a: ["Long Day's Journey Into Night", "Major Barbara", "The Iceman Cometh", "A Streetcar Named Desire"], correct: 1 },
+    { q: "What was Lena Dunham's first feature film (pre-Girls)?",
+      a: ["Creative Nonfiction", "Catherine Called Birdy", "Tiny Furniture", "Sharp Stick"], correct: 2 },
+    { q: "How many seasons did the show run?",
+      a: ["4", "5", "6", "7"], correct: 2 },
+    { q: "Who is Grover's biological father?",
+      a: ["Adam", "Ray", "Paul-Louis", "Fran"], correct: 2 },
+    { q: "Title of the bottle episode where Hannah spends a weekend with a wealthy doctor (Patrick Wilson)?",
+      a: ["“American Bitch”", "“One Man's Trash”", "“She Did”", "“Welcome to Bushwick”"], correct: 1 },
+    { q: "Who plays Mimi-Rose Howard?",
+      a: ["Aubrey Plaza", "Jenny Slate", "Gillian Jacobs", "Lake Bell"], correct: 2 },
+    { q: "Title of the season 6 episode where Hannah confronts a famous male author?",
+      a: ["“American Bitch”", "“Hostage Situation”", "“Painful Evacuation”", "“Goodbye Tour”"], correct: 0 },
+    { q: "Who does Marnie eventually marry?",
+      a: ["Charlie", "Ray", "Booth Jonathan", "Desi"], correct: 3 },
+    { q: "What's Ray's last name?",
+      a: ["Ploshansky", "Schalansky", "Mendelsohn", "Shapiro"], correct: 0 },
+    { q: "Who is Shoshanna engaged to in the final season?",
+      a: ["Scott", "Ray", "Byron", "Brent"], correct: 2 },
+    { q: "What's Hannah's father Tad's profession?",
+      a: ["Architect", "Lawyer", "Professor", "Doctor"], correct: 2 },
+    { q: "Where does Hannah move at the very end of the series for a teaching job?",
+      a: ["Small upstate-NY college", "Iowa Writers' Workshop", "A college in Ohio", "Boarding school in Vermont"], correct: 0 },
+    { q: "When Hannah first meets Adam in the pilot, what's his day job?",
+      a: ["Bartender", "Carpenter", "Personal trainer", "Art-handler"], correct: 1 },
+    { q: "What's the name of the artist (Jorma Taccone) Marnie has a fling with in season one?",
+      a: ["Booth Jonathan", "Booth Bennett", "Booth Cohen", "Booth Lerner"], correct: 0 },
+  ];
+
+  // bonus deep-cut set offered AFTER finishing the regular 20 — unjudged
+  const HARD_QUESTIONS = [
     { q: "What is Charlie's last name?",
       a: ["Russo", "Marchesi", "Dattolo", "Romano"], correct: 2 },
     { q: "Who plays Charlie in seasons 1–2 (and his S5 return)?",
@@ -2100,41 +2251,43 @@ function initPuriGame() {
       a: ["John Cameron Mitchell", "Bob Balaban", "Peter Scolari", "Tracy Letts"], correct: 2 },
     { q: "Who plays Evie, Marnie's mother?",
       a: ["Patricia Clarkson", "Rita Wilson", "Allison Janney", "Cherry Jones"], correct: 1 },
-    { q: "What's the name of Jessa's first husband (the rapid S1 marriage)?",
+    { q: "Jessa's first husband — the rapid S1 marriage?",
       a: ["Thomas-John", "Tom-Henry", "John-Paul", "Hugh-John"], correct: 0 },
     { q: "Who plays Thomas-John?",
       a: ["Chris Pratt", "Chris Messina", "Chris O'Dowd", "Chris Lowell"], correct: 2 },
-    { q: "What is the full title of the iconic S1 Bushwick warehouse-party episode?",
+    { q: "Full title of the S1 Bushwick warehouse-party episode?",
       a: ["“Welcome to Bushwick a.k.a. The Crackcident”", "“Bushwick Nights”", "“The Loft”", "“Hannigan's Wake”"], correct: 0 },
-    { q: "Which Robyn song soundtracks the S1E3 dance scene with Hannah and Marnie?",
+    { q: "Which Robyn song soundtracks the S1E3 dance scene?",
       a: ["“Call Your Girlfriend”", "“With Every Heartbeat”", "“Dancing on My Own”", "“Hang With Me”"], correct: 2 },
-    { q: "Who plays the older male author in the S6 bottle episode “American Bitch”?",
+    { q: "Who plays the older male author in “American Bitch”?",
       a: ["Patrick Wilson", "Andrew Rannells", "Matthew Rhys", "Bobby Cannavale"], correct: 2 },
-    { q: "What's the title of the S2 episode where Hannah's OCD resurfaces?",
+    { q: "Title of the S2 episode where Hannah's OCD resurfaces?",
       a: ["“It's Back”", "“Boys”", "“Video Games”", "“On All Fours”"], correct: 0 },
     { q: "Who plays Natalia, Adam's girlfriend in season 2?",
       a: ["Allison Williams", "Shiri Appleby", "Aubrey Plaza", "Lake Bell"], correct: 1 },
     { q: "Who plays Jessa's estranged father in season 2?",
       a: ["Bill Camp", "Tracy Letts", "Ben Mendelsohn", "Hank Azaria"], correct: 2 },
-    { q: "What's the name of Hannah's first major editor (the one with the tragic accident)?",
+    { q: "Hannah's first major editor (the one with the tragic accident)?",
       a: ["David Pressler-Goings", "David Eshelman", "David Schaffer", "David Lerner"], correct: 0 },
     { q: "Who plays David, Hannah's editor?",
       a: ["Andrew Rannells", "John Cameron Mitchell", "Jorma Taccone", "Bobby Cannavale"], correct: 1 },
-    { q: "Title of the S5 bottle episode where Marnie and Charlie wander Manhattan all night?",
+    { q: "S5 bottle episode — Marnie and Charlie wander Manhattan all night?",
       a: ["“The Panic in Central Park”", "“Old Loves”", "“Brooklyn Night”", "“Hostage Situation”"], correct: 0 },
     { q: "Who plays Laird, Caroline's boyfriend / Hannah's neighbor?",
       a: ["Tim Heidecker", "Jon Glaser", "Andrew Rannells", "Bobby Moynihan"], correct: 1 },
     { q: "What Brooklyn neighborhood does Hannah live in for most of the series?",
       a: ["Williamsburg", "Greenpoint", "Bushwick", "Bed-Stuy"], correct: 1 },
-    { q: "What is the title of the series finale?",
+    { q: "Title of the series finale?",
       a: ["“Latching”", "“Goodbye Tour”", "“Old Loves”", "“All You Need Is Love”"], correct: 0 },
   ];
 
   function startPuriGame() {
     isPlaying = true;
-    const deck = QUESTIONS.slice().sort(() => Math.random() - 0.5);
+    let deck = QUESTIONS.slice().sort(() => Math.random() - 0.5);
     let idx = 0;
     let score = 0;
+    let hardScore = 0;
+    let inImpossible = false;
     let answering = false;
 
     const overlay = document.createElement("div");
@@ -2207,9 +2360,11 @@ function initPuriGame() {
       if (i !== correctI) optBtns[i].classList.add("is-wrong");
       optBtns.forEach((b) => b.classList.add("is-locked"));
 
-      if (i === correctI) {
-        score++;
-        scoreEl.textContent = score;
+      const isCorrect = i === correctI;
+      if (isCorrect) {
+        if (inImpossible) hardScore++;
+        else score++;
+        scoreEl.textContent = inImpossible ? hardScore : score;
         fbEl.textContent = "↳ correct";
         fbEl.classList.add("is-yes");
       } else {
@@ -2223,21 +2378,70 @@ function initPuriGame() {
         idx++;
         if (idx >= deck.length) finish();
         else render();
-      }, i === correctI ? 850 : 1500);
+      }, isCorrect ? 850 : 1500);
     };
 
     function finish() {
+      if (inImpossible) return finishImpossible();
+
       let title, msg;
-      if (score >= 16)      { title = "show-archivist tier";        msg = "Lena would let you pitch the reboot."; }
-      else if (score >= 12) { title = "respectable hannah-head";    msg = "you watched it twice and read the recaps."; }
-      else if (score >= 7)  { title = "casual viewer";              msg = "you remember the dance scene and not much else."; }
-      else                  { title = "did you actually watch this?"; msg = "go rewatch the pilot. honestly."; }
+      if (score >= 17)      { title = "voice-of-a-generation tier"; msg = "you finished S6 sober"; }
+      else if (score >= 13) { title = "respectable hannah-head";    msg = "marnie energy. organized notes."; }
+      else if (score >= 8)  { title = "casual viewer";              msg = "you watched it once on a flight"; }
+      else                  { title = "did you actually watch this?"; msg = "go rewatch the pilot."; }
 
       const winEl = document.createElement("div");
       winEl.className = "pg-win";
       winEl.innerHTML = `
         <div class="pg-final-score">${score} / 20</div>
         <div class="pg-final-title">${title}</div>
+        <div class="pg-final-msg">${msg}</div>
+        <div class="pg-bonus">
+          <div class="pg-bonus-label">feeling brave?</div>
+          <div class="pg-bonus-row">
+            <button class="pg-btn pg-btn-go"   id="pgBonusGo">try the impossible round →</button>
+            <button class="pg-btn pg-btn-stop" id="pgBonusStop">stop here</button>
+          </div>
+          <div class="pg-bonus-note">unjudged · just for fun · 20 deep cuts</div>
+        </div>
+      `;
+      overlay.querySelector(".pg-screen").appendChild(winEl);
+      qEl.textContent = "";
+      optsEl.innerHTML = "";
+      fbEl.innerHTML = "&nbsp;";
+
+      overlay.querySelector("#pgBonusGo").addEventListener("click", () => {
+        winEl.remove();
+        inImpossible = true;
+        deck = HARD_QUESTIONS.slice().sort(() => Math.random() - 0.5);
+        idx = 0;
+        hardScore = 0;
+        scoreEl.textContent = "0";
+        const trivia = overlay.querySelector(".pg-trivia");
+        if (trivia) trivia.textContent = "· impossible round · unjudged ·";
+        const scoreLabel = overlay.querySelector(".pg-score");
+        if (scoreLabel) scoreLabel.firstChild.textContent = "score · ";
+        overlay.classList.add("is-impossible");
+        fillEl.style.width = "0%";
+        render();
+      });
+      overlay.querySelector("#pgBonusStop").addEventListener("click", end);
+    }
+
+    function finishImpossible() {
+      let msg;
+      if (hardScore >= 18)      msg = "are you Lena? are you a researcher? terrifying.";
+      else if (hardScore >= 14) msg = "deep-cuts unlocked. impressive.";
+      else if (hardScore >= 9)  msg = "not bad — a few of these are obscure on purpose.";
+      else if (hardScore >= 4)  msg = "the impossible round did its job.";
+      else                      msg = "honest score. these are filthy.";
+
+      const winEl = document.createElement("div");
+      winEl.className = "pg-win is-impossible";
+      winEl.innerHTML = `
+        <div class="pg-final-head">impossible round</div>
+        <div class="pg-final-score">${hardScore} / 20</div>
+        <div class="pg-final-title">unjudged</div>
         <div class="pg-final-msg">${msg}</div>
       `;
       overlay.querySelector(".pg-screen").appendChild(winEl);
@@ -2274,6 +2478,258 @@ function initPuriGame() {
   }
 }
 initPuriGame();
+
+// ─── NIKOLI'S GAME — competitive hide & seek. 5 rapid clicks on nikoli →
+//     scenes of cluttered emoji, find which one tiny nikoli hides behind.
+//     timer + 3 lives + streak multiplier + persistent best score.
+function initNikoliGame() {
+  let clicks = 0;
+  let resetT = null;
+  let isPlaying = false;
+  let best = parseInt(localStorage.getItem("tako_nikoli_best") || "0", 10);
+
+  document.addEventListener("click", (e) => {
+    if (isPlaying) return;
+    const t = e.target.closest('[data-mood="shy"]');
+    if (!t) return;
+    clicks++;
+    clearTimeout(resetT);
+    resetT = setTimeout(() => { clicks = 0; }, 1500);
+    if (clicks >= 5) {
+      clicks = 0;
+      startNikoliGame();
+    }
+  }, true);
+
+  const OBJECT_POOL = [
+    "🧸","📚","🪴","💡","🎒","☕","⚽","🎲","🥁","🚂",
+    "📦","🛋️","🪀","🎨","🧶","🍪","🚗","🦄","🎩","🎁",
+    "🎂","🪟","🪑","📺","📓","🪥","🧁","🥛","🪆","🍞"
+  ];
+  const ROUNDS = 10;
+
+  function startNikoliGame() {
+    isPlaying = true;
+    let round = 0;
+    let lives = 3;
+    let score = 0;
+    let streak = 0;
+    let roundActive = false;
+    let roundStartT = 0;
+    let timerId = null;
+    let roundDuration = 0;
+
+    const overlay = document.createElement("div");
+    overlay.className = "nk-game";
+    overlay.innerHTML = `
+      <button class="nk-close" id="nkClose" aria-label="Quit">×</button>
+      <div class="nk-hud">
+        <div class="nk-hud-cell"><span class="nk-label">round</span><span class="nk-val"><span id="nkRound">1</span> / ${ROUNDS}</span></div>
+        <div class="nk-hud-cell"><span class="nk-label">lives</span><span class="nk-val" id="nkLives">♥ ♥ ♥</span></div>
+        <div class="nk-hud-cell"><span class="nk-label">score</span><span class="nk-val" id="nkScore">0</span></div>
+        <div class="nk-hud-cell"><span class="nk-label">best</span><span class="nk-val" id="nkBest">${best || "—"}</span></div>
+      </div>
+      <div class="nk-timer-rail"><div class="nk-timer-fill" id="nkTimer"></div></div>
+      <div class="nk-banner" id="nkBanner">find nikoli</div>
+      <div class="nk-stage" id="nkStage"></div>
+      <div class="nk-streak" id="nkStreak"></div>
+    `;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = "hidden";
+
+    const stage    = overlay.querySelector("#nkStage");
+    const banner   = overlay.querySelector("#nkBanner");
+    const livesEl  = overlay.querySelector("#nkLives");
+    const scoreEl  = overlay.querySelector("#nkScore");
+    const timerEl  = overlay.querySelector("#nkTimer");
+    const roundEl  = overlay.querySelector("#nkRound");
+    const streakEl = overlay.querySelector("#nkStreak");
+
+    const renderLives = () => {
+      const filled = "♥ ".repeat(Math.max(0, lives)).trim();
+      const empty  = " ♡".repeat(Math.max(0, 3 - lives));
+      livesEl.textContent = (filled + empty).trim() || "·";
+    };
+
+    const startRound = () => {
+      round++;
+      if (round > ROUNDS) return finish();
+      roundEl.textContent = round;
+      stage.innerHTML = "";
+      banner.textContent = "find nikoli";
+      banner.className = "nk-banner";
+
+      const nObj = Math.min(6 + Math.floor((round - 1) * 0.7), 12);
+      roundDuration = Math.max(4, 8 - (round - 1) * 0.4);
+      const peekScale = Math.max(0.4, 0.74 - (round - 1) * 0.034);
+
+      const W = stage.clientWidth || 600;
+      const H = stage.clientHeight || 400;
+      const pool = OBJECT_POOL.slice().sort(() => Math.random() - 0.5).slice(0, nObj);
+      const positions = [];
+      const minDist = Math.max(95, Math.min(W, H) * 0.22);
+      const margin = 55;
+      pool.forEach((emoji) => {
+        let attempts = 0, x = 0, y = 0;
+        while (attempts++ < 80) {
+          x = margin + Math.random() * (W - margin * 2);
+          y = margin + Math.random() * (H - margin * 2);
+          if (positions.every(p => Math.hypot(p.x - x, p.y - y) > minDist)) break;
+        }
+        positions.push({ x, y, emoji });
+      });
+
+      const hideIdx = Math.floor(Math.random() * positions.length);
+
+      positions.forEach((p, i) => {
+        const btn = document.createElement("button");
+        btn.className = "nk-obj";
+        btn.style.left = p.x + "px";
+        btn.style.top  = p.y + "px";
+        btn.style.setProperty("--rot",  (Math.random() * 16 - 8).toFixed(1) + "deg");
+        btn.style.setProperty("--size", (62 + Math.random() * 16).toFixed(0) + "px");
+
+        if (i === hideIdx) {
+          const side  = Math.random() > 0.5 ? -1 : 1;
+          const peekY = 22 + Math.random() * 6;
+          const peek = document.createElement("span");
+          peek.className = "nk-peek";
+          peek.style.setProperty("--side", side);
+          peek.style.setProperty("--peekY", peekY + "px");
+          peek.style.setProperty("--peekScale", peekScale);
+          const creature = document.createElement("span");
+          creature.className = "nk-creature";
+          creature.dataset.mood = "shy";
+          creature.style.color = "var(--yolk)";
+          creature.innerHTML = FLOATER_SVG;
+          peek.appendChild(creature);
+          btn.appendChild(peek);
+        }
+
+        const emoji = document.createElement("span");
+        emoji.className = "nk-emoji";
+        emoji.textContent = p.emoji;
+        btn.appendChild(emoji);
+
+        btn.addEventListener("click", () => onObjClick(i, hideIdx, btn));
+        stage.appendChild(btn);
+      });
+
+      // start timer
+      roundStartT = Date.now();
+      roundActive = true;
+      timerEl.style.transition = "none";
+      timerEl.style.width = "100%";
+      void timerEl.offsetWidth;
+      timerEl.style.transition = `width ${roundDuration}s linear`;
+      timerEl.style.width = "0%";
+
+      clearTimeout(timerId);
+      timerId = setTimeout(() => {
+        if (!roundActive) return;
+        roundActive = false;
+        const correctBtn = stage.querySelectorAll(".nk-obj")[hideIdx];
+        if (correctBtn) correctBtn.classList.add("is-reveal");
+        loseLife("time's up");
+      }, roundDuration * 1000);
+    };
+
+    const onObjClick = (i, hideIdx, btn) => {
+      if (!roundActive) return;
+      if (i === hideIdx) {
+        roundActive = false;
+        clearTimeout(timerId);
+        const elapsed = (Date.now() - roundStartT) / 1000;
+        const remaining = Math.max(0, roundDuration - elapsed);
+        const speedMult = 1 + (remaining / roundDuration) * 2; // 1-3×
+        streak++;
+        const streakMult = streak >= 5 ? 2 : streak >= 3 ? 1.5 : streak >= 2 ? 1.2 : 1;
+        const points = Math.round(100 * speedMult * streakMult);
+        score += points;
+        scoreEl.textContent = score;
+        if (streak >= 2) {
+          streakEl.innerHTML = `streak ×${String(streakMult).replace(/\.0$/,"")} <small>+${points}</small>`;
+          streakEl.classList.remove("is-on");
+          void streakEl.offsetWidth;
+          streakEl.classList.add("is-on");
+        }
+        btn.classList.add("is-correct");
+        banner.textContent = `↳ found! +${points}`;
+        banner.classList.remove("is-no");
+        banner.classList.add("is-yes");
+        timerEl.style.transition = "none";
+        timerEl.style.width = "0%";
+        setTimeout(startRound, 1100);
+      } else {
+        btn.classList.add("is-wrong");
+        setTimeout(() => btn.classList.remove("is-wrong"), 400);
+        loseLife();
+      }
+    };
+
+    const loseLife = (reason) => {
+      lives--;
+      streak = 0;
+      renderLives();
+      livesEl.classList.add("is-flash");
+      setTimeout(() => livesEl.classList.remove("is-flash"), 400);
+      if (reason) {
+        banner.textContent = `↳ ${reason}`;
+        banner.classList.remove("is-yes");
+        banner.classList.add("is-no");
+      }
+      if (lives <= 0) {
+        roundActive = false;
+        clearTimeout(timerId);
+        return setTimeout(finish, 900);
+      }
+      if (reason === "time's up") setTimeout(startRound, 1200);
+    };
+
+    function finish() {
+      const isBest = score > best;
+      if (isBest && score > 0) {
+        best = score;
+        localStorage.setItem("tako_nikoli_best", String(best));
+      }
+      let rank;
+      if (score >= 3000)      rank = "untouchable";
+      else if (score >= 2000) rank = "hide-and-seek master";
+      else if (score >= 1000) rank = "tracker";
+      else if (score >= 500)  rank = "ranger";
+      else                    rank = "scout";
+
+      const card = document.createElement("div");
+      card.className = "nk-final";
+      card.innerHTML = `
+        <div class="nk-final-head">${isBest && score > 0 ? "new personal best!" : "round over"}</div>
+        <div class="nk-final-score">${score}</div>
+        <div class="nk-final-rank">${rank}</div>
+        <div class="nk-final-meta">best · ${best || "—"} · made it to round ${Math.min(round, ROUNDS)}</div>
+      `;
+      overlay.appendChild(card);
+      setTimeout(end, 5500);
+    }
+
+    function end() {
+      clearTimeout(timerId);
+      document.removeEventListener("keydown", onKey);
+      overlay.classList.add("is-closing");
+      setTimeout(() => {
+        overlay.remove();
+        document.body.style.overflow = "";
+        isPlaying = false;
+      }, 380);
+    }
+
+    const onKey = (e) => { if (e.key === "Escape") end(); };
+    document.addEventListener("keydown", onKey);
+    overlay.querySelector("#nkClose").addEventListener("click", end);
+
+    requestAnimationFrame(startRound);
+  }
+}
+initNikoliGame();
 
 // ─── LITE MODE TOGGLE — flips heavy effects off, persists in localStorage
 function initLiteToggle() {
