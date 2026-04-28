@@ -1647,6 +1647,166 @@ function initVazhaGame() {
 }
 initVazhaGame();
 
+// ─── ORKA'S GAME — Simon-says with rhythm. 5 rapid clicks on orka →
+//     4 colored pads light up in a sequence, user replays. Each round
+//     adds one beat AND the tempo speeds up. 5 rounds → "AH YEAH".
+function initOrkaGame() {
+  let clicks = 0;
+  let resetT = null;
+  let isPlaying = false;
+
+  document.addEventListener("click", (e) => {
+    if (isPlaying) return;
+    const target = e.target.closest('[data-mood="cool"]');
+    if (!target) return;
+    clicks++;
+    clearTimeout(resetT);
+    resetT = setTimeout(() => { clicks = 0; }, 1500);
+    if (clicks >= 5) {
+      clicks = 0;
+      startOrkaGame();
+    }
+  }, true);
+
+  function startOrkaGame() {
+    isPlaying = true;
+    const overlay = document.createElement("div");
+    overlay.className = "orka-game";
+    overlay.innerHTML = `
+      <div class="og-counter">round <span id="orkaRound">1</span> / 5</div>
+      <button class="og-close" id="orkaGameClose" aria-label="Quit">×</button>
+      <div class="og-status" id="orkaStatus">listen…</div>
+      <div class="og-board" id="orkaBoard">
+        <button class="og-pad og-pad-0" data-pad="0" aria-label="pad 1"></button>
+        <button class="og-pad og-pad-1" data-pad="1" aria-label="pad 2"></button>
+        <button class="og-pad og-pad-2" data-pad="2" aria-label="pad 3"></button>
+        <button class="og-pad og-pad-3" data-pad="3" aria-label="pad 4"></button>
+        <div class="og-orka" data-mood="cool" style="color: var(--sky)"></div>
+        <div class="og-pulse" id="orkaPulse"></div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = "hidden";
+
+    const orka = overlay.querySelector(".og-orka");
+    orka.innerHTML = FLOATER_SVG;
+
+    const pads     = Array.from(overlay.querySelectorAll(".og-pad"));
+    const status   = overlay.querySelector("#orkaStatus");
+    const roundEl  = overlay.querySelector("#orkaRound");
+    const pulseEl  = overlay.querySelector("#orkaPulse");
+
+    let round    = 1;
+    let pattern  = [Math.floor(Math.random() * 4)];
+    let userInput = [];
+    let inputAllowed = false;
+
+    const flashPad = (idx, dur = 280) => {
+      const pad = pads[idx];
+      pad.classList.add("is-lit");
+      setTimeout(() => pad.classList.remove("is-lit"), dur);
+    };
+
+    const beat = () => {
+      pulseEl.classList.remove("is-on");
+      // restart animation
+      void pulseEl.offsetWidth;
+      pulseEl.classList.add("is-on");
+    };
+
+    const showPattern = () => {
+      inputAllowed = false;
+      status.textContent = "listen…";
+      // tempo speeds up each round (320 → 200ms between beats)
+      const beatMs = Math.max(220, 380 - round * 32);
+      let i = 0;
+      const stepper = () => {
+        if (i >= pattern.length) {
+          inputAllowed = true;
+          userInput = [];
+          status.textContent = "your turn";
+          return;
+        }
+        beat();
+        flashPad(pattern[i], beatMs * 0.7);
+        i++;
+        setTimeout(stepper, beatMs);
+      };
+      setTimeout(stepper, 500);
+    };
+
+    pads.forEach((pad) => {
+      pad.addEventListener("click", () => {
+        if (!inputAllowed) return;
+        const idx = parseInt(pad.dataset.pad, 10);
+        flashPad(idx, 200);
+        userInput.push(idx);
+        const expected = pattern[userInput.length - 1];
+        if (idx !== expected) {
+          inputAllowed = false;
+          status.textContent = "no.. listen again";
+          overlay.classList.add("og-wrong");
+          setTimeout(() => overlay.classList.remove("og-wrong"), 500);
+          // forgiving — replay current round, don't end the game
+          setTimeout(() => {
+            userInput = [];
+            showPattern();
+          }, 1100);
+          return;
+        }
+        if (userInput.length === pattern.length) {
+          inputAllowed = false;
+          if (round >= 5) { win(); return; }
+          status.textContent = "nice";
+          round++;
+          roundEl.textContent = round;
+          pattern.push(Math.floor(Math.random() * 4));
+          setTimeout(showPattern, 800);
+        }
+      });
+    });
+
+    function win() {
+      const winEl = document.createElement("div");
+      winEl.className = "og-win";
+      winEl.textContent = "AH YEAH";
+      overlay.appendChild(winEl);
+      // confetti
+      const colors = ["var(--bubble)", "var(--yolk)", "var(--spring)", "var(--sky)", "var(--grape)", "var(--tomato)", "var(--pumpkin)"];
+      for (let i = 0; i < 70; i++) {
+        const c = document.createElement("span");
+        c.className = "vazha-game-confetti";
+        c.style.left = (Math.random() * window.innerWidth) + "px";
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.setProperty("--dx", (Math.random() * 600 - 300).toFixed(0) + "px");
+        c.style.setProperty("--d", (Math.random() * 0.9).toFixed(2) + "s");
+        c.style.setProperty("--rot", (Math.random() * 1080).toFixed(0) + "deg");
+        overlay.appendChild(c);
+        setTimeout(() => c.remove(), 3500);
+      }
+      setTimeout(end, 3000);
+    }
+
+    function end() {
+      document.removeEventListener("keydown", onKey);
+      overlay.classList.add("is-closing");
+      setTimeout(() => {
+        overlay.remove();
+        document.body.style.overflow = "";
+        isPlaying = false;
+      }, 380);
+    }
+
+    const onKey = (e) => { if (e.key === "Escape") end(); };
+    document.addEventListener("keydown", onKey);
+    overlay.querySelector("#orkaGameClose").addEventListener("click", end);
+
+    // first round
+    setTimeout(showPattern, 700);
+  }
+}
+initOrkaGame();
+
 // ─── LITE MODE TOGGLE — flips heavy effects off, persists in localStorage
 function initLiteToggle() {
   const btn = document.getElementById("liteToggle");
