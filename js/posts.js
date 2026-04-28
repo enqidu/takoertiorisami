@@ -18,9 +18,10 @@ window.POSTS = [
   {
     title: "Biorobots",
     date: "April 21 2026",
-    description: ``,
+    description: `three units, freshly assembled. all kawaii. powered by something soft.`,
     tags: ["creatures", "biorobots"],
     images: ["images/biorobots.jpg"],
+    theme: "biorobots",
   },
   {
     title: "Underground Poster Series — Arcane",

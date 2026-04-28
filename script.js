@@ -114,13 +114,26 @@ const renderPost = (post, index, workNum) => {
   const hasImages = post.images && post.images.length > 0;
   const total     = hasImages ? post.images.length : 1;
 
-  return `<section class="work-section reveal" id="${pid}">
+  const themeClass = post.theme ? ` is-${post.theme}` : "";
+
+  // ─── per-theme extras (currently only "biorobots") ────────────────
+  const auraExtras = post.theme === "biorobots" ? `
+      <div class="bio-aurora" aria-hidden="true"></div>
+      <div class="bio-particles" aria-hidden="true">
+        ${Array.from({ length: 9 }).map((_, i) => `<span class="bio-dot" style="--i:${i}"></span>`).join("")}
+      </div>` : "";
+
+  const readoutExtras = post.theme === "biorobots" ? `
+      <pre class="bio-readout" aria-hidden="true"><span class="bio-line">&gt; bio_boot.sh ............. ok</span><span class="bio-line">&gt; 3 units online</span><span class="bio-line">&gt; last_seen ............... apr.21.2026</span><span class="bio-line">&gt; kawaii_index ............ 99.7%</span><span class="bio-line bio-line-prompt">&gt; <span class="bio-cursor">█</span></span></pre>` : "";
+
+  return `<section class="work-section reveal${themeClass}" id="${pid}">
     <header class="work-head">
       <span class="work-num">${postNum}</span>
       <span class="work-date">${post.date}</span>
     </header>
     <h2 class="work-title">${post.title || ""}</h2>
     <div class="work-gallery" data-tilt>
+      ${auraExtras}
       <div class="gallery-frame">
         <div class="gallery-viewport" id="${pid}-viewport">
           <div class="gallery-track${total > 1 ? ' is-multi' : ''}" id="${pid}-track">
@@ -133,6 +146,7 @@ const renderPost = (post, index, workNum) => {
     <div class="work-body">
       <p class="work-desc">${post.description}</p>
       <div class="work-tags">${renderTags(post.tags)}</div>
+      ${readoutExtras}
       ${post.behance ? `<a class="work-behance" href="${post.behance}" target="_blank" rel="noopener">see more on behance ↗</a>` : ""}
     </div>
   </section>`;
