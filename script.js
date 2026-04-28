@@ -2067,6 +2067,214 @@ function initOrrkaGame() {
 }
 initOrrkaGame();
 
+// ─── PURI'S GAME — Girls (HBO) trivia. 5 rapid clicks on puri →
+//     20 hard multiple-choice questions, score reveal at the end.
+function initPuriGame() {
+  let clicks = 0;
+  let resetT = null;
+  let isPlaying = false;
+
+  document.addEventListener("click", (e) => {
+    if (isPlaying) return;
+    const target = e.target.closest('[data-mood="girlish"]');
+    if (!target) return;
+    clicks++;
+    clearTimeout(resetT);
+    resetT = setTimeout(() => { clicks = 0; }, 1500);
+    if (clicks >= 5) {
+      clicks = 0;
+      startPuriGame();
+    }
+  }, true);
+
+  const QUESTIONS = [
+    { q: "What college did Hannah Horvath attend?",
+      a: ["Bard", "Oberlin", "Sarah Lawrence", "Wesleyan"], correct: 1 },
+    { q: "What is Hannah's son named?",
+      a: ["Otis", "Grover", "Felix", "Augie"], correct: 1 },
+    { q: "What's the name of Adam's older sister?",
+      a: ["Cora", "Christine", "Caroline", "Catherine"], correct: 2 },
+    { q: "Who plays Caroline?",
+      a: ["Lena Dunham", "Gaby Hoffmann", "Aubrey Plaza", "Jenny Slate"], correct: 1 },
+    { q: "What is Marnie's job in season one?",
+      a: ["Editorial assistant", "Gallery assistant", "PR intern", "Personal assistant"], correct: 1 },
+    { q: "Shoshanna is Jessa's …",
+      a: ["Half-sister", "Cousin", "College roommate", "Step-sister"], correct: 1 },
+    { q: "What play does Adam star in on Broadway?",
+      a: ["Long Day's Journey Into Night", "Major Barbara", "The Iceman Cometh", "A Streetcar Named Desire"], correct: 1 },
+    { q: "What was Lena Dunham's first feature film (pre-Girls)?",
+      a: ["Creative Nonfiction", "Catherine Called Birdy", "Tiny Furniture", "Sharp Stick"], correct: 2 },
+    { q: "How many seasons did the show run?",
+      a: ["4", "5", "6", "7"], correct: 2 },
+    { q: "Who is Grover's biological father?",
+      a: ["Adam", "Ray", "Paul-Louis", "Fran"], correct: 2 },
+    { q: "Title of the bottle episode where Hannah spends a weekend with a wealthy doctor (Patrick Wilson)?",
+      a: ["“American Bitch”", "“One Man's Trash”", "“She Did”", "“Welcome to Bushwick”"], correct: 1 },
+    { q: "Who plays Mimi-Rose Howard?",
+      a: ["Aubrey Plaza", "Jenny Slate", "Gillian Jacobs", "Lake Bell"], correct: 2 },
+    { q: "Title of the season 6 episode where Hannah confronts a famous male author?",
+      a: ["“American Bitch”", "“Hostage Situation”", "“Painful Evacuation”", "“Goodbye Tour”"], correct: 0 },
+    { q: "Who does Marnie eventually marry?",
+      a: ["Charlie", "Ray", "Booth Jonathan", "Desi"], correct: 3 },
+    { q: "What's Ray's last name?",
+      a: ["Ploshansky", "Schalansky", "Mendelsohn", "Shapiro"], correct: 0 },
+    { q: "Who is Shoshanna engaged to in the final season?",
+      a: ["Scott", "Ray", "Byron", "Brent"], correct: 2 },
+    { q: "What's Hannah's father Tad's profession?",
+      a: ["Architect", "Lawyer", "Professor", "Doctor"], correct: 2 },
+    { q: "Where does Hannah move at the very end of the series for a teaching job?",
+      a: ["Small upstate-NY college", "Iowa Writers' Workshop", "A college in Ohio", "Boarding school in Vermont"], correct: 0 },
+    { q: "When Hannah first meets Adam in the pilot, what's his day job?",
+      a: ["Bartender", "Carpenter", "Personal trainer", "Art-handler"], correct: 1 },
+    { q: "What's the name of the artist (Jorma Taccone) Marnie has a fling with in season one?",
+      a: ["Booth Jonathan", "Booth Bennett", "Booth Cohen", "Booth Lerner"], correct: 0 },
+  ];
+
+  function startPuriGame() {
+    isPlaying = true;
+    const deck = QUESTIONS.slice().sort(() => Math.random() - 0.5);
+    let idx = 0;
+    let score = 0;
+    let answering = false;
+
+    const overlay = document.createElement("div");
+    overlay.className = "pg-game";
+    overlay.innerHTML = `
+      <button class="pg-close" id="pgClose" aria-label="Quit">×</button>
+      <div class="pg-stage">
+        <div class="pg-tv">
+          <div class="pg-bezel">
+            <div class="pg-screen">
+              <div class="pg-static" aria-hidden="true"></div>
+              <div class="pg-header">
+                <div class="pg-show-title">Girls</div>
+                <div class="pg-trivia">· hard trivia ·</div>
+              </div>
+              <div class="pg-progress"><span class="pg-progress-fill" id="pgFill"></span></div>
+              <div class="pg-meta">
+                <span class="pg-q-num">question <span id="pgN">1</span> / 20</span>
+                <span class="pg-score">score · <span id="pgScore">0</span></span>
+              </div>
+              <div class="pg-question" id="pgQ"></div>
+              <div class="pg-options" id="pgOpts"></div>
+              <div class="pg-feedback" id="pgFB">&nbsp;</div>
+            </div>
+          </div>
+          <div class="pg-tv-stand"></div>
+        </div>
+        <div class="pg-puri" data-mood="girlish" style="color: var(--bubble)"></div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = "hidden";
+
+    const puri = overlay.querySelector(".pg-puri");
+    puri.innerHTML = FLOATER_SVG;
+
+    const qEl = overlay.querySelector("#pgQ");
+    const optsEl = overlay.querySelector("#pgOpts");
+    const fbEl = overlay.querySelector("#pgFB");
+    const nEl = overlay.querySelector("#pgN");
+    const scoreEl = overlay.querySelector("#pgScore");
+    const fillEl = overlay.querySelector("#pgFill");
+
+    const render = () => {
+      const item = deck[idx];
+      nEl.textContent = idx + 1;
+      qEl.textContent = item.q;
+      fbEl.innerHTML = "&nbsp;";
+      fbEl.className = "pg-feedback";
+      fillEl.style.width = ((idx) / deck.length * 100) + "%";
+      optsEl.innerHTML = item.a.map((opt, i) =>
+        `<button class="pg-opt" data-i="${i}">
+          <span class="pg-key">${"abcd"[i]}</span>
+          <span class="pg-text"></span>
+        </button>`
+      ).join("");
+      const optBtns = Array.from(optsEl.querySelectorAll(".pg-opt"));
+      optBtns.forEach((btn, i) => {
+        btn.querySelector(".pg-text").textContent = item.a[i];
+        btn.addEventListener("click", () => onAnswer(i, optBtns));
+      });
+    };
+
+    const onAnswer = (i, optBtns) => {
+      if (answering) return;
+      answering = true;
+      const item = deck[idx];
+      const correctI = item.correct;
+      optBtns[correctI].classList.add("is-correct");
+      if (i !== correctI) optBtns[i].classList.add("is-wrong");
+      optBtns.forEach((b) => b.classList.add("is-locked"));
+
+      if (i === correctI) {
+        score++;
+        scoreEl.textContent = score;
+        fbEl.textContent = "↳ correct";
+        fbEl.classList.add("is-yes");
+      } else {
+        fbEl.innerHTML = `↳ <em>${item.a[correctI]}</em>`;
+        fbEl.classList.add("is-no");
+      }
+      fillEl.style.width = ((idx + 1) / deck.length * 100) + "%";
+
+      setTimeout(() => {
+        answering = false;
+        idx++;
+        if (idx >= deck.length) finish();
+        else render();
+      }, i === correctI ? 850 : 1500);
+    };
+
+    function finish() {
+      let title, msg;
+      if (score >= 17)      { title = "voice-of-a-generation tier"; msg = "you finished S6 sober"; }
+      else if (score >= 13) { title = "respectable hannah-head";    msg = "marnie energy. organized notes."; }
+      else if (score >= 8)  { title = "casual viewer";              msg = "you watched it once on a flight"; }
+      else                  { title = "did you actually watch this?"; msg = "go rewatch the pilot."; }
+
+      const winEl = document.createElement("div");
+      winEl.className = "pg-win";
+      winEl.innerHTML = `
+        <div class="pg-final-score">${score} / 20</div>
+        <div class="pg-final-title">${title}</div>
+        <div class="pg-final-msg">${msg}</div>
+      `;
+      overlay.querySelector(".pg-screen").appendChild(winEl);
+      qEl.textContent = "";
+      optsEl.innerHTML = "";
+      fbEl.innerHTML = "&nbsp;";
+      setTimeout(end, 5500);
+    }
+
+    function end() {
+      document.removeEventListener("keydown", onKey);
+      overlay.classList.add("is-closing");
+      setTimeout(() => {
+        overlay.remove();
+        document.body.style.overflow = "";
+        isPlaying = false;
+      }, 380);
+    }
+
+    const onKey = (e) => {
+      if (e.key === "Escape") return end();
+      // 1-4 / a-d to answer
+      const map = { "1": 0, "2": 1, "3": 2, "4": 3, "a": 0, "b": 1, "c": 2, "d": 3 };
+      const k = e.key.toLowerCase();
+      if (k in map && !answering) {
+        const optBtns = Array.from(overlay.querySelectorAll(".pg-opt"));
+        if (optBtns[map[k]]) onAnswer(map[k], optBtns);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    overlay.querySelector("#pgClose").addEventListener("click", end);
+
+    render();
+  }
+}
+initPuriGame();
+
 // ─── LITE MODE TOGGLE — flips heavy effects off, persists in localStorage
 function initLiteToggle() {
   const btn = document.getElementById("liteToggle");

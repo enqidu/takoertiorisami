@@ -3015,28 +3015,31 @@ html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity:
   z-index: 305;
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(48px, 12vw, 160px);
+  font-size: clamp(40px, 9.5vw, 140px);
   line-height: .9;
-  letter-spacing: -.03em;
+  letter-spacing: -.035em;
   color: var(--tomato);
   text-shadow:
     5px 5px 0 var(--ink),
     -3px -3px 0 var(--yolk);
   white-space: nowrap;
+  max-width: 92vw;
   pointer-events: none;
   transform-origin: center;
+  will-change: transform;
   /* one continuous keyframe — entry + idle wobble in a single animation,
-     ends at scale 1 with rotation. forwards keeps the final state. */
+     ends at scale 1 with rotation. forwards keeps the final state.
+     peak scale kept ≤1.15 so text never overflows the viewport. */
   animation: vg-win-show 3.4s cubic-bezier(.3, 1.6, .4, 1) forwards;
 }
 @keyframes vg-win-show {
   0%   { opacity: 0; transform: translate(-50%, -50%) scale(0)    rotate(-25deg); }
-  18%  { opacity: 1; transform: translate(-50%, -50%) scale(1.3)  rotate(10deg); }
-  30%  { opacity: 1; transform: translate(-50%, -50%) scale(.92)  rotate(-4deg); }
-  44%  { opacity: 1; transform: translate(-50%, -50%) scale(1.06) rotate(3deg); }
-  60%  { opacity: 1; transform: translate(-50%, -50%) scale(.98)  rotate(-2deg); }
-  76%  { opacity: 1; transform: translate(-50%, -50%) scale(1.04) rotate(2deg); }
-  100% { opacity: 1; transform: translate(-50%, -50%) scale(1.02) rotate(0); }
+  18%  { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(10deg); }
+  30%  { opacity: 1; transform: translate(-50%, -50%) scale(.94)  rotate(-4deg); }
+  44%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05) rotate(3deg); }
+  60%  { opacity: 1; transform: translate(-50%, -50%) scale(.99)  rotate(-2deg); }
+  76%  { opacity: 1; transform: translate(-50%, -50%) scale(1.03) rotate(2deg); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1)    rotate(0); }
 }
 
 /* expanding catch ring — radiates from vazha on each catch */
@@ -3447,6 +3450,326 @@ html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity:
 /* lite mode — kill EQ + orrka bob */
 html.lite .vs-bar,
 html.lite .vs-orrka { animation: none !important; }
+
+/* ─── PURI'S GAME — Girls (HBO) trivia ─── */
+.pg-game {
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(255, 196, 224, .55) 0%, rgba(255, 222, 235, .35) 50%, rgba(60, 40, 60, .55) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 300;
+  animation: vg-fade-in .3s ease-out;
+  overflow: auto;
+  padding: 24px 16px;
+}
+.pg-game.is-closing { animation: vg-fade-out .35s ease-in forwards; }
+
+.pg-close {
+  position: fixed;
+  top: 22px; right: 22px;
+  z-index: 312;
+  width: 44px; height: 44px;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink);
+  cursor: none;
+  transition: transform .15s, background .15s, color .15s;
+}
+.pg-close:hover {
+  transform: rotate(90deg);
+  background: var(--tomato);
+  color: var(--paper);
+}
+
+.pg-stage {
+  position: relative;
+  max-width: 720px;
+  margin: 40px auto 0;
+}
+
+/* TV bezel — chunky 80s set, pink colorway */
+.pg-tv {
+  position: relative;
+  perspective: 800px;
+}
+.pg-bezel {
+  background: linear-gradient(180deg, #f7c4dc, #e8a3c0);
+  border: 4px solid var(--ink);
+  border-radius: 28px;
+  padding: 20px;
+  box-shadow:
+    8px 10px 0 var(--ink),
+    inset 0 0 0 4px var(--paper);
+  position: relative;
+}
+.pg-bezel::before, .pg-bezel::after {
+  /* speaker grille slits on the sides */
+  content: "";
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  width: 8px; height: 80px;
+  background:
+    repeating-linear-gradient(180deg, var(--ink) 0 3px, transparent 3px 7px);
+  opacity: .5;
+}
+.pg-bezel::before { left: 6px; }
+.pg-bezel::after  { right: 6px; }
+
+.pg-tv-stand {
+  margin: 0 auto;
+  width: 36%;
+  height: 18px;
+  background: linear-gradient(180deg, #e8a3c0, #c87da0);
+  border: 3px solid var(--ink);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+.pg-screen {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  padding: 28px 26px 24px;
+  position: relative;
+  overflow: hidden;
+  min-height: 460px;
+}
+/* faint scanline texture for the TV */
+.pg-static {
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,.025) 0 1px,
+      transparent 1px 3px);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.pg-header {
+  text-align: center;
+  margin-bottom: 14px;
+}
+.pg-show-title {
+  font-family: var(--serif, "EB Garamond", Garamond, serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(38px, 7vw, 64px);
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -.01em;
+}
+.pg-trivia {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+  color: var(--ink-mute, var(--ink));
+  opacity: .7;
+  margin-top: 4px;
+}
+
+.pg-progress {
+  height: 6px;
+  background: rgba(0,0,0,.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 14px 0 10px;
+}
+.pg-progress-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--bubble), var(--grape));
+  transition: width .4s cubic-bezier(.3, 1.4, .4, 1);
+}
+
+.pg-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-mute, var(--ink));
+  opacity: .8;
+  margin-bottom: 16px;
+}
+.pg-q-num span, .pg-score span {
+  font-family: var(--display);
+  font-weight: 800;
+  color: var(--ink);
+  margin-left: 4px;
+}
+
+.pg-question {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(18px, 2.8vw, 24px);
+  line-height: 1.3;
+  color: var(--ink);
+  letter-spacing: -.005em;
+  min-height: 70px;
+  margin-bottom: 18px;
+}
+
+.pg-options {
+  display: grid;
+  gap: 10px;
+}
+.pg-opt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--ink);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--ink);
+  text-align: left;
+  cursor: none;
+  transition: transform .12s, box-shadow .12s, background .12s, color .12s;
+}
+.pg-opt:hover:not(.is-locked) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+  background: #ffe8f1;
+}
+.pg-opt:active:not(.is-locked) {
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.pg-opt.is-locked { cursor: none; pointer-events: none; }
+.pg-opt.is-correct {
+  background: var(--spring);
+  color: var(--ink);
+  animation: pg-pop .4s cubic-bezier(.3, 1.6, .4, 1);
+}
+.pg-opt.is-wrong {
+  background: var(--tomato);
+  color: var(--paper);
+  animation: pg-shake .35s ease-in-out;
+}
+@keyframes pg-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+@keyframes pg-shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+.pg-key {
+  display: inline-grid;
+  place-items: center;
+  width: 28px; height: 28px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.pg-opt.is-correct .pg-key { background: var(--paper); color: var(--ink); border: 2px solid var(--ink); }
+.pg-opt.is-wrong .pg-key   { background: var(--paper); color: var(--ink); }
+.pg-text { flex: 1; }
+
+.pg-feedback {
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .08em;
+  color: var(--ink);
+  min-height: 18px;
+  text-align: center;
+}
+.pg-feedback em { font-style: italic; font-weight: 700; }
+.pg-feedback.is-yes { color: var(--ink); }
+.pg-feedback.is-no  { color: #b13333; }
+
+/* puri peeks below the TV */
+.pg-puri {
+  position: absolute;
+  bottom: -110px; right: 8%;
+  width: 130px; height: 130px;
+  pointer-events: none;
+  z-index: 311;
+  animation: pg-puri-bob 1.6s ease-in-out infinite alternate;
+}
+.pg-puri .fl-svg { width: 100%; height: 100%; overflow: visible; }
+@keyframes pg-puri-bob {
+  from { transform: translateY(0) rotate(-3deg); }
+  to   { transform: translateY(-6px) rotate(3deg); }
+}
+
+/* end-of-game card */
+.pg-win {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+  text-align: center;
+  padding: 28px;
+  animation: pg-win-in .5s cubic-bezier(.3, 1.6, .4, 1);
+}
+@keyframes pg-win-in {
+  from { opacity: 0; transform: scale(.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.pg-final-score {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(56px, 12vw, 120px);
+  line-height: .9;
+  color: var(--bubble);
+  text-shadow: 4px 4px 0 var(--ink), -2px -2px 0 var(--yolk);
+  margin-bottom: 8px;
+}
+.pg-final-title {
+  font-family: var(--serif, "EB Garamond", serif);
+  font-style: italic;
+  font-size: clamp(20px, 4vw, 32px);
+  color: var(--ink);
+  margin-bottom: 6px;
+  letter-spacing: -.005em;
+}
+.pg-final-msg {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: .1em;
+  color: var(--ink-mute, var(--ink));
+  opacity: .8;
+}
+
+/* lite mode — kill the bob */
+html.lite .pg-puri { animation: none !important; }
+
+@media (max-width: 540px) {
+  .pg-bezel { padding: 12px; border-radius: 22px; }
+  .pg-screen { padding: 20px 16px 18px; min-height: 440px; }
+  .pg-puri { right: 4%; width: 100px; height: 100px; bottom: -90px; }
+}
 
 /* ─── LITE MODE TOGGLE — for slower devices ─── */
 .lite-toggle {
