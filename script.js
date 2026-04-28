@@ -1455,6 +1455,9 @@ function initVazhaGame() {
   let resetT = null;
   let isPlaying = false;
 
+  // Use CAPTURE phase so we see the click before .floater's pet handler
+  // calls stopPropagation() — without `true` here, our listener never fires
+  // on vazha clicks and the default 12-click pet→game.html path runs first.
   document.addEventListener("click", (e) => {
     if (isPlaying) return;
     const target = e.target.closest('[data-mood="crazy"]');
@@ -1466,7 +1469,7 @@ function initVazhaGame() {
       clicks = 0;
       startVazhaGame();
     }
-  });
+  }, true);
 
   function startVazhaGame() {
     isPlaying = true;
