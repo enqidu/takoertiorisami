@@ -1689,6 +1689,7 @@ function initOrrkaGame() {
     overlay.innerHTML = `
       <div class="vs-counter"><span id="vsCount">0</span> / 5 spins</div>
       <button class="vs-close" id="vsGameClose" aria-label="Quit">×</button>
+      <button class="vs-mute" id="vsMute" aria-label="Mute">♪</button>
       <div class="vs-status" id="vsStatus">spin the record…</div>
       <div class="vs-stage">
         <div class="vs-eq" aria-hidden="true">
@@ -1727,8 +1728,157 @@ function initOrrkaGame() {
     const countEl = overlay.querySelector("#vsCount");
     const bubbles = overlay.querySelector("#vsBubbles");
     const hint    = overlay.querySelector("#vsHint");
+    const muteBtn = overlay.querySelector("#vsMute");
+
+    // ─── audio (Web Audio API — lazy, no asset files) ───────────
+    let audioCtx = null, masterGain = null, ambGain = null, ambNodes = null;
+    let muted = localStorage.getItem("vs_muted") === "1";
+    muteBtn.classList.toggle("is-muted", muted);
+    muteBtn.textContent = muted ? "♪̸" : "♪";
+
+    let noiseBuf = null;
+    const initAudio = () => {
+      if (audioCtx || muted) return;
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        audioCtx = new Ctx();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.5;
+        masterGain.connect(audioCtx.destination);
+
+        // pre-bake a half-second white-noise buffer for scratch/ambience
+        const len = Math.floor(audioCtx.sampleRate * 0.5);
+        noiseBuf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+        const ch = noiseBuf.getChannelData(0);
+        for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * 0.6;
+
+        // dreamy room-tone hum — looped low pad behind everything
+        startAmbience();
+      } catch (e) { audioCtx = null; }
+    };
+
+    const startAmbience = () => {
+      if (!audioCtx) return;
+      ambGain = audioCtx.createGain();
+      ambGain.gain.value = 0;
+      ambGain.connect(masterGain);
+      ambGain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 1.2);
+
+      // two detuned saw oscillators, low-passed → warm pad
+      const o1 = audioCtx.createOscillator();
+      const o2 = audioCtx.createOscillator();
+      o1.type = "sawtooth"; o2.type = "sawtooth";
+      o1.frequency.value = 110;     // A2
+      o2.frequency.value = 110 * 1.498; // ~E3, fifth
+      const lp = audioCtx.createBiquadFilter();
+      lp.type = "lowpass"; lp.frequency.value = 700; lp.Q.value = 0.6;
+      const padGain = audioCtx.createGain();
+      padGain.gain.value = 0.12;
+      o1.connect(lp); o2.connect(lp); lp.connect(padGain).connect(ambGain);
+      o1.start(); o2.start();
+
+      // slow LFO on the filter for breathing
+      const lfo = audioCtx.createOscillator();
+      const lfoG = audioCtx.createGain();
+      lfo.frequency.value = 0.18;
+      lfoG.gain.value = 220;
+      lfo.connect(lfoG).connect(lp.frequency);
+      lfo.start();
+
+      ambNodes = { o1, o2, lp, padGain, lfo, lfoG };
+    };
+
+    const stopAudio = () => {
+      if (!audioCtx) return;
+      try {
+        if (ambGain) ambGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.25);
+        setTimeout(() => {
+          try { audioCtx && audioCtx.close(); } catch (e) {}
+          audioCtx = null; masterGain = null; ambGain = null; ambNodes = null;
+        }, 350);
+      } catch (e) {}
+    };
+
+    const playScratch = (deg) => {
+      if (!audioCtx || muted) return;
+      const v = Math.min(20, Math.abs(deg));
+      const src = audioCtx.createBufferSource();
+      src.buffer = noiseBuf;
+      src.playbackRate.value = 0.55 + v / 14;
+      const bp = audioCtx.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.value = 500 + v * 110;
+      bp.Q.value = 5.5;
+      const g = audioCtx.createGain();
+      const t = audioCtx.currentTime;
+      const peak = Math.min(0.45, 0.06 + v / 40);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(peak, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0008, t + 0.13);
+      src.connect(bp).connect(g).connect(masterGain);
+      src.start(t);
+      src.stop(t + 0.14);
+    };
+
+    const playChime = (n) => {
+      if (!audioCtx || muted) return;
+      const t = audioCtx.currentTime;
+      // climbing pentatonic-ish: A4 C5 E5 G5 C6
+      const freqs = [440, 523.25, 659.25, 783.99, 1046.5];
+      const f = freqs[Math.min(n - 1, freqs.length - 1)];
+      [f, f * 2, f * 3].forEach((freq, i) => {
+        const o = audioCtx.createOscillator();
+        o.type = i === 0 ? "sine" : "triangle";
+        o.frequency.value = freq;
+        const g = audioCtx.createGain();
+        const peak = i === 0 ? 0.32 : (i === 1 ? 0.12 : 0.05);
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(peak, t + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.85 - i * 0.15);
+        o.connect(g).connect(masterGain);
+        o.start(t);
+        o.stop(t + 0.9);
+      });
+    };
+
+    const playWin = () => {
+      if (!audioCtx || muted) return;
+      const base = audioCtx.currentTime;
+      const seq = [261.63, 329.63, 392.0, 523.25, 659.25, 783.99, 1046.5];
+      seq.forEach((f, i) => {
+        const o = audioCtx.createOscillator();
+        o.type = "sine";
+        o.frequency.value = f;
+        const g = audioCtx.createGain();
+        const t = base + i * 0.11;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.42, t + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+        o.connect(g).connect(masterGain);
+        o.start(t); o.stop(t + 0.65);
+      });
+      // bass thump
+      const b = audioCtx.createOscillator();
+      b.type = "sine"; b.frequency.value = 80;
+      const bg = audioCtx.createGain();
+      bg.gain.setValueAtTime(0.6, base);
+      bg.gain.exponentialRampToValueAtTime(0.001, base + 1.1);
+      b.connect(bg).connect(masterGain);
+      b.start(base); b.stop(base + 1.2);
+    };
+
+    muteBtn.addEventListener("click", () => {
+      muted = !muted;
+      localStorage.setItem("vs_muted", muted ? "1" : "0");
+      muteBtn.classList.toggle("is-muted", muted);
+      muteBtn.textContent = muted ? "♪̸" : "♪";
+      if (muted && audioCtx) stopAudio();
+      if (!muted && !audioCtx) initAudio();
+    });
 
     const SAYING = "მე ვარ ყველაზე ჩლუნგი გოგო ამ დაწესებულებაში";
+    const WIN_LINE = "სასტავს მანქანა ვგონივარ მაგრამ ტორმუზი არა მაქვს";
     const MID_LINES = [
       "yeah… that's the spot",
       "scratch it ↻",
@@ -1749,6 +1899,7 @@ function initOrrkaGame() {
     let bubbleI    = 0;
     let lastBubbleAt = 0;
     let lastEqAt   = 0;
+    let lastScratchAt = 0;
 
     const getCenter = () => {
       const r = record.getBoundingClientRect();
@@ -1757,6 +1908,7 @@ function initOrrkaGame() {
 
     const onDown = (e) => {
       if (won) return;
+      initAudio();
       const t = e.touches ? e.touches[0] : e;
       const { cx, cy } = getCenter();
       lastAngle = Math.atan2(t.clientY - cy, t.clientX - cx) * 180 / Math.PI;
@@ -1783,8 +1935,15 @@ function initOrrkaGame() {
         record.style.transform = `rotate(${recordRot}deg)`;
       }
 
-      // EQ pulse when actively scratching
       const now = performance.now();
+
+      // scratch sound — throttled to ~70ms, only when actually scratching
+      if (now - lastScratchAt > 70 && Math.abs(delta) > 1.2) {
+        playScratch(delta);
+        lastScratchAt = now;
+      }
+
+      // EQ pulse when actively scratching
       if (now - lastEqAt > 80 && Math.abs(delta) > 1) {
         overlay.classList.add("vs-pulse");
         lastEqAt = now;
@@ -1797,6 +1956,7 @@ function initOrrkaGame() {
         spins = newSpins;
         countEl.textContent = spins;
         spawnRing();
+        playChime(spins);
         if (spins === 1) status.textContent = "yes. like that.";
         else if (spins === 2) status.textContent = "groovy.";
         else if (spins === 3) status.textContent = "she's feeling it.";
@@ -1852,9 +2012,11 @@ function initOrrkaGame() {
       won = true;
       dragging = false;
       record.classList.add("is-winning");
+      playWin();
+
       const winEl = document.createElement("div");
       winEl.className = "vs-win";
-      winEl.textContent = "AH YEAH";
+      winEl.textContent = WIN_LINE;
       overlay.appendChild(winEl);
 
       const sayingEl = document.createElement("div");
@@ -1874,7 +2036,7 @@ function initOrrkaGame() {
         overlay.appendChild(c);
         setTimeout(() => c.remove(), 3800);
       }
-      setTimeout(end, 3400);
+      setTimeout(end, 4400);
     }
 
     function end() {
@@ -1883,6 +2045,7 @@ function initOrrkaGame() {
       window.removeEventListener("touchmove", onMove);
       window.removeEventListener("touchend", onUp);
       document.removeEventListener("keydown", onKey);
+      stopAudio();
       overlay.classList.add("is-closing");
       setTimeout(() => {
         overlay.remove();

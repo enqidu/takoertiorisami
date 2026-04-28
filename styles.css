@@ -3136,6 +3136,34 @@ html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity:
   color: var(--paper);
 }
 
+.vs-mute {
+  position: fixed;
+  top: 22px; right: 78px;
+  z-index: 301;
+  width: 44px; height: 44px;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink);
+  cursor: none;
+  transition: transform .15s, background .15s, color .15s;
+}
+.vs-mute:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--bubble);
+}
+.vs-mute.is-muted {
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: line-through;
+}
+
 /* stage holds the deck + bubbles */
 .vs-stage {
   position: fixed;
@@ -3362,7 +3390,7 @@ html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity:
   100% { transform: translate(calc(-50% + var(--bx, 0px)), -240px) rotate(var(--rot, 0deg)) scale(.95); opacity: 0; }
 }
 
-/* victory text */
+/* victory text — long Georgian sentence, wraps to 2-3 lines */
 .vs-win {
   position: fixed;
   top: 38%; left: 50%;
@@ -3370,30 +3398,31 @@ html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity:
   z-index: 308;
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(56px, 13vw, 180px);
-  line-height: .9;
-  letter-spacing: -.03em;
+  font-size: clamp(28px, 5.8vw, 72px);
+  line-height: 1.05;
+  letter-spacing: -.02em;
   color: var(--sky);
   text-shadow:
-    5px 5px 0 var(--ink),
+    4px 4px 0 var(--ink),
     -2px -2px 0 var(--bubble);
-  white-space: nowrap;
+  text-align: center;
+  max-width: 90vw;
   pointer-events: none;
   animation: vg-win 1.6s cubic-bezier(.3, 1.8, .4, 1) both,
-             vs-win-sway 1.2s ease-in-out 1.6s infinite alternate;
+             vs-win-sway 1.6s ease-in-out 1.6s infinite alternate;
 }
 @keyframes vs-win-sway {
-  from { transform: translate(-50%, -50%) rotate(-2deg); }
-  to   { transform: translate(-50%, -50%) rotate(2deg); }
+  from { transform: translate(-50%, -50%) rotate(-1.5deg); }
+  to   { transform: translate(-50%, -50%) rotate(1.5deg); }
 }
 .vs-saying {
   position: fixed;
-  bottom: 18%; left: 50%;
+  bottom: 14%; left: 50%;
   transform: translateX(-50%);
   z-index: 308;
   font-family: var(--display);
   font-weight: 700;
-  font-size: clamp(16px, 3.2vw, 26px);
+  font-size: clamp(15px, 2.6vw, 22px);
   color: var(--paper);
   background: var(--ink);
   padding: 10px 22px;
