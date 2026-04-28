@@ -2947,7 +2947,68 @@ html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity:
   }
 }
 
-/* victory text */
+/* sparkle trail dots — small fading circles dropped behind vazha */
+.vazha-game-trail {
+  position: fixed;
+  width: 14px; height: 14px;
+  pointer-events: none;
+  z-index: 301;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--bubble), transparent 70%);
+  transform: translate(-50%, -50%);
+  animation: vg-trail-fade .6s ease-out forwards;
+}
+@keyframes vg-trail-fade {
+  0%   { transform: translate(-50%, -50%) scale(1);   opacity: .8; }
+  100% { transform: translate(-50%, -50%) scale(.2);  opacity: 0;  }
+}
+
+/* taunt bubbles — vazha shouts mid-chase */
+.vazha-game-taunt {
+  position: fixed;
+  z-index: 303;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -.01em;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 4px 12px;
+  color: var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(-4deg);
+  animation: vg-taunt 1.2s cubic-bezier(.3, 1.8, .4, 1) forwards;
+}
+@keyframes vg-taunt {
+  0%   { transform: translate(-50%, -50%) scale(0)   rotate(-12deg); opacity: 0; }
+  20%  { transform: translate(-50%, -50%) scale(1.15) rotate(-4deg); opacity: 1; }
+  80%  { transform: translate(-50%, -50%) scale(1)   rotate(-4deg);  opacity: 1; }
+  100% { transform: translate(-50%, -90%) scale(.9)  rotate(-8deg);  opacity: 0; }
+}
+
+/* proximity pulse — overlay tints when cursor gets near vazha */
+.vazha-game.is-close {
+  background: rgba(255, 111, 168, .12);
+  transition: background .12s;
+}
+/* catch flash — quick yellow burst behind everything */
+.vazha-game.is-flash::before {
+  content: "";
+  position: fixed; inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 204, 63, .55), transparent 60%);
+  z-index: 1;
+  pointer-events: none;
+  animation: vg-flash .22s ease-out;
+}
+@keyframes vg-flash {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* victory text — SAGOL BRAAAT, bigger, more dramatic */
 .vazha-game-win {
   position: fixed;
   top: 50%; left: 50%;
@@ -2955,18 +3016,27 @@ html.lite [data-mood="oversleep"] .fl-zzz { animation: none !important; opacity:
   z-index: 305;
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(48px, 11vw, 140px);
-  line-height: 1;
+  font-size: clamp(56px, 13vw, 180px);
+  line-height: .9;
+  letter-spacing: -.03em;
   color: var(--tomato);
-  text-shadow: 4px 4px 0 var(--ink);
+  text-shadow:
+    5px 5px 0 var(--ink),
+    -2px -2px 0 var(--yolk);
   white-space: nowrap;
   pointer-events: none;
-  animation: vg-win 1.5s cubic-bezier(.3, 1.8, .4, 1) both;
+  animation: vg-win 1.6s cubic-bezier(.3, 1.8, .4, 1) both,
+             vg-win-wiggle 0.5s ease-in-out 1.6s infinite alternate;
 }
 @keyframes vg-win {
-  0%   { transform: translate(-50%, -50%) scale(0)   rotate(-15deg); }
-  60%  { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); }
-  100% { transform: translate(-50%, -50%) scale(1)   rotate(0); }
+  0%   { transform: translate(-50%, -50%) scale(0)    rotate(-25deg); }
+  50%  { transform: translate(-50%, -50%) scale(1.25) rotate(8deg); }
+  75%  { transform: translate(-50%, -50%) scale(.92)  rotate(-3deg); }
+  100% { transform: translate(-50%, -50%) scale(1)    rotate(-2deg); }
+}
+@keyframes vg-win-wiggle {
+  from { transform: translate(-50%, -50%) rotate(-3deg) scale(1); }
+  to   { transform: translate(-50%, -50%) rotate(3deg)  scale(1.04); }
 }
 
 /* ─── LITE MODE TOGGLE — for slower devices ─── */

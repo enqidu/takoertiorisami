@@ -1496,28 +1496,53 @@ function initVazhaGame() {
     let count = 0;
     let lastCatchT = 0;
     let raf = 0;
+    let frame = 0;
+    // speed scales with catches — escalating chaos
+    let speedMul = 1;
+    let speedCap = 16;
+    let lastTauntT = 0;
+    const TAUNTS = ["wee!", "haha", "no!!", "ოო!", "i'm flying", "almost!", "ჰაჰა", "miss"];
+    const taunt = (cx, cy) => {
+      const t = document.createElement("span");
+      t.className = "vazha-game-taunt";
+      t.textContent = TAUNTS[Math.floor(Math.random() * TAUNTS.length)];
+      t.style.left = cx + "px";
+      t.style.top  = (cy - 50) + "px";
+      overlay.appendChild(t);
+      setTimeout(() => t.remove(), 1200);
+    };
+    const trail = (tx, ty) => {
+      const d = document.createElement("span");
+      d.className = "vazha-game-trail";
+      d.style.left = tx + "px";
+      d.style.top  = ty + "px";
+      overlay.appendChild(d);
+      setTimeout(() => d.remove(), 600);
+    };
 
     const onMove = (e) => { cursorX = e.clientX; cursorY = e.clientY; };
     document.addEventListener("mousemove", onMove);
 
     const tick = () => {
+      frame++;
       const dx = x - cursorX;
       const dy = y - cursorY;
       const dist = Math.hypot(dx, dy) || 0.001;
 
-      // flee from cursor when within 220px
+      // flee from cursor when within 220px (force scales with speedMul too)
       if (dist < 220) {
-        const force = (220 - dist) / 70;
+        const force = ((220 - dist) / 70) * speedMul;
         vx += (dx / dist) * force;
         vy += (dy / dist) * force;
       }
-      // damping + min speed (so vazha never stops)
+      // damping + min speed (so vazha never stops; min scales w/ catches)
       vx *= 0.96;
       vy *= 0.96;
+      const minSpeed = 3 * speedMul;
       const speed = Math.hypot(vx, vy) || 0.001;
-      if (speed < 3) { vx = (vx / speed) * 3; vy = (vy / speed) * 3; }
+      if (speed < minSpeed) { vx = (vx / speed) * minSpeed; vy = (vy / speed) * minSpeed; }
       // cap speed
-      if (speed > 16) { vx = (vx / speed) * 16; vy = (vy / speed) * 16; }
+      if (speed > speedCap) { vx = (vx / speed) * speedCap; vy = (vy / speed) * speedCap; }
 
       x += vx; y += vy;
       // bounce off walls
@@ -1528,18 +1553,35 @@ function initVazhaGame() {
 
       vazha.style.transform = `translate(${(x - HALF).toFixed(1)}px, ${(y - HALF).toFixed(1)}px) rotate(${(vx * 1.8).toFixed(1)}deg)`;
 
-      // catch detection — cursor within HALF + 24
+      // sparkle trail every 4 frames at his current position
+      if (frame % 4 === 0) trail(x, y);
+
+      // proximity warning pulse on the overlay
+      overlay.classList.toggle("is-close", dist < 120);
+
+      // random taunt bubble every ~1.6-2.6s
       const now = performance.now();
+      if (now - lastTauntT > 1800 + Math.random() * 1200) {
+        lastTauntT = now;
+        taunt(x, y);
+      }
+
+      // catch detection — cursor within HALF + 24
       if (dist < HALF + 24 && now - lastCatchT > 700) {
         lastCatchT = now;
         count++;
+        speedMul += 0.18;          // each catch makes him faster
+        speedCap = Math.min(28, speedCap + 1.5);
         const cEl = document.getElementById("vazhaCount");
         if (cEl) cEl.textContent = count;
         spawnHearts(x, y);
         // give vazha a kick away so the cursor doesn't auto-trigger again
         const ang = Math.atan2(dy, dx);
-        vx = Math.cos(ang) * 14;
-        vy = Math.sin(ang) * 14;
+        vx = Math.cos(ang) * speedCap * 0.9;
+        vy = Math.sin(ang) * speedCap * 0.9;
+        // brief screen-flash class (tomato-tinted)
+        overlay.classList.add("is-flash");
+        setTimeout(() => overlay.classList.remove("is-flash"), 220);
         if (count >= 5) { win(); return; }
       }
       raf = requestAnimationFrame(tick);
@@ -1581,9 +1623,9 @@ function initVazhaGame() {
       // big victory text
       const winEl = document.createElement("div");
       winEl.className = "vazha-game-win";
-      winEl.textContent = "OH MY GOD!!";
+      winEl.textContent = "SAGOL BRAAAT";
       overlay.appendChild(winEl);
-      setTimeout(end, 2800);
+      setTimeout(end, 3200);
     }
 
     function end() {
