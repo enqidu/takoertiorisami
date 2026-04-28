@@ -60,9 +60,29 @@ const makePlaceholder = (type, color = "var(--bubble)") => `
 const renderTags = (tags) =>
   (tags || []).map(tag => `<span class="tag">${tag}</span>`).join("");
 
+// Per-post things the cursor creature blurts when hovering an image.
+const POST_SAYINGS = {
+  "Biorobots": "beep beep?",
+  "The Shoes Off Campaign": "hmmm i dont really have feet",
+  "Trois Couleurs": "omg they're cute",
+  "Thailand": "i can fight muay thai",
+  "Three Monkeys": "hm they look alien",
+  "Pumpkin Head": "damn it's already halloween?",
+  "Virtxa": "i would like to know this guy",
+  "Mrs Peanut Butter — Brand Identity": "well she looks like my neighbor",
+  "Kuki": "thats probably Tako herself",
+  "Samegrelo": "what an astonishing painting it is!",
+  "Pink Creature": ":p :p",
+  "გრიდი))": "i could play tic-tac-toe here",
+  "Underground Poster Series — Arcane": "wow i hope this girl sells her works for millions",
+};
+const escapeAttr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+
 const renderSlides = (post) => {
   if (post.images && post.images.length > 0) {
     // SEO-rich alt text: title — medium — by artist (image i)
+    const says = POST_SAYINGS[post.title];
+    const saysAttr = says ? ` data-cursor-says="${escapeAttr(says)}"` : "";
     return post.images.map((src, i) => {
       const parts = [post.title || "Artwork"];
       if (post.medium) parts.push(post.medium);
@@ -70,7 +90,7 @@ const renderSlides = (post) => {
       if (post.images.length > 1) parts.push(`image ${i + 1} of ${post.images.length}`);
       const alt = parts.join(" — ");
       return `<div class="gallery-slide">
-        <img src="${src}" alt="${alt}" loading="lazy" decoding="async" draggable="false"/>
+        <img src="${src}" alt="${alt}" loading="lazy" decoding="async" draggable="false"${saysAttr}/>
       </div>`;
     }).join("");
   }
@@ -359,7 +379,13 @@ const initCursor = () => {
     if (img && !anyBig()) {
       curiousFor = img;
       setState("is-curious", true);
-      showEmote("?", "pop-curious", 900);
+      const says = img.dataset.cursorSays;
+      if (says) {
+        // post-specific blurt — force past the throttle so it always fires
+        showEmote(says, "pop-says", 2400, true);
+      } else {
+        showEmote("?", "pop-curious", 900);
+      }
     }
   });
   document.addEventListener("mouseout", (e) => {

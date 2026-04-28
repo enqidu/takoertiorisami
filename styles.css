@@ -422,6 +422,34 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
 .cc-emote.pop-dizzy   { background: var(--grape); color: var(--paper); }
 .cc-emote.pop-absorb  { background: var(--pumpkin); }
 
+/* per-post saying bubble — auto-sizes to text, sits above the cursor */
+.cc-emote.pop-says {
+  top: -52px;
+  right: auto;
+  left: 50%;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  max-width: 220px;
+  padding: 7px 12px;
+  border-radius: 14px 14px 14px 4px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0;
+  line-height: 1.25;
+  white-space: normal;
+  text-align: center;
+  background: var(--bubble);
+  color: var(--ink);
+  transform: translateX(-50%) scale(0) rotate(-3deg);
+  transform-origin: 50% 100%;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.cc-emote.pop-says.is-show {
+  transform: translateX(-50%) scale(1) rotate(-3deg);
+}
+
 /* dizzy ring of stars swirling above head */
 .cc-swirl {
   position: absolute;
