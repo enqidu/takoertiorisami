@@ -62,19 +62,19 @@ const renderTags = (tags) =>
 
 // Per-post things the cursor creature blurts when hovering an image.
 const POST_SAYINGS = {
-  "Biorobots": "beep beep?",
-  "The Shoes Off Campaign": "hmmm i dont really have feet",
-  "Trois Couleurs": "omg they're cute",
-  "Thailand": "i can fight muay thai",
-  "Three Monkeys": "hm they look alien",
-  "Pumpkin Head": "damn it's already halloween?",
-  "Virtxa": "i would like to know this guy",
-  "Mrs Peanut Butter — Brand Identity": "well she looks like my neighbor",
-  "Kuki": "thats probably Tako herself",
+  "Biorobots": "wait — is that the kung fu junkie song biorobots?",
+  "The Shoes Off Campaign": "shoes off — let's dance shalaxo barefoot",
+  "Trois Couleurs": "they look like my relatives",
+  "Thailand": "i love thai food — pad thai, tom yum, green curry, mango sticky rice…",
+  "Three Monkeys": "three little monkeys jumping on the bed ♪",
+  "Pumpkin Head": "i'm a little pumpkin",
+  "Virtxa": "i have seen this animal in Afrika",
+  "Mrs Peanut Butter — Brand Identity": "she makes a hellova peanut butter",
+  "Kuki": "kurkli",
   "Samegrelo": "what an astonishing painting it is!",
-  "Pink Creature": ":p :p",
+  "Pink Creature": ":PPPPPP",
   "გრიდი))": "i could play tic-tac-toe here",
-  "Underground Poster Series — Arcane": "wow i hope this girl sells her works for millions",
+  "Underground Poster Series — Arcane": "wait — kayakata references? she loves Zura Jishkariani",
 };
 
 // Generic remarks mixed in so the creature doesn't repeat the same line.
@@ -402,9 +402,9 @@ const initCursor = () => {
       setState("is-curious", true);
       const says = img.dataset.cursorSays;
 
-      // ~40% post-specific, rest generic.
+      // ~65% post-specific, rest generic.
       let phrase;
-      if (says && Math.random() < 0.40) {
+      if (says && Math.random() < 0.65) {
         phrase = says;
       } else {
         phrase = GENERIC_SAYINGS[Math.floor(Math.random() * GENERIC_SAYINGS.length)];
