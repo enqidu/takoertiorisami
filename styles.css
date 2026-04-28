@@ -4272,11 +4272,17 @@ html { scroll-padding-top: 90px; }
    gets neutralized on lite devices automatically. */
 html.lite [filter],
 html.lite [style*="filter:"]   { filter: none !important; }
+/* nuke ALL CSS filters globally in lite mode — blur() is the single
+   biggest GPU cost on old hardware. drop-shadows die too but they're
+   cheap; the trade-off is worth it for the lag fix. */
 html.lite *,
 html.lite *::before,
 html.lite *::after {
+  filter: none !important;
+  -webkit-filter: none !important;
   mix-blend-mode: normal !important;
   backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* ─── BEHANCE "see more" link inside a work — small chip under tags ── */
