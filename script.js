@@ -428,8 +428,9 @@ const initCursor = () => {
     if (img && !anyBig()) {
       curiousFor = img;
       setState("is-curious", true);
-      // sheep post specifically — creature gets nervous
-      if (img.dataset.cursorSaysKey === "Sheep In Sheep's Clothing") {
+      // posts that make the creature nervous
+      const PANIC_POSTS = new Set(["Sheep In Sheep's Clothing", "Three Monkeys"]);
+      if (PANIC_POSTS.has(img.dataset.cursorSaysKey)) {
         setState("is-panicky", true);
       }
       scheduleSays(img);
