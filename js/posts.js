@@ -16,6 +16,14 @@
 
 window.POSTS = [
   {
+    title: "Sheep In Sheep's Clothing",
+    date: "April 29 2026",
+    description: `four days of wool. the costume is the body. the body is the costume.`,
+    tags: ["creatures", "watercolor", "sheep"],
+    images: ["images/sheep.jpg"],
+    theme: "sheep",
+  },
+  {
     title: "Biorobots",
     date: "April 21 2026",
     description: `three units, freshly assembled. all kawaii. powered by something soft.`,

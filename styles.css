@@ -4311,6 +4311,81 @@ html.lite *::after {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   THEME — sheep — title is rendered as fluffy wool. Only the
+   "Sheep In Sheep's Clothing" post gets this. Everything else
+   stays normal.
+   ═══════════════════════════════════════════════════════════════ */
+.work-section.is-sheep .work-title {
+  /* white-ish fill so it reads as wool, with a thin dark outline so
+     the text stays legible against the cream paper background */
+  color: #fbf6e8;
+  -webkit-text-stroke: 1px #3a2820;
+  text-stroke: 1px #3a2820;
+
+  /* layered fluff: tight inner halo + larger soft puffs + outer glow,
+     plus a grounded drop-shadow underneath each letter */
+  text-shadow:
+    /* tight inner ring (thickens the wool) */
+    -1px -1px 0 #fff,
+     1px -1px 0 #fff,
+    -1px  1px 0 #fff,
+     1px  1px 0 #fff,
+    /* fluff puffs around each letter */
+    -4px -3px 7px #ffffff,
+     4px -3px 7px #ffffff,
+    -4px  3px 7px #ffffff,
+     4px  3px 7px #ffffff,
+    /* outer soft cream glow — the "halo" of the fleece */
+    0 0 14px #fff,
+    0 0 26px #fff5d8,
+    /* a settled shadow underneath so the wool doesn't float */
+    4px 8px 0 rgba(50, 35, 20, .18);
+
+  letter-spacing: -.005em;
+  position: relative;
+  display: inline-block;
+}
+
+/* tiny floating puffs that drift around the title — extra fluff */
+.work-section.is-sheep .work-title::before,
+.work-section.is-sheep .work-title::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #fff 60%, rgba(255,255,255,0) 80%);
+  pointer-events: none;
+}
+.work-section.is-sheep .work-title::before {
+  top: -8px; left: -10px;
+  animation: sheep-puff 4s ease-in-out infinite alternate;
+}
+.work-section.is-sheep .work-title::after {
+  bottom: -10px; right: -6px;
+  width: 10px; height: 10px;
+  animation: sheep-puff 5s ease-in-out infinite alternate-reverse;
+}
+@keyframes sheep-puff {
+  from { transform: translateY(0)   scale(1); opacity: .85; }
+  to   { transform: translateY(-4px) scale(1.18); opacity: 1; }
+}
+
+/* lite mode — drop the heavy text-shadow stack and the puffs, keep
+   the dark outline + a single light glow so the title still reads
+   as wool but doesn't cost the GPU per-pixel blur compositing */
+html.lite .work-section.is-sheep .work-title {
+  text-shadow:
+    -1px -1px 0 #fff,
+     1px -1px 0 #fff,
+    -1px  1px 0 #fff,
+     1px  1px 0 #fff,
+    3px 5px 0 rgba(50, 35, 20, .18);
+}
+html.lite .work-section.is-sheep .work-title::before,
+html.lite .work-section.is-sheep .work-title::after { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════
    THEME — biorobots — featured-post treatment for that one piece.
    Soft pulsing aurora behind the gallery, drifting bubbles past
    the image, gentle bob, terminal-style status readout, circuit
