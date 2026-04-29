@@ -145,21 +145,33 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
 
 /* ── STATE: panicky (when over the sheep painting) ───
    shakes the inner SVG only, so the parent's translate-to-cursor
-   isn't disturbed. eyes blow wide, body's wiggle speeds up. */
-.cursor-creature.is-panicky .cc-svg  { animation: cc-panic .14s ease-in-out infinite; }
-.cursor-creature.is-panicky .cc-body { animation-duration: .35s; }
-.cursor-creature.is-panicky .cc-eye  { transform: scale(1.45); }
-.cursor-creature.is-panicky .cc-pupil-l,
-.cursor-creature.is-panicky .cc-pupil-r { transform: scale(1.25); }
-.cursor-creature.is-panicky .cc-mouth { transform: scaleY(1.4); }
-@keyframes cc-panic {
-  0%, 100% { transform: translate(0, 0)        rotate(0); }
-  20%      { transform: translate(-1.6px, 1px)  rotate(-4deg); }
-  40%      { transform: translate(1.6px, -1px)  rotate(4deg); }
-  60%      { transform: translate(-1px, 1.4px)  rotate(-2deg); }
-  80%      { transform: translate(1px, -1.4px)  rotate(2deg); }
+   isn't disturbed. body hyperventilates fast, eyes blow wide,
+   pupils shrink (terrified pinpricks), mouth opens slightly. */
+.cursor-creature.is-panicky .cc-svg  { animation: cc-panic .11s linear infinite; }
+.cursor-creature.is-panicky .cc-body {
+  /* override the calm wiggle with a frantic, amplitude-boosted breath */
+  animation: cc-panic-breath .22s ease-in-out infinite !important;
+  transform-origin: 50% 60%;
 }
-html.lite .cursor-creature.is-panicky .cc-svg { animation: none; }
+.cursor-creature.is-panicky .cc-eye  { transform: scale(1.6); ry: 5; }
+.cursor-creature.is-panicky .cc-pupil-l,
+.cursor-creature.is-panicky .cc-pupil-r { transform: scale(.7); }
+.cursor-creature.is-panicky .cc-mouth { transform: scale(.7, 1.6); }
+@keyframes cc-panic {
+  0%   { transform: translate(0, 0)         rotate(0);    }
+  20%  { transform: translate(-3.5px, 2px)  rotate(-7deg); }
+  40%  { transform: translate(3.5px, -2px)  rotate(7deg);  }
+  60%  { transform: translate(-2.5px, 3px)  rotate(-5deg); }
+  80%  { transform: translate(2.5px, -3px)  rotate(5deg);  }
+  100% { transform: translate(0, 0)         rotate(0);    }
+}
+@keyframes cc-panic-breath {
+  /* much faster + bigger rotation than the calm cc-wiggle */
+  0%, 100% { transform: rotate(-9deg) scale(.94); }
+  50%      { transform: rotate(9deg)  scale(1.10); }
+}
+html.lite .cursor-creature.is-panicky .cc-svg  { animation: none; }
+html.lite .cursor-creature.is-panicky .cc-body { animation-duration: .4s !important; }
 .cursor-creature.is-curious .cc-mouth { transform: scale(.6, 1.4); }
 
 /* ── STATE: dizzy (spun in a circle) ──────────── */
