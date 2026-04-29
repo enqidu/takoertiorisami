@@ -144,27 +144,19 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
 .cursor-creature.is-curious .cc-eye  { transform: scale(1.25); }
 
 /* ── STATE: panicky (used over the sheep + three-monkeys paintings) ───
-   subtle hyperventilation — faster breath + a small SVG tremor.
-   no facial distortion (kept her cute). only the rhythm changes. */
+   keep her face untouched — only the RHYTHM changes. her existing
+   cc-wiggle animation just runs much faster, plus a tiny tremor on
+   the whole svg. zero eye/mouth distortion. */
+.cursor-creature.is-panicky .cc-body { animation-duration: .28s !important; }
 .cursor-creature.is-panicky .cc-svg  { animation: cc-panic .22s ease-in-out infinite; }
-.cursor-creature.is-panicky .cc-body {
-  /* faster breath than calm but same amplitude — reads as nervous,
-     not grotesque. */
-  animation: cc-panic-breath .42s ease-in-out infinite !important;
-  transform-origin: 50% 60%;
-}
 @keyframes cc-panic {
   0%, 100% { transform: translate(0, 0); }
   25%      { transform: translate(-1.2px, .8px); }
   50%      { transform: translate(1.2px, -.8px); }
   75%      { transform: translate(-.8px, 1.2px); }
 }
-@keyframes cc-panic-breath {
-  0%, 100% { transform: rotate(-5deg) scale(1); }
-  50%      { transform: rotate(5deg)  scale(1.04); }
-}
 html.lite .cursor-creature.is-panicky .cc-svg  { animation: none; }
-html.lite .cursor-creature.is-panicky .cc-body { animation-duration: .55s !important; }
+html.lite .cursor-creature.is-panicky .cc-body { animation-duration: .5s !important; }
 .cursor-creature.is-curious .cc-mouth { transform: scale(.6, 1.4); }
 
 /* ── STATE: dizzy (spun in a circle) ──────────── */
