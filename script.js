@@ -76,6 +76,7 @@ const POST_SAYINGS = {
   "Pink Creature":                      [":p :p", ":PPPPPP"],
   "გრიდი))":                            ["i could play tic-tac-toe here"],
   "Underground Poster Series — Arcane": ["wow i hope this girl sells her works for millions", "wait — kayakata references? she loves Zura Jishkariani"],
+  "Sheep In Sheep's Clothing":          ["wait — is that a wolf?", "oh no oh no", "is this a trap?", "hold on. hold on.", "something's off", "i don't trust this", "👁 👁", "blink. blink. blink."],
 };
 
 // Generic remarks mixed in so the creature doesn't repeat the same line.
@@ -427,6 +428,10 @@ const initCursor = () => {
     if (img && !anyBig()) {
       curiousFor = img;
       setState("is-curious", true);
+      // sheep post specifically — creature gets nervous
+      if (img.dataset.cursorSaysKey === "Sheep In Sheep's Clothing") {
+        setState("is-panicky", true);
+      }
       scheduleSays(img);
     }
   });
@@ -435,6 +440,7 @@ const initCursor = () => {
     if (img && curiousFor === img) {
       curiousFor = null;
       setState("is-curious", false);
+      setState("is-panicky", false);
       clearTimeout(saysTimer);
       // hide bubble too — don't let it linger after the cursor leaves
       if (emote) {

@@ -142,6 +142,24 @@ body.cursor-hover .cursor-creature { width: 68px; height: 68px; }
 .cursor-creature.is-curious { width: 58px; height: 58px; }
 .cursor-creature.is-curious .cc-body { animation-duration: .9s; }
 .cursor-creature.is-curious .cc-eye  { transform: scale(1.25); }
+
+/* ── STATE: panicky (when over the sheep painting) ───
+   shakes the inner SVG only, so the parent's translate-to-cursor
+   isn't disturbed. eyes blow wide, body's wiggle speeds up. */
+.cursor-creature.is-panicky .cc-svg  { animation: cc-panic .14s ease-in-out infinite; }
+.cursor-creature.is-panicky .cc-body { animation-duration: .35s; }
+.cursor-creature.is-panicky .cc-eye  { transform: scale(1.45); }
+.cursor-creature.is-panicky .cc-pupil-l,
+.cursor-creature.is-panicky .cc-pupil-r { transform: scale(1.25); }
+.cursor-creature.is-panicky .cc-mouth { transform: scaleY(1.4); }
+@keyframes cc-panic {
+  0%, 100% { transform: translate(0, 0)        rotate(0); }
+  20%      { transform: translate(-1.6px, 1px)  rotate(-4deg); }
+  40%      { transform: translate(1.6px, -1px)  rotate(4deg); }
+  60%      { transform: translate(-1px, 1.4px)  rotate(-2deg); }
+  80%      { transform: translate(1px, -1.4px)  rotate(2deg); }
+}
+html.lite .cursor-creature.is-panicky .cc-svg { animation: none; }
 .cursor-creature.is-curious .cc-mouth { transform: scale(.6, 1.4); }
 
 /* ── STATE: dizzy (spun in a circle) ──────────── */
