@@ -20,7 +20,7 @@ window.POSTS = [
     date: "April 29 2026",
     description: `four days of wool. the costume is the body. the body is the costume.`,
     tags: ["creatures", "watercolor", "sheep"],
-    images: ["images/sheep.jpg"],
+    images: ["images/sheep-v2.jpg"],
     theme: "sheep",
   },
   {
