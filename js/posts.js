@@ -16,6 +16,13 @@
 
 window.POSTS = [
   {
+    title: "Keep Calm and Be Awesome",
+    date: "April 30 2026",
+    description: `pencil dispatch from a small, ordered universe. tally marks on the wall. keep calm and be awesome, and don't forget to slow down and decompose on sundays and meditate and stefano sangiorgia.`,
+    tags: ["creatures", "pencil", "drawing"],
+    images: ["images/keep-calm.jpg"],
+  },
+  {
     title: "Sheep In Sheep's Clothing",
     date: "April 29 2026",
     description: `four days of wool. the costume is the body. the body is the costume.`,
